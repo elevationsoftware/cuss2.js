@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "module": "commonjs",
+    "jsx": "preserve",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "lib": ["es2015", "es2016", "dom", "es2018.promise"],
+    "rootDir": "src",
+    "moduleResolution": "node",
+    "target": "es2015",
+    "declaration": true,
+    "outDir": "./dist"
+  }
+}
