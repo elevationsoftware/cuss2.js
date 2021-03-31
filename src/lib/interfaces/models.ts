@@ -112,3 +112,4 @@ export * from './versionString';
 export * from './weightType';
 export * from './requiredDevices';
 export * from './componentNames';
+export * from './cussInit';

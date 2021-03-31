@@ -2,10 +2,8 @@ import { State } from "./state";
 import axios from "axios";
 import { ApplicationActivation, ApplicationStates } from "./interfaces/models";
 import { PlatformData } from "./interfaces/platformData";
+import { logger } from "./helper";
 
-console.log(axios);
-
-// export type T = any;
 export type PromiseFn<T> = (rs: any, rj: any) => T;
 export interface TokenResponse {
   access_token: string;
@@ -18,8 +16,6 @@ export class HttpRequests extends State {
       "Content-Type": "application/json"
     };
   };
-
-  T: any;
 
   INIT_ERROR = "Needs to call init methods first";
 
@@ -61,7 +57,7 @@ export class HttpRequests extends State {
       })
         .then(({ data: { access_token } }: any) => {
           this.token.next(access_token);
-          console.log("Token acquired", access_token);
+          logger("Token acquired", access_token);
           rs(access_token);
         })
         .catch((err: any) => rj(err));
@@ -83,20 +79,20 @@ export class HttpRequests extends State {
         .replace("http", "")
         .replace("://", "");
       this.socket = new WebSocket(
-        `${wsURL}://${socketURL}/subscribe?access_token=${this.token.getValue()}`
+        `${wsURL}://${socketURL}/subscribe`
       );
       this.socket.addEventListener("open", () => {
-        console.log("Socket open");
+        logger("Socket open");
         this.socket.send(JSON.stringify({ access_token }));
         rs("");
       });
       this.socket.addEventListener("error", (err: any) => {
-        console.log("Socket error", err);
+        logger("Socket error", err);
         this.close_socket.next(true);
         rs("");
       });
       this.socket.addEventListener("close", (evnt: any) => {
-        console.log("Socket closed", evnt.reason);
+        logger("Socket closed", evnt.reason);
         this.close_socket.next(true);
         rs("");
       });
@@ -104,7 +100,7 @@ export class HttpRequests extends State {
         //console.log("Socket data", evnt);
         const data = JSON.parse(evnt.data);
         if (data.returnCode) {
-          console.log("Token Received");
+          logger("Token Received");
           this.listener_created.next(true);
         } else {
           this.cuss_events.next(data as PlatformData);
@@ -135,7 +131,7 @@ export class HttpRequests extends State {
     const calls: any[] = [];
     this.components$.getValue().forEach((c) => {
       const url = `${this.baseURL}/peripherals/query/${c.componentID}`;
-      console.log("URL", url);
+      logger("URL", url);
       calls.push(this.get(url));
     });
   }

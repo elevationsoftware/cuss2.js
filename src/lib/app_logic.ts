@@ -1,36 +1,33 @@
 import { componentFinder } from "./component-finder";
 import { HttpRequests } from "./http_requests";
+import { logger, logConfig } from './helper';
 import {
   ApplicationStates,
   EnvironmentComponent,
-  PlatformData
+  PlatformData,
+  RequiredDevices,
+  CussInit
 } from "./interfaces/models";
-import { RequiredDevices } from "./interfaces/requiredDevices";
 
 export class CussLogic extends HttpRequests {
   /**
-   *  Set the required values to interact with a cuss platform
-   * @param clientId client id
-   * @param clientSecret secret provided by cuss platform
-   * @param baseURL cuss platform url
-   * @param requiredComponents required components by the cuss application
+   * Bootstrap function used to hydrate all required values in order to interact with a CUSS 2 platform
+   * @param info 
+   * @returns 
    */
-  init(
-    clientId: string,
-    clientSecret: string,
-    baseURL: string,
-    requiredComponents: RequiredDevices[] = [],
-    autoStart: boolean = true
-  ): CussLogic {
+  init(info: CussInit): CussLogic {
     if (this.init_completed.getValue()) {
-      console.log("Init method was already called");
+      logger("Init method was already called");
       return this;
     }
-    this.client_id.next(clientId);
-    this.client_secret.next(clientSecret);
-    this.baseURL = baseURL;
-    this.requiredComponents = requiredComponents;
+    this.client_id.next(info.clientId);
+    this.client_secret.next(info.clientSecret);
+    this.baseURL = info.baseURL;
+    this.requiredComponents = info.requiredComponents || [];
+    this.oauthURL = info.oauthURL || info.baseURL;
     this.init_completed.next(true);
+    const autoStart = typeof info.autoStart !== 'undefined' ? info.autoStart : true;
+    logConfig.enable = typeof info.debugEnabled !== 'undefined' ? info.debugEnabled : false;
     if (autoStart) {
       this.cussAutoStart();
     }
@@ -52,7 +49,7 @@ export class CussLogic extends HttpRequests {
     });
     this.listener_created.subscribe(async (created) => {
       if (created) {
-        console.log("Listener created");
+        logger("Listener created");
         await this.getEnvironment();
         this.getComponents();
       }
@@ -64,10 +61,10 @@ export class CussLogic extends HttpRequests {
    */
   setMessageHandler() {
     this.cuss_events.subscribe((ev: PlatformData) => {
-      console.log("CUSS", ev);
+      logger("CUSS", ev);
       if (ev.functionName === "environment" && ev.environmentLevel) {
         this.environment$.next(ev.environmentLevel);
-        console.log("Environment", ev.environmentLevel);
+        logger("Environment", ev.environmentLevel);
         this.environment_received.next(true);
       }
       if (ev.functionName === "components" && ev.componentList) {
@@ -100,7 +97,7 @@ export class CussLogic extends HttpRequests {
     if (found) {
       found["statusCode"] = ev.statusCode;
       found["eventCode"] = ev.eventCode;
-      console.log("new Device", found);
+      logger("new Device", found);
       this.queryPending.splice(this.queryPending.indexOf(found.id), 1);
     }
     if (this.queryPending.length === 0) {
@@ -113,7 +110,7 @@ export class CussLogic extends HttpRequests {
    * @param requiredComponents required components for the application
    */
   findRequiredComponents(requiredComponents: RequiredDevices[]) {
-    console.log(requiredComponents);
+    logger(requiredComponents);
     componentFinder(requiredComponents, this.components$.getValue()).finally(
       () =>
         this.component_validation_completed.next({

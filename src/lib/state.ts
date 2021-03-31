@@ -10,6 +10,7 @@ import { RequiredDevices } from "./interfaces/requiredDevices";
 
 export class State {
   baseURL: string = "";
+  oauthURL: string = "";
   socket: any;
   queryPending: any[] = [];
   requiredComponents: RequiredDevices[] = [];
