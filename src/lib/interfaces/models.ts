@@ -110,3 +110,5 @@ export * from './transactionReference';
 export * from './transactionStatus';
 export * from './versionString';
 export * from './weightType';
+export * from './requiredDevices';
+export * from './componentNames';
