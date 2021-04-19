@@ -1,5 +1,4 @@
-import { EnvironmentComponent } from "./interfaces/environmentComponent";
-import { RequiredDevices } from "./interfaces/requiredDevices";
+import { EnvironmentComponent } from './interfaces/environmentComponent';
 import { ComponentName } from "./interfaces/componentNames";
 import { EventCodes } from "./interfaces/eventCodes";
 import { StatusCodes } from "./interfaces/statusCodes";
@@ -112,63 +111,40 @@ const isValidStatusCode = (statusCode: StatusCodes | undefined): boolean => {
   return statusCode === StatusCodes.OK;
 };
 
-const updateObject = (
-  comp: RequiredDevices,
-  filterFnc: any,
-  list: EnvironmentComponent[]
-) => {
-  const found = list.find((c) => filterFnc(c));
+/**
+ * An array of component name with a function helper to find them by characteristics. This list can be extended or overider based on clients requirements
+ */
+export const componentFinderHelper = [
+  { name: ComponentName.BAGTAG_PRINTER, finder: isBagtagPrinter },
+  { name: ComponentName.BARCODE_READER, finder: isBarcodeReader },
+  { name: ComponentName.BOARDINGPASS_PRINTER, finder: isBoardingpassPrinter },
+  { name: ComponentName.PASSPORT_READER, finder: isPassportReader },
+  { name: ComponentName.DISPLAY, finder: isDisplay },
+  { name: ComponentName.ANNOUNCEMENT, finder: isAnnouncement }
+];
+
+export const getCompomentName = (component: EnvironmentComponent) => {
+  for (let i = 0; i < componentFinderHelper.length; i++) {
+      if (componentFinderHelper[i].finder(component)) {
+        component.componentName = componentFinderHelper[i].name
+        component.active = isValidEventCode(component.eventCode) && isValidStatusCode(component.statusCode);
+        break;
+      }
+  }
+};
+
+/**
+ * 
+ * @param name Component name
+ * @param finder Method used to identify component by characteristics
+ * @returns addComponentFinder in order to enable chaning calls
+ */
+export const addComponentFinder = (name: ComponentName, finder: any) => {
+  const found = componentFinderHelper.find(c => c.name === name);
   if (found) {
-    const val =
-      isValidEventCode(found.eventCode) && isValidStatusCode(found.statusCode);
-    comp.found = val;
-    comp.status = val;
+    found.finder = finder;
+    return addComponentFinder;
   }
-};
-
-/**
- *
- * @param comp Components required by the cuss application
- * @param list List of available components in the cuss platform
- */
-const findComponents = (
-  comp: RequiredDevices,
-  list: EnvironmentComponent[]
-) => {
-  switch (comp.name) {
-    case ComponentName.BAGTAG_PRINTER:
-      updateObject(comp, isBagtagPrinter, list);
-      break;
-    case ComponentName.BARCODE_READER:
-      updateObject(comp, isBarcodeReader, list);
-      break;
-    case ComponentName.BOARDINGPASS_PRINTER:
-      updateObject(comp, isBoardingpassPrinter, list);
-      break;
-    case ComponentName.PASSPORT_READER:
-      updateObject(comp, isPassportReader, list);
-      break;
-    case ComponentName.DISPLAY:
-      updateObject(comp, isDisplay, list);
-      break;
-  }
-};
-
-/**
- * Find all the application required components and check the availability of each.
- * @param comps Component Device
- * @param list Available components in the cuss platform
- */
-export const componentFinder = (
-  comps: RequiredDevices[],
-  list: EnvironmentComponent[]
-) => {
-  return new Promise((rs, rj) => {
-    try {
-      comps.forEach((comp) => findComponents(comp, list));
-      return rs(true);
-    } catch (err) {
-      rj(err);
-    }
-  });
-};
+  componentFinderHelper.push({ name, finder });
+  return addComponentFinder;
+}

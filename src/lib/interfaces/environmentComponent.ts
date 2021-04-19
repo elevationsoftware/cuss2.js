@@ -13,6 +13,7 @@ import { ComponentCharacteristics } from "./componentCharacteristics";
 import { ComponentTypes } from "./componentTypes";
 import { EventCodes } from "./eventCodes";
 import { StatusCodes } from "./statusCodes";
+import { ComponentName } from './componentNames';
 
 export interface EnvironmentComponent {
   /**
@@ -37,6 +38,7 @@ export interface EnvironmentComponent {
    * Elevated added types
    */
   _id?: string;
+  componentName?: ComponentName; 
   id?: string;
   logo?: string;
   __v?: string;

@@ -6,34 +6,34 @@ import {
 } from "./interfaces/models";
 import { ValidationResponse } from "./interfaces/validationResponse";
 import { EnvironmentLevel } from "./interfaces/environmentLevel";
-import { RequiredDevices } from "./interfaces/requiredDevices";
+import { ComponentName } from './interfaces/componentNames';
 
 export class State {
   baseURL: string = "";
   oauthURL: string = "";
   socket: any;
   queryPending: any[] = [];
-  requiredComponents: RequiredDevices[] = [];
-  default_applicationBrand: string = "";
-  default_executionMode: ApplicationActivation.ExecutionModeEnum =
+  requiredComponents: ComponentName[] = [];
+  defaultApplicationBrand: string = "";
+  defaultExecutionMode: ApplicationActivation.ExecutionModeEnum =
     ApplicationActivation.ExecutionModeEnum.MAM;
-  default_accessibleMode: boolean = false;
-  default_executionOptions: string = "";
-  default_languageID: string = "en-US";
-  default_transferData: string = "";
+  defaultAccessibleMode: boolean = false;
+  defaultExecutionOptions: string = "";
+  defaultLanguageID: string = "en-US";
+  defaultTransferData: string = "";
   /**
    * Triggers when the application call the init function with the correct values
    */
-  init_completed: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
+  initCompleted: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
     false
   );
-  client_id: BehaviorSubject<string> = new BehaviorSubject<string>("");
-  client_secret: BehaviorSubject<string> = new BehaviorSubject<string>("");
+  clientId: BehaviorSubject<string> = new BehaviorSubject<string>("");
+  clientSecret: BehaviorSubject<string> = new BehaviorSubject<string>("");
 
   /**
    * Help track the retriving of the authentication token
    */
-  token_received: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
+  tokenReceived: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
     false
   );
   token: BehaviorSubject<string> = new BehaviorSubject<string>("");
@@ -41,33 +41,33 @@ export class State {
   /**
    * Event tracking when a listener is created
    */
-  listener_created: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
+  listenerCreated: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
     false
   );
   /**
    * Event tracking when a listener handlers are defined
    */
-  listener_handler_created: BehaviorSubject<boolean> = new BehaviorSubject<
+  listenerHandlerCreated: BehaviorSubject<boolean> = new BehaviorSubject<
     boolean
   >(false);
   /**
    * Events subscriptions coming from CUSS Platform
    */
-  cuss_events: BehaviorSubject<PlatformData> = new BehaviorSubject<
+  cussEvents: BehaviorSubject<PlatformData> = new BehaviorSubject<
     PlatformData
   >({});
 
   /**
    * CUSS Websocket connection got disconnected
    */
-  close_socket: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  closeSocket: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   /**
    * Components Subscription triggers when components data is received from CUSS Platform
    */
   components$: BehaviorSubject<EnvironmentComponent[]> = new BehaviorSubject<
     EnvironmentComponent[]
   >([]);
-  components_received: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
+  componentsReceived: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
     false
   );
   /**
@@ -76,40 +76,41 @@ export class State {
   environment$: BehaviorSubject<EnvironmentLevel> = new BehaviorSubject<
     EnvironmentLevel
   >({});
-  environment_received: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
+  environmentReceived: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
     false
   );
   /**
    * Subcription tiggres when all compenet queries are received from CUSS Platform
    */
-  query_completed: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
+  queryCompleted: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
     false
   );
   /**
    * Subcription tiggres when all application required components are verified
    */
-  component_validation_completed: BehaviorSubject<
+  componentValidationCompleted: BehaviorSubject<
     ValidationResponse
   > = new BehaviorSubject<ValidationResponse>({
     completed: false,
-    requiredComponents: []
+    requiredComponentPresent: false,
+    platformComponentList: []
   });
   /**
    * Subject trigger when the available event gets returns from the cuss platform
    */
-  available_event_received: BehaviorSubject<boolean> = new BehaviorSubject<
+  availableEventReceived: BehaviorSubject<boolean> = new BehaviorSubject<
     boolean
   >(false);
   /**
    * Subject trigger when the available event gets returns from the cuss platform
    */
-  unavailable_event_received: BehaviorSubject<boolean> = new BehaviorSubject<
+  unavailableEventReceived: BehaviorSubject<boolean> = new BehaviorSubject<
     boolean
   >(false);
   /**
    * Subject trigger when the active event gets returns from the cuss platform
    */
-  active_event_received: BehaviorSubject<boolean> = new BehaviorSubject<
+  activeEventReceived: BehaviorSubject<boolean> = new BehaviorSubject<
     boolean
   >(false);
   /**
@@ -121,21 +122,21 @@ export class State {
   /**
    * Subject trigger when the suspended event gets returns from the cuss platform
    */
-  suspended_event_received: BehaviorSubject<boolean> = new BehaviorSubject<
+  suspendedEventReceived: BehaviorSubject<boolean> = new BehaviorSubject<
     boolean
   >(false);
   /**
    * Subject trigger when the wrong state event gets returns from the cuss platform
    */
-  wrong_state_event_received: BehaviorSubject<boolean> = new BehaviorSubject<
+  wrongStateEventReceived: BehaviorSubject<boolean> = new BehaviorSubject<
     boolean
   >(false);
   /**
    * Application is ready to move to AVAILABLE
    */
-  app_ready: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  appReady: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   /**
    * Application was unable to find all required devices or required devices became unhealthy
    */
-  app_failed: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  appFailed: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 }

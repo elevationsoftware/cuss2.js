@@ -21,7 +21,7 @@ export class HttpRequests extends State {
 
   GlobalCall(fn: PromiseFn<any>): Promise<any> {
     return new Promise((rs, rj) => {
-      if (!this.init_completed.getValue()) {
+      if (!this.initCompleted.getValue()) {
         return rj(this.INIT_ERROR);
       }
       return fn(rs, rj);
@@ -52,8 +52,8 @@ export class HttpRequests extends State {
   getToken(): Promise<string> {
     return this.GlobalCall((rs, rj) => {
       this.post(`${this.baseURL}/oauth/token`, {
-        client_id: this.client_id.getValue(),
-        client_secret: this.client_secret.getValue()
+        client_id: this.clientId.getValue(),
+        client_secret: this.clientSecret.getValue()
       })
         .then(({ data: { access_token } }: any) => {
           this.token.next(access_token);
@@ -88,12 +88,12 @@ export class HttpRequests extends State {
       });
       this.socket.addEventListener("error", (err: any) => {
         logger("Socket error", err);
-        this.close_socket.next(true);
+        this.closeSocket.next(true);
         rs("");
       });
       this.socket.addEventListener("close", (evnt: any) => {
         logger("Socket closed", evnt.reason);
-        this.close_socket.next(true);
+        this.closeSocket.next(true);
         rs("");
       });
       this.socket.addEventListener("message", (evnt: any) => {
@@ -101,9 +101,9 @@ export class HttpRequests extends State {
         const data = JSON.parse(evnt.data);
         if (data.returnCode) {
           logger("Token Received");
-          this.listener_created.next(true);
+          this.listenerCreated.next(true);
         } else {
-          this.cuss_events.next(data as PlatformData);
+          this.cussEvents.next(data as PlatformData);
         }
         rs("");
       });
@@ -151,12 +151,12 @@ export class HttpRequests extends State {
   moveToState(
     state: ApplicationStates,
     activation: ApplicationActivation = {
-      applicationBrand: this.default_applicationBrand,
-      executionMode: this.default_executionMode,
-      accessibleMode: this.default_accessibleMode,
-      executionOptions: this.default_executionOptions,
-      languageID: this.default_languageID,
-      transferData: this.default_transferData
+      applicationBrand: this.defaultApplicationBrand,
+      executionMode: this.defaultExecutionMode,
+      accessibleMode: this.defaultAccessibleMode,
+      executionOptions: this.defaultExecutionOptions,
+      languageID: this.defaultLanguageID,
+      transferData: this.defaultTransferData
     }
   ) {
     return this.post(

@@ -1,9 +1,9 @@
-import { RequiredDevices } from "./requiredDevices";
+import { ComponentName } from './componentNames';
 export interface CussInit {
     clientId: string;
     clientSecret: string;
     baseURL: string;
-    requiredComponents?: RequiredDevices[];
+    requiredComponents?: ComponentName[];
     oauthURL?: string;
     autoStart?: boolean;
     debugEnabled?: boolean;

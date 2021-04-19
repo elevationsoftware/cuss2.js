@@ -1,5 +1,6 @@
-import { RequiredDevices } from "./requiredDevices";
+import { EnvironmentComponent } from './environmentComponent';
 export interface ValidationResponse {
   completed: boolean;
-  requiredComponents?: RequiredDevices[];
+  requiredComponentPresent?: boolean;
+  platformComponentList?: EnvironmentComponent[];
 }
