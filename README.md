@@ -20,30 +20,30 @@ Interact with a CUSS 2.0 RestFul API using a simple interface that simplify the 
  - initCompleted 
     - The application just called the init function with the appropiate parameters
 
- - token
+ - **token**
     - The OAuth Server just returned a token to the applicaiton, this events contains the actual token values
     ```js
     cuss.token.subscribe(({access_token}) => console.log(`${access_token}`));
 
-  - tokenReceived
+  - **tokenReceived**
     - The application succefully acquired a token and it is ready to create a listener on the cuss platform
 
-  - listenerCreated
+  - **listenerCreated**
     - A websocket connection was succesfully created and now the application is allow to interact with the CUSS api
   
-  - environmentReceived
+  - **environmentReceived**
     - The application just recceived the environment response from the platform and now it is allow to make a request for components availability
   
-  - componentsReceived
+  - **componentsReceived**
     - The application just receieved all the components available with their characteristics from theplatform.
 
-  - queryCompleted
+  - **queryCompleted**
     - The application succefully query all the devices in the platform
   
-  - requiredComponentsFound
+  - **requiredComponentsFound**
     - The applicaton was able to identify and validate the state of all required components; at this point it could request an state change to become AVAILABLE
 
-  - requiredComponentsMissing
+  - **requiredComponentsMissing**
     - The application was unable to identify or validate the sate of all required components within the platform; at this point it could request an state change to become UNAVAILABLE
 
 
@@ -58,7 +58,11 @@ import { cuss, ComponentName, ApplicationStates } from '@elevated-libs/cuss2';
 ## specify required components
 
 ```js
-requiredComponets: ComponentName[] = [ComponentName.BARCODE_READER, ComponentName.BAGTAG_PRINTER, ComponentName.BOARDINGPASS_PRINTER]
+requiredComponets: ComponentName[] = [
+  ComponentName.BARCODE_READER, 
+  ComponentName.BAGTAG_PRINTER, 
+  ComponentName.BOARDINGPASS_PRINTER
+  ]
 ```
 
 ## call the init method
@@ -81,7 +85,6 @@ cuss.init({
     .subscribe((found) => {
         if (found) {
           console.log("Validation completed");
-          this.title = "Moving to Available";
           cuss.moveToState(ApplicationStates.AVAILABLE);
         }
     });
@@ -90,8 +93,7 @@ cuss.init({
     cuss.requiredComponentsMissing
     .subscribe(({missing, components}) => {
       if (missing) {
-        this.title = "Missing Components";
-        console.log("Missing required components", components);
+        console.log("Missing the following required components", components);
         cuss.moveToState(ApplicationStates.UNAVAILABLE);
       }
     });
