@@ -17,7 +17,7 @@ Interact with a CUSS 2.0 RestFul API using a simple interface that simplify the 
 
 # Event Life Cycle
 
- - initCompleted 
+ - **initCompleted**
     - The application just called the init function with the appropiate parameters
 
  - **token**
