@@ -57,6 +57,7 @@ export class HttpRequests extends State {
       })
         .then(({ data: { access_token } }: any) => {
           this.token.next(access_token);
+          this.tokenReceived.next(true);
           logger("Token acquired", access_token);
           rs(access_token);
         })

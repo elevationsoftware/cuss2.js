@@ -7,6 +7,7 @@ import {
 import { ValidationResponse } from "./interfaces/validationResponse";
 import { EnvironmentLevel } from "./interfaces/environmentLevel";
 import { ComponentName } from './interfaces/componentNames';
+import { MissingResponse } from './interfaces/missingResponse';
 
 export class State {
   baseURL: string = "";
@@ -95,6 +96,20 @@ export class State {
     requiredComponentPresent: false,
     platformComponentList: []
   });
+
+  /**
+   * Triggers when all required components requested by the clients are found
+   */
+  requiredComponentsFound: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
+  /**
+   * Triggers when all required components requested by the clients are found
+   */
+   requiredComponentsMissing: BehaviorSubject<MissingResponse> = new BehaviorSubject<MissingResponse>({
+     missing: false,
+     components: []
+   });
+
   /**
    * Subject trigger when the available event gets returns from the cuss platform
    */

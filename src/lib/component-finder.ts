@@ -49,7 +49,7 @@ export const isBoardingpassPrinter = (comp: EnvironmentComponent): boolean => {
     if (
       charac &&
       charac.mediaTypesList &&
-      charac.mediaTypesList.find((m) => m === MediaTypes.BaggageTag)
+      charac.mediaTypesList.find((m) => m === MediaTypes.BoardingPass)
     ) {
       return true;
     }

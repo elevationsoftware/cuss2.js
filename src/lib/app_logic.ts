@@ -118,10 +118,16 @@ export class CussLogic extends HttpRequests {
   findRequiredComponents(requiredComponents: ComponentName[]) {
     logger(requiredComponents);
     const platformComponentList = this.components$.getValue();
+    const allFound = (platformComponentList.filter(c => requiredComponents.find(r => r === c.componentName && c.active)).length == requiredComponents.length);
     this.componentValidationCompleted.next({
       completed: true,
-      requiredComponentPresent: (platformComponentList.filter(c => requiredComponents.find(r => r === c.componentName && c.active)).length == requiredComponents.length),
+      requiredComponentPresent: allFound,
       platformComponentList
-    })
+    });
+    this.requiredComponentsFound.next(allFound);
+    this.requiredComponentsMissing.next({
+      missing: !allFound,
+      components: requiredComponents.filter(n => !platformComponentList.find(c => c.componentName === n))
+    });
   }
 }
