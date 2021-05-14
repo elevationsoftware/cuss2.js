@@ -173,7 +173,7 @@ export class Cuss2 {
 			const components = await this.getComponents();
 			const printer = components.find(component => component.componentType === 'MEDIA_OUTPUT');
 			if (printer === undefined) {
-				throw new Error('MEDIA_OUTPUT comonent not found');
+				throw new Error('MEDIA_OUTPUT component not found');
 			}
 			componentID = printer.componentID;
 		}

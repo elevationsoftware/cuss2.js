@@ -15,86 +15,48 @@ Interact with a CUSS 2.0 Restful API using a simple interface leveraging the asy
   - Subscribable events for all CUSS states and device status
   - Typescript libs for Angular and React
 
-# Event Life Cycle
-
- - **initCompleted**
-    - The application just called the init function with the appropiate parameters
-
- - **token**
-    - The OAuth Server just returned a token to the applicaiton, this event data contains the actual token values
-    ```js
-    cuss.token.subscribe(({access_token}) => console.log(`${access_token}`));
-
-  - **tokenReceived**
-    - The application succefully acquired a token and it is ready to create a listener on the cuss platform
-
-  - **listenerCreated**
-    - A websocket connection was succesfully created and now the application is allow to interact with the CUSS api
-  
-  - **environmentReceived**
-    - The application just received the environment response from the platform and now is allowed to make a request for components availability
-  
-  - **componentsReceived**
-    - The application just receieved all the components available including their characteristics.
-
-  - **queryCompleted**
-    - The application successfully queried all the devices in the platform
-  
-  - **requiredComponentsFound**
-    - The applicaton was able to identify and validate the state of all required components; at this point it could request a state change to become AVAILABLE
-
-  - **requiredComponentsMissing**
-    - The application was unable to identify or validate the state of all required components within the platform; at this point it could request a state change to become UNAVAILABLE
-
-
-# Basic Initialization flow
-
-## importing the elevated cuss 2 lib
 
 ```js
-import { cuss, ComponentName, ApplicationStates } from '@elevated-libs/cuss2';
+// ** if running with Node.js, we need WebSocket **
+// global.WebSocket = (await import('ws')).default;
+
+
+import { Cuss2, ApplicationStates } from "@elevated-libs/cuss2";
+
+const token = await Cuss2.authorize(
+  'https://<auth server>/oauth/token',
+  '<client_id>',
+  '<client_secret>'
+);
+
+const kiosk = await Cuss2.connect('https://<cuss2_server>', token);
+
+console.log(kiosk.environment)
 ```
 
-## specify required components
+# State Management
 
 ```js
-requiredComponents: ComponentName[] = [
-    ComponentName.BARCODE_READER, 
-    ComponentName.BAGTAG_PRINTER, 
-    ComponentName.BOARDINGPASS_PRINTER
-];
-```
-
-## call the init method
-
-```js
-cuss.init({
-    clientId: 'APPLICATION-CLIENT-ID',
-    clientSecret: 'APPLICATION-CLIENT-SECRET',
-    baseURL: 'VENDOR-CUSS-URL',
-    oauthURL: 'VENDOR-OAUTH-SERVER-URL',
-    requiredComponents: requiredComponents
+kiosk.stateChange.subscribe(async (state) => {
+  try {
+    switch (state) {
+      case ApplicationStates.INITIALIZE:
+        // await kiosk.setup('HDCTL000#1234567890', 4)
+        await kiosk.requestUnavailableState();
+        break;
+      case ApplicationStates.UNAVAILABLE:
+        await kiosk.requestAvailableState();
+        break;
+      case ApplicationStates.AVAILABLE:
+        await kiosk.requestActiveState();
+        break;
+      case ApplicationStates.ACTIVE:
+        kiosk.print('HDCPECTAB#00000000');
+        break;
+    }
+  }
+  catch (e) {
+    console.error(e);
+  }
 });
- ```
-
- ## subscribe to main events
-
- ```js
-  // handle when all required components are present
-cuss.requiredComponentsFound
-    .subscribe((found) => {
-        if (found) {
-            console.log("Validation completed");
-            cuss.moveToState(ApplicationStates.AVAILABLE);
-        }
-    });
-
-// handle when missing required components
-cuss.requiredComponentsMissing
-    .subscribe(({missing, components}) => {
-        if (missing) {
-            console.log("Missing the following required components", components);
-            cuss.moveToState(ApplicationStates.UNAVAILABLE);
-        }
-    });
- ```
+```
