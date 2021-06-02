@@ -92,7 +92,8 @@ export class Cuss2 {
 	transferData: string = '';
 
 	_handleWebSocketMessage(message: any) {
-		if (message.statusCode === undefined) return; // initial value is an empty value
+		message = message && message.toApplication;
+		if (!message || message.statusCode === undefined) return; // initial value is an empty value
 
 		logger('[event.currentApplicationState]', message.currentApplicationState);
 
@@ -148,14 +149,7 @@ export class Cuss2 {
 		return this._moveToState(ApplicationStates.RELOAD);
 	}
 	async _moveToState (state: ApplicationStates): Promise<boolean> {
-		const response = await this.connection.post('/platform/applications/staterequest/' + state, {
-			applicationBrand: this.applicationBrand,
-			executionMode: this.executionMode,
-			accessibleMode: this.accessibleMode,
-			executionOptions: this.executionOptions,
-			languageID: this.languageID,
-			transferData: this.transferData
-		});
+		const response = await this.connection.post('/platform/applications/staterequest/' + state, {});
 		if (response.eventCode !== 'EC_OK') {
 			throw new Error(`Request to enter ${state} state failed: ${response.eventCode}`);
 		}
@@ -178,6 +172,7 @@ export class Cuss2 {
 			componentID = printer.componentID;
 		}
 		const dataRecords = {
+			requestID: '',	// TBD: Remove this when the mock server is fixed
 			toPlatform: {
 				dataRecords: [{dataStatus: 'DS_OK', data: rawData}]
 			}

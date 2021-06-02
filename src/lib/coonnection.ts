@@ -61,10 +61,13 @@ export class Connection {
 
 		return new Promise<PlatformData>((resolve, reject) => {
 			const subscription = this.messages.subscribe((message:any) => {
+				
+				if (!message.toApplication) { return; }
 				if (message.requestID === requestID) {
 					subscription.unsubscribe();
-					if (message.statusCode === 'OK') {
-						resolve(message as PlatformData);
+					
+					if (message.toApplication.statusCode === 'OK') {
+						resolve(message.toApplication as PlatformData);
 					} else {
 						reject(new Error('Platform returned status code: ' + message.statusCode));
 					}
