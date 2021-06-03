@@ -7,8 +7,6 @@
 
 # Elevated CUSS Library
 
-[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
-
 Interact with a CUSS 2.0 Restful API using a simple interface leveraging the asyncronicity of event driven architectures. By using the Elevated CUSS library you will get:
 
   - Simple device interfaces
@@ -23,13 +21,7 @@ Interact with a CUSS 2.0 Restful API using a simple interface leveraging the asy
 
 import { Cuss2, ApplicationStates } from "@elevated-libs/cuss2";
 
-const token = await Cuss2.authorize(
-  'https://<auth server>/oauth/token',
-  '<client_id>',
-  '<client_secret>'
-);
-
-const kiosk = await Cuss2.connect('https://<cuss2_server>', token);
+const kiosk = await Cuss2.connect('https://<cuss2_server>', '<client_id>', '<client_secret>');
 
 console.log(kiosk.environment)
 ```

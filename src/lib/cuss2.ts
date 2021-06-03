@@ -1,5 +1,4 @@
-import axios from "axios";
-import { logger,logConfig } from "./helper";
+import { logger } from "./helper";
 import {EnvironmentLevel} from "./interfaces/environmentLevel";
 import {PlatformData} from "./interfaces/platformData";
 import {BehaviorSubject} from "rxjs";
@@ -8,75 +7,24 @@ import {ApplicationActivation} from "./interfaces/applicationActivation";
 import {ComponentList} from "./interfaces/componentList";
 
 import {Connection} from "./coonnection";
-import {DataExchange} from "./interfaces/dataExchange";
 
 const ExecutionModeEnum = ApplicationActivation.ExecutionModeEnum;
 
 
 export class Cuss2 {
-	/**
-	 * Retrieve a token from the CUSS Oauth Server using a client id and client secret
-	 */
-	static authorize(url: string, client_id: string, client_secret: string): Promise<string> {
-		logger('[authorize()] url', url)
-		return axios.post(url, {client_id, client_secret})
-			.then(({data: {access_token}}: any) => {
-				logger("Token acquired", access_token);
-				return access_token;
-			})
-			.catch(console.log)
+
+	static async connect(url: string, client_id: string, client_secret: string, options: any = {}): Promise<Cuss2> {
+		const connection = await Connection.connect(url, client_id, client_secret,  options.tokenURL);
+		const cuss2 = new Cuss2(connection);
+		await cuss2.getEnvironment();
+		return cuss2;
 	}
-
-	static async connect(url: string, access_token: string): Promise<Cuss2> {
-		return new Promise((resolve, reject) => {
-			let protocol = /^https/.test(url) ? "ws" : "wss";
-			const socketURL = protocol + url.replace(/^https?/, '') + '/subscribe'
-
-			const socket = new WebSocket(socketURL);
-
-			function removeListeners() {
-				socket.onopen = null;
-				socket.onclose = null;
-				socket.onerror = null;
-				socket.onmessage = null
-			}
-			socket.onopen = () => {
-				logger("[socket.onopen] open to: " + socketURL);
-				socket.send(JSON.stringify({access_token}));
-			};
-			socket.onmessage = (event: any) => {
-				logger("[socket.onmessage]", event.data)
-				removeListeners();
-				const data = JSON.parse(event.data);
-				if (data.returnCode) {
-					const connection = new Connection(url, access_token, socket);
-					const cuss2 = new Cuss2(connection);
-					cuss2.getEnvironment()
-						.then(() => resolve(cuss2))
-						.catch((e) => new Error('Failed to query environment'))
-				} else {
-					reject(new Error('Platform did not confirm token'))
-				}
-			};
-			socket.onclose = (event:any) => {
-				logger("[socket.onclose] Socket closed");
-				removeListeners();
-				reject(new Error('Invalid Token'))
-			};
-
-			socket.onerror = (err:any) => {
-				removeListeners();
-				reject(err);
-			};
-		});
-	}
-
-
 
 	private constructor(connection: Connection) {
 		this.connection = connection;
 		connection.messages.subscribe(e => this._handleWebSocketMessage(e))
 	}
+	auth: any;
 	connection:Connection;
 	environment: EnvironmentLevel = {};
 	stateChange: BehaviorSubject<ApplicationStates> = new BehaviorSubject<ApplicationStates>(ApplicationStates.STOPPED);
