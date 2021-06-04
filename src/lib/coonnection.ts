@@ -55,10 +55,6 @@ export class Connection {
 	};
 
 	async _connect() : Promise<any> {
-		if (this._socket) {
-			this._socket.onmessage = null;
-			this._socket = undefined;
-		}
 		const access_token = await Connection.authorize(
 			this._auth.url,
 			this._auth.client_id,
@@ -67,7 +63,7 @@ export class Connection {
 		this._config.headers.Authorization = 'Bearer ' + access_token;
 
 		return new Promise(async (resolve, reject) => {
-			const socket = new WebSocket(this._socketURL);
+			const socket = this._socket && this._socket.readyState === 1 ? this._socket : new WebSocket(this._socketURL);
 
 			function removeListeners() {
 				socket.onopen = null;
@@ -109,25 +105,31 @@ export class Connection {
 		});
 	}
 
-	async post(path: string, data: any): Promise<any> {
-		return this._call(path, data).catch(e => {
-			// console.error(e);
-			throw e;
-		});
+	async post(path: string, data?: any): Promise<any> {
+		return this._call('post', path, data);
 	}
 
 	async get(path: string): Promise<any> {
-		return this._call(path, false);
+		return this._call('get', path, false);
 	}
 
 	// this consolidates get/post to simplify logging and reply handling
-	async _call(path: string, data:any): Promise<any> {
-		const type = data? 'post' : 'get';
+	async _call(type: string, path: string, data:any): Promise<any> {
 		logger(`[connection.${type}()] ${path}`);
 
-		const r = data?
-			await axios.post(this._baseURL + path, data, this._config) :
-			await axios.get(this._baseURL + path, this._config);
+		const invalidTokenHandler = async (e:any) => {
+			if (e.response.status === 401) {
+				await this._connect();
+				//try again
+				return get_or_post();
+			}
+			throw e;
+		};
+		const get_or_post = () => type === 'post'?
+			axios.post(this._baseURL + path, data, this._config) :
+			axios.get(this._baseURL + path, this._config);
+
+		const r = await get_or_post().catch(invalidTokenHandler);
 
 		logger(`[connection.${type}()] ${path} response:\n`, r.data);
 

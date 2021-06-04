@@ -119,6 +119,9 @@ export class Cuss2 {
 			}
 			componentID = printer.componentID;
 		}
+		if (typeof componentID !== 'number') {
+			throw new TypeError('Invalid componentID: ' + componentID);
+		}
 		const dataRecords = {
 			requestID: '',	// TBD: Remove this when the mock server is fixed
 			toPlatform: {
@@ -133,7 +136,7 @@ export class Cuss2 {
 
 	async setup(rawData:string, componentID:number) {
 		if (typeof componentID !== 'number') {
-			throw new Error('Invalid componentID: ' + componentID);
+			throw new TypeError('Invalid componentID: ' + componentID);
 		}
 		const dataExchange = {
 			toPlatform: {
@@ -142,4 +145,75 @@ export class Cuss2 {
 		};
 		return await this.connection.post('/peripherals/setup/' + componentID, dataExchange);
 	}
+
+	async cancel(componentID:number) {
+		if (typeof componentID !== 'number') {
+			throw new TypeError('Invalid componentID: ' + componentID);
+		}
+		return await this.connection.post('/peripherals/cancel/' + componentID);
+	}
+
+	/*
+	*		/peripherals/userpresent/XXXXX
+	*/
+	async enable(componentID:number) {
+		if (typeof componentID !== 'number') {
+			throw new TypeError('Invalid componentID: ' + componentID);
+		}
+		return await this.connection.post('/peripherals/userpresent/enable/' + componentID);
+	}
+
+	async disable(componentID:number) {
+		if (typeof componentID !== 'number') {
+			throw new TypeError('Invalid componentID: ' + componentID);
+		}
+		return await this.connection.post('/peripherals/userpresent/disable/' + componentID);
+	}
+
+	async offer(componentID:number) {
+		if (typeof componentID !== 'number') {
+			throw new TypeError('Invalid componentID: ' + componentID);
+		}
+		return await this.connection.post('/peripherals/userpresent/offer/' + componentID);
+	}
+
+	/*
+	*		/peripherals/announcement/XXXXX
+	*/
+	get announcement() {
+		return {
+			play: async (rawData:string, componentID:number) => {
+				if (typeof componentID !== 'number') {
+					throw new TypeError('Invalid componentID: ' + componentID);
+				}
+				const dataExchange = {
+					toPlatform: {
+						dataRecords: [{dataStatus: 'DS_OK', data: rawData}]
+					}
+				};
+				return await this.connection.post('/peripherals/announcement/play/' + componentID, dataExchange);
+			},
+			pause: async (componentID:number) => {
+				if (typeof componentID !== 'number') {
+					throw new TypeError('Invalid componentID: ' + componentID);
+				}
+				return await this.connection.post('/peripherals/announcement/pause/' + componentID);
+			},
+
+			resume: async (componentID:number) => {
+				if (typeof componentID !== 'number') {
+					throw new TypeError('Invalid componentID: ' + componentID);
+				}
+				return await this.connection.post('/peripherals/announcement/resume/' + componentID);
+			},
+
+			stop: async (componentID:number) => {
+				if (typeof componentID !== 'number') {
+					throw new TypeError('Invalid componentID: ' + componentID);
+				}
+				return await this.connection.post('/peripherals/announcement/stop/' + componentID);
+			}
+		}
+	}
+
 }
