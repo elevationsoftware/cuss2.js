@@ -6,7 +6,7 @@ import {ApplicationStates} from "./interfaces/applicationStates";
 import {ApplicationActivation} from "./interfaces/applicationActivation";
 import {ComponentList} from "./interfaces/componentList";
 
-import {Connection} from "./coonnection";
+import {Connection} from "./connection";
 
 const ExecutionModeEnum = ApplicationActivation.ExecutionModeEnum;
 
