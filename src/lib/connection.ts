@@ -1,7 +1,7 @@
 import {BehaviorSubject} from "rxjs";
 import {logger} from "./helper";
 import axios from "axios";
-import {APIResponse} from "./interfaces/aPIResponse";
+import {APIResponse} from "./interfaces/APIResponse";
 import {PlatformData} from "./interfaces/platformData";
 
 export class Connection {
@@ -15,7 +15,6 @@ export class Connection {
 				logger("Token acquired", access_token);
 				return access_token;
 			})
-			.catch(console.log);
 	}
 
 	static async connect(baseURL:string, client_id: string, client_secret: string, tokenURL?: string): Promise<Connection> {
@@ -29,15 +28,17 @@ export class Connection {
 		if (endOfHostname > -1) {
 			baseURL = baseURL.substr(0, endOfHostname);
 		}
+		if(baseURL.endsWith('/')) {
+			baseURL = baseURL.substr(0, baseURL.length-1)
+		}
 		this._baseURL = baseURL;
 
 		if (!tokenURL) {
-			console.log('default tokenURL')
 			tokenURL = baseURL + '/oauth/token';
 		}
 		this._auth = { url: tokenURL, client_id, client_secret };
 
-		let protocol = /^https/.test(baseURL) ? "ws" : "wss";
+		let protocol = /^https/.test(baseURL) ? "wss" : "ws";
 		this._socketURL = protocol + baseURL.replace(/^https?/, '') + '/subscribe';
 	}
 
@@ -63,7 +64,11 @@ export class Connection {
 		this._config.headers.Authorization = 'Bearer ' + access_token;
 
 		return new Promise(async (resolve, reject) => {
-			const socket = this._socket && this._socket.readyState === 1 ? this._socket : new WebSocket(this._socketURL);
+			if (this._socket && this._socket.readyState === 1) {
+				logger('open socket already exists');
+				return resolve(true);
+			}
+			const socket = new WebSocket(this._socketURL);
 
 			function removeListeners() {
 				socket.onopen = null;
@@ -82,6 +87,7 @@ export class Connection {
 				if (data.returnCode) {
 					this._socket = socket;
 					socket.onmessage = (event) => {
+						logger("[socket.onmessage]", event.data);
 						const data = JSON.parse(event.data);
 						if (data.requestID) {
 							this.messages.next(data);
@@ -119,7 +125,9 @@ export class Connection {
 
 		const invalidTokenHandler = async (e:any) => {
 			if (e.response.status === 401) {
+				logger('got a 401 - trying to re-authenticate')
 				await this._connect();
+				logger('re-trying http request')
 				//try again
 				return get_or_post();
 			}
