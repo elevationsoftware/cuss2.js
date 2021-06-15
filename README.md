@@ -24,6 +24,7 @@ import { Cuss2, ApplicationStates } from "@elevated-libs/cuss2";
 const kiosk = await Cuss2.connect('https://<cuss2_server>', '<client_id>', '<client_secret>');
 
 console.log(kiosk.environment)
+console.log(kiosk.components)
 ```
 
 # State Management
@@ -33,7 +34,8 @@ kiosk.stateChange.subscribe(async (state) => {
   try {
     switch (state) {
       case ApplicationStates.INITIALIZE:
-        // await kiosk.setup('HDCTL000#1234567890', 4)
+        await kiosk.bagTagPrinter.enable();
+        console.log(await kiosk.bagTagPrinter.query())
         await kiosk.requestUnavailableState();
         break;
       case ApplicationStates.UNAVAILABLE:
@@ -43,7 +45,10 @@ kiosk.stateChange.subscribe(async (state) => {
         await kiosk.requestActiveState();
         break;
       case ApplicationStates.ACTIVE:
-        kiosk.print('HDCPECTAB#00000000');
+        await kiosk.bagTagPrinter.setupAndPrintRaw([
+          'HDCTL000#1234567890'
+        ],
+        'HDCPECTAB#00000000');
         break;
     }
   }
