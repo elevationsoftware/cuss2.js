@@ -1,4 +1,4 @@
-import { logger, logConfig } from "./helper";
+import { logger } from "./helper";
 import {EnvironmentLevel} from "./interfaces/environmentLevel";
 import {PlatformData} from "./interfaces/platformData";
 import {BehaviorSubject, Subject} from "rxjs";
@@ -36,7 +36,7 @@ export class Cuss2 {
 		await cuss2.api.getComponents();
 		return cuss2;
 	}
-	static logConfig = logConfig;
+	static logger = logger;
 
 	private constructor(connection: Connection) {
 		this.connection = connection;
