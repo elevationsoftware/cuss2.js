@@ -89,9 +89,7 @@ export class Connection {
 					socket.onmessage = (event) => {
 						logger("[socket.onmessage]", event.data);
 						const data = JSON.parse(event.data);
-						if (data.requestID) {
-							this.messages.next(data);
-						}
+						this.messages.next(data);
 					};
 					resolve(true);
 				} else {
@@ -149,15 +147,14 @@ export class Connection {
 
 		return new Promise<PlatformData>((resolve, reject) => {
 			const subscription = this.messages.subscribe((message:any) => {
-				
-				if (!message.toApplication) { return; }
-				if (message.requestID === requestID) {
+
+				if (message.toApplication?.requestID === requestID) {
 					subscription.unsubscribe();
 					
 					if (message.toApplication.statusCode === 'OK') {
 						resolve(message.toApplication as PlatformData);
 					} else {
-						reject(new Error('Platform returned status code: ' + message.statusCode));
+						reject(new Error('Platform returned status code: ' + message.toApplication.statusCode));
 					}
 				}
 			});

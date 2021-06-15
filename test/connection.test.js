@@ -9,7 +9,7 @@ pretendServer.handle = function (type, url, data, resolve, reject) {
 	//console.log('pretendServer.handle', type, url);
 	const id = (new Date()).getTime().toString();
 
-	const response = { statusCode: 'OK' };
+	const response = { requestID: id, statusCode: 'OK' };
 	if (url.endsWith('/ping')) {
 		response.data = 'pong'
 	}
@@ -24,7 +24,6 @@ pretendServer.handle = function (type, url, data, resolve, reject) {
 
 	asyncish(() => {
 		this.emit('message', {data: JSON.stringify({
-				requestID:id,
 				toApplication: response
 		})});
 	});
