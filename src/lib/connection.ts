@@ -3,6 +3,7 @@ import {logger} from "./helper";
 import axios from "axios";
 import {APIResponse} from "./interfaces/APIResponse";
 import {PlatformData} from "./interfaces/platformData";
+import {takeWhile} from "rxjs/operators";
 
 export class Connection {
 	/**
@@ -146,18 +147,20 @@ export class Connection {
 		logger('[connection._call()] waiting for reply with id: ' + requestID);
 
 		return new Promise<PlatformData>((resolve, reject) => {
-			const subscription = this.messages.subscribe((message:any) => {
-
-				if (message.toApplication?.requestID === requestID) {
-					subscription.unsubscribe();
-					
-					if (message.toApplication.statusCode === 'OK') {
-						resolve(message.toApplication as PlatformData);
-					} else {
-						reject(new Error('Platform returned status code: ' + message.toApplication.statusCode));
+			this.messages.pipe(
+				takeWhile(message => {
+					if (message.toApplication?.requestID === requestID) {
+						if (message.toApplication.statusCode === 'OK') {
+							resolve(message.toApplication as PlatformData);
+						} else {
+							reject(new Error('Platform returned status code: ' + message.toApplication.statusCode));
+						}
+						return false;
 					}
-				}
-			});
+					return true; // continue getting messages
+				})
+			)
+			.subscribe(()=>{})
 		})
 	}
 }
