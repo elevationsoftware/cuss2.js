@@ -9,12 +9,8 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { AmountType } from './amountType';
 
 /**
- * Requested or authorized financial elements.
+ * Correlation ID definition for tracking purposes. - This GUID is platform genrated and stored in the platform logs. The ID helps to reconcile log entries on different systems.
  */
-export interface AuthorizationAmounts { 
-    requestedAmounts?: AmountType;
-    approvedAmounts?: AmountType;
-}
+export type PassengerSessionID = string;

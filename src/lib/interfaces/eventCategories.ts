@@ -9,12 +9,14 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { AmountType } from './amountType';
 
 /**
- * Requested or authorized financial elements.
+ * Alarm: requires immediate attention (i.e. manual intervention is required);<br>Warning: abnormal situation occurs, but manual intervention is not needed;<br>Normal: normal processing occurs.
  */
-export interface AuthorizationAmounts { 
-    requestedAmounts?: AmountType;
-    approvedAmounts?: AmountType;
-}
+export type EventCategories = 'ALARM' | 'WARNING' | 'NORMAL';
+
+export const EventCategories = {
+    ALARM: 'ALARM' as EventCategories,
+    WARNING: 'WARNING' as EventCategories,
+    NORMAL: 'NORMAL' as EventCategories
+};

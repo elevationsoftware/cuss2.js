@@ -1,6 +1,6 @@
 /**
- * Common Use Self Service V2 API Definition
- * <h3>Definiton of the new CUSS2 API.</h3>This API definition idescribes IATA Common Use Self Service (IATA RP 1706c), a standard that allows multiple airlines to share physical kiosks or other hardware devices to offer self-services to their passengers. These services include, but are not limited to passenger check-in functionality and self-service baggage drop off. The standard also defines how airlines and other application suppliers can develop CUSS-compliant applications that are able to run on any device whose platform is CUSS-compliant.<br><br>The API definiton is accompanied by the CUSS Specification (CUSS-TS), describing in human readable form (textual and graphical) the concepts, requirements, interaction, workflows and behavior for both CUSS platforms and CUSS applications, and the CUSS Implementation Guide (CUSS-IG) describing best practices and giving examples on how to implement CUSS compliant platforms- and applications.<br><br>The API requires and includes further schema definitions/domains as<br><br>- CUSS2 Basic Schemas<br>- CUSS2 Self Bag Drop<br>- CUSS2 Biometrics<br>- CUSS2 Payments<br>- CUSS2 Illumination<br><br>The IATA Common Use Group (CUG) and the CUSS Technical Solution Group (CUSS-TSG) maintain this API.
+ * Common Use Self Service V2 API Definition (current working version)
+ * <h3>Definiton of the new CUSS2 API.</h3><p>This API definition describes IATA Common Use Self Service (IATA RP 1706c), a standard that allows multiple airlines or entities to share physical kiosks or other hardware devices to offer self-services to their passengers. These services include, but are not limited to passenger check-in functionality and self-service baggage drop off. The standard also defines how airlines and other application suppliers can develop CUSS-compliant applications that are able to run on any device whose platform is CUSS-compliant.<p>In its official release the API definiton is accompanied by the CUSS Specification (CUSS-TS), describing in human readable form (textual and graphical) the concepts, requirements, interaction, workflows and behavior for both CUSS platforms and CUSS applications, and the CUSS Implementation Guide (CUSS-IG) describing best practices and giving examples on how to implement CUSS compliant platforms- and applications.<p>The API requires and includes further schema definitions/domains as listed below<p>- CUSS2 Basic Schemas<br>- CUSS2 Self Bag Drop<br>- CUSS2 Biometrics<br>- CUSS2 Payments<br>- CUSS2 Illumination<p>The IATA Common Use Group (CUG) and the CUSS Technical Solution Group (CUSS-TSG) maintain this API. <p>For bug reports, design issues and/or any other feedback send your e-mail to:**<p><a href=\"mailto:6daf8354.iataonline.onmicrosoft.com@emea.teams.ms\">CUSS-TSG @ IATA</a></p>**-----------<p>&copy; International Air Transport Association (IATA) 2021. - All rights reserved.<p>THIS API DEFINITION AND ALL RELATED DOMAINS ARE PROVIDED ON AN \"AS IS\" AND \"AS AVAILABLE\" BASIS, WITHOUT WARRANTY OF ANY KIND.<p>TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, IATA DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND WARRANTIES OF FITNESS FOR A PARTICULAR PURPOSE, QUALITY, PERFORMANCE, ACCURACY, COMPLETENESS AND NON-INFRINGEMENT OF THIRD PARTY RIGHTS.<p>TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, IATA SHALL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, PUNITIVE, OR EXEMPLARY DAMAGES, INCLUDING BUT NOT LIMITED TO, DAMAGES FOR LOSS OF PROFITS, REVENUE, GOODWILL, BUSINESS INTERRUPTION, LOSS OF BUSINESS INFORMATION OR ANY OTHER PECUNIARY LOSS (EVEN IF LICENSOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES), HOWEVER CAUSED, AND REGARDLESS OF THE THEORY OF LIABILITY, ARISING OUT OF, OR RELATED TO, THIS LICENSE OR THE SPECIFICATIONS, INCLUDING THE USE OR PERFORMANCE OF THE SPECIFICATIONS AND OF ANY PRODUCTS OR SERVICES IMPLEMENTING, IN WHOLE OR IN PART, THE SPECIFICATIONS.<p>THE IATA PSC DATA EXCHANGE SPECIFICATIONS LICENSE TERMS APPLY TO ANY USE OF THIS API AND RELATED DOMAINS.<p>-----------
  *
  * OpenAPI spec version: 1.0.0
  * 
@@ -21,31 +21,31 @@ export interface PassengerBiometricsType {
     dataFormat: PassengerBiometricsType.DataFormatEnum;
 }
 export namespace PassengerBiometricsType {
-    export type BiometricsTypeEnum = 'face' | 'finger' | 'iris' | 'palm';
+    export type BiometricsTypeEnum = 'FACE' | 'FINGER' | 'IRIS' | 'PALM';
     export const BiometricsTypeEnum = {
-        Face: 'face' as BiometricsTypeEnum,
-        Finger: 'finger' as BiometricsTypeEnum,
-        Iris: 'iris' as BiometricsTypeEnum,
-        Palm: 'palm' as BiometricsTypeEnum
+        FACE: 'FACE' as BiometricsTypeEnum,
+        FINGER: 'FINGER' as BiometricsTypeEnum,
+        IRIS: 'IRIS' as BiometricsTypeEnum,
+        PALM: 'PALM' as BiometricsTypeEnum
     };
-    export type LightTypeEnum = 'ir' | 'uv' | 'visible';
+    export type LightTypeEnum = 'IR' | 'UV' | 'VISIBLE';
     export const LightTypeEnum = {
-        Ir: 'ir' as LightTypeEnum,
-        Uv: 'uv' as LightTypeEnum,
-        Visible: 'visible' as LightTypeEnum
+        IR: 'IR' as LightTypeEnum,
+        UV: 'UV' as LightTypeEnum,
+        VISIBLE: 'VISIBLE' as LightTypeEnum
     };
-    export type DataSourceEnum = 'biometric-provider' | 'camera' | 'mrtd-chip' | 'mrtd-visible' | 'scanner';
+    export type DataSourceEnum = 'BIOMETRIC_PROVIDER' | 'CAMERA' | 'MRTD_CHIP' | 'MRTD_VISIBLE' | 'SCANNER';
     export const DataSourceEnum = {
-        BiometricProvider: 'biometric-provider' as DataSourceEnum,
-        Camera: 'camera' as DataSourceEnum,
-        MrtdChip: 'mrtd-chip' as DataSourceEnum,
-        MrtdVisible: 'mrtd-visible' as DataSourceEnum,
-        Scanner: 'scanner' as DataSourceEnum
+        BIOMETRICPROVIDER: 'BIOMETRIC_PROVIDER' as DataSourceEnum,
+        CAMERA: 'CAMERA' as DataSourceEnum,
+        MRTDCHIP: 'MRTD_CHIP' as DataSourceEnum,
+        MRTDVISIBLE: 'MRTD_VISIBLE' as DataSourceEnum,
+        SCANNER: 'SCANNER' as DataSourceEnum
     };
-    export type DataFormatEnum = 'bmp' | 'jpg' | 'png';
+    export type DataFormatEnum = 'BMP' | 'JPG' | 'PNG';
     export const DataFormatEnum = {
-        Bmp: 'bmp' as DataFormatEnum,
-        Jpg: 'jpg' as DataFormatEnum,
-        Png: 'png' as DataFormatEnum
+        BMP: 'BMP' as DataFormatEnum,
+        JPG: 'JPG' as DataFormatEnum,
+        PNG: 'PNG' as DataFormatEnum
     };
 }

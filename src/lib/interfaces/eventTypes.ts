@@ -9,12 +9,14 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { AmountType } from './amountType';
 
 /**
- * Requested or authorized financial elements.
+ * Private events are sent as a (SOLICTED) response only to those applications having requested an action on the platfrom. Public events indicate e.g. a state change of a component that is of interest for all applications, whereas platform-events are sent and internally between CUSS Application Manager, CLA, and the Component Interface.
  */
-export interface AuthorizationAmounts { 
-    requestedAmounts?: AmountType;
-    approvedAmounts?: AmountType;
-}
+export type EventTypes = 'PRIVATE' | 'PUBLIC' | 'PLATFORM';
+
+export const EventTypes = {
+    PRIVATE: 'PRIVATE' as EventTypes,
+    PUBLIC: 'PUBLIC' as EventTypes,
+    PLATFORM: 'PLATFORM' as EventTypes
+};

@@ -9,12 +9,13 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { AmountType } from './amountType';
 
 /**
- * Requested or authorized financial elements.
+ * Virtual component state codes <p> READY : Used for soft conditions and Ok only <br> UNVAILABLE : Caused by a hard condition
  */
-export interface AuthorizationAmounts { 
-    requestedAmounts?: AmountType;
-    approvedAmounts?: AmountType;
-}
+export type EventHandlingCodes = 'READY' | 'UNAVAILABLE';
+
+export const EventHandlingCodes = {
+    READY: 'READY' as EventHandlingCodes,
+    UNAVAILABLE: 'UNAVAILABLE' as EventHandlingCodes
+};

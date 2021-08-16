@@ -9,12 +9,7 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { AmountType } from './amountType';
 
-/**
- * Requested or authorized financial elements.
- */
-export interface AuthorizationAmounts { 
-    requestedAmounts?: AmountType;
-    approvedAmounts?: AmountType;
+export interface CommonErrors { 
+    errors?: Array<Error>;
 }

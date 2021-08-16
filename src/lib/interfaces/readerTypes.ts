@@ -1,6 +1,6 @@
 /**
- * Common Use Self Service V2 API Definition
- * <h3>Definiton of the new CUSS2 API.</h3>This API definition idescribes IATA Common Use Self Service (IATA RP 1706c), a standard that allows multiple airlines to share physical kiosks or other hardware devices to offer self-services to their passengers. These services include, but are not limited to passenger check-in functionality and self-service baggage drop off. The standard also defines how airlines and other application suppliers can develop CUSS-compliant applications that are able to run on any device whose platform is CUSS-compliant.<br><br>The API definiton is accompanied by the CUSS Specification (CUSS-TS), describing in human readable form (textual and graphical) the concepts, requirements, interaction, workflows and behavior for both CUSS platforms and CUSS applications, and the CUSS Implementation Guide (CUSS-IG) describing best practices and giving examples on how to implement CUSS compliant platforms- and applications.<br><br>The API requires and includes further schema definitions/domains as<br><br>- CUSS2 Basic Schemas<br>- CUSS2 Self Bag Drop<br>- CUSS2 Biometrics<br>- CUSS2 Payments<br>- CUSS2 Illumination<br><br>The IATA Common Use Group (CUG) and the CUSS Technical Solution Group (CUSS-TSG) maintain this API.
+ * Common Use Self Service V2 API Definition (current working version)
+ * <h3>Definiton of the new CUSS2 API.</h3><p>This API definition describes IATA Common Use Self Service (IATA RP 1706c), a standard that allows multiple airlines or entities to share physical kiosks or other hardware devices to offer self-services to their passengers. These services include, but are not limited to passenger check-in functionality and self-service baggage drop off. The standard also defines how airlines and other application suppliers can develop CUSS-compliant applications that are able to run on any device whose platform is CUSS-compliant.<p>In its official release the API definiton is accompanied by the CUSS Specification (CUSS-TS), describing in human readable form (textual and graphical) the concepts, requirements, interaction, workflows and behavior for both CUSS platforms and CUSS applications, and the CUSS Implementation Guide (CUSS-IG) describing best practices and giving examples on how to implement CUSS compliant platforms- and applications.<p>The API requires and includes further schema definitions/domains as listed below<p>- CUSS2 Basic Schemas<br>- CUSS2 Self Bag Drop<br>- CUSS2 Biometrics<br>- CUSS2 Payments<br>- CUSS2 Illumination<p>The IATA Common Use Group (CUG) and the CUSS Technical Solution Group (CUSS-TSG) maintain this API. <p>For bug reports, design issues and/or any other feedback send your e-mail to:**<p><a href=\"mailto:6daf8354.iataonline.onmicrosoft.com@emea.teams.ms\">CUSS-TSG @ IATA</a></p>**-----------<p>&copy; International Air Transport Association (IATA) 2021. - All rights reserved.<p>THIS API DEFINITION AND ALL RELATED DOMAINS ARE PROVIDED ON AN \"AS IS\" AND \"AS AVAILABLE\" BASIS, WITHOUT WARRANTY OF ANY KIND.<p>TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, IATA DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND WARRANTIES OF FITNESS FOR A PARTICULAR PURPOSE, QUALITY, PERFORMANCE, ACCURACY, COMPLETENESS AND NON-INFRINGEMENT OF THIRD PARTY RIGHTS.<p>TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, IATA SHALL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, PUNITIVE, OR EXEMPLARY DAMAGES, INCLUDING BUT NOT LIMITED TO, DAMAGES FOR LOSS OF PROFITS, REVENUE, GOODWILL, BUSINESS INTERRUPTION, LOSS OF BUSINESS INFORMATION OR ANY OTHER PECUNIARY LOSS (EVEN IF LICENSOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES), HOWEVER CAUSED, AND REGARDLESS OF THE THEORY OF LIABILITY, ARISING OUT OF, OR RELATED TO, THIS LICENSE OR THE SPECIFICATIONS, INCLUDING THE USE OR PERFORMANCE OF THE SPECIFICATIONS AND OF ANY PRODUCTS OR SERVICES IMPLEMENTING, IN WHOLE OR IN PART, THE SPECIFICATIONS.<p>THE IATA PSC DATA EXCHANGE SPECIFICATIONS LICENSE TERMS APPLY TO ANY USE OF THIS API AND RELATED DOMAINS.<p>-----------
  *
  * OpenAPI spec version: 1.0.0
  * 
@@ -11,17 +11,17 @@
  */
 
 /**
- * Describes the type of media reader...<br><br> nonApplicableReaderType : Reader type doesn't fit in any categorie <br> Motorized : Motorized reader like standard card readers <br> DIP : Manual insertion or removal of documents <br> Swipe : Document has to be swiped through reader manually <br> Contactless : Document is read via an antenna (radio frequency) <br> FlatbedScan : Standard scanner technology or camera <br> PenScan : Standard barcode reader technology
+ * Describes the type of media reader...<p> NON_APPLICABLE_READER_TYPE : Reader type doesn't fit in any category <br> MOTORIZED : Motorized reader like standard card readers <br> DIP : Manual insertion or removal of documents <br> SWIPE : Document has to be swiped through reader manually <br> CONTACTLESS : Document is read via an antenna (radio frequency) <br> FLATBED_SCAN : Standard scanner technology or camera <br> PEN_SCAN : Standard barcode reader technology
  */
-export type ReaderTypes = 'nonApplicableReaderType' | 'Motorized' | 'DIP' | 'Swipe' | 'Contactless' | 'FlatbedScan' | 'Ticket' | 'PenScan';
+export type ReaderTypes = 'NON_APPLICABLE_READER_TYPE' | 'MOTORIZED' | 'DIP' | 'SWIPE' | 'CONTACTLESS' | 'FLATBED_SCAN' | 'TICKET' | 'PEN_SCAN';
 
 export const ReaderTypes = {
-    NonApplicableReaderType: 'nonApplicableReaderType' as ReaderTypes,
-    Motorized: 'Motorized' as ReaderTypes,
+    NONAPPLICABLEREADERTYPE: 'NON_APPLICABLE_READER_TYPE' as ReaderTypes,
+    MOTORIZED: 'MOTORIZED' as ReaderTypes,
     DIP: 'DIP' as ReaderTypes,
-    Swipe: 'Swipe' as ReaderTypes,
-    Contactless: 'Contactless' as ReaderTypes,
-    FlatbedScan: 'FlatbedScan' as ReaderTypes,
-    Ticket: 'Ticket' as ReaderTypes,
-    PenScan: 'PenScan' as ReaderTypes
+    SWIPE: 'SWIPE' as ReaderTypes,
+    CONTACTLESS: 'CONTACTLESS' as ReaderTypes,
+    FLATBEDSCAN: 'FLATBED_SCAN' as ReaderTypes,
+    TICKET: 'TICKET' as ReaderTypes,
+    PENSCAN: 'PEN_SCAN' as ReaderTypes
 };

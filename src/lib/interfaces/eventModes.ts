@@ -9,12 +9,13 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { AmountType } from './amountType';
 
 /**
- * Requested or authorized financial elements.
+ * Classifies an event either as an event that is related to an application request (SOLICITED) or as an event that is sent by the platform due to any internal change (UNSOLICTED).
  */
-export interface AuthorizationAmounts { 
-    requestedAmounts?: AmountType;
-    approvedAmounts?: AmountType;
-}
+export type EventModes = 'SOLICITED' | 'UNSOLICITED';
+
+export const EventModes = {
+    SOLICITED: 'SOLICITED' as EventModes,
+    UNSOLICITED: 'UNSOLICITED' as EventModes
+};

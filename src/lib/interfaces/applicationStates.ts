@@ -1,6 +1,6 @@
 /**
- * Common Use Self Service V2 API Definition
- * <h3>Definiton of the new CUSS2 API.</h3>This API definition idescribes IATA Common Use Self Service (IATA RP 1706c), a standard that allows multiple airlines to share physical kiosks or other hardware devices to offer self-services to their passengers. These services include, but are not limited to passenger check-in functionality and self-service baggage drop off. The standard also defines how airlines and other application suppliers can develop CUSS-compliant applications that are able to run on any device whose platform is CUSS-compliant.<br><br>The API definiton is accompanied by the CUSS Specification (CUSS-TS), describing in human readable form (textual and graphical) the concepts, requirements, interaction, workflows and behavior for both CUSS platforms and CUSS applications, and the CUSS Implementation Guide (CUSS-IG) describing best practices and giving examples on how to implement CUSS compliant platforms- and applications.<br><br>The API requires and includes further schema definitions/domains as<br><br>- CUSS2 Basic Schemas<br>- CUSS2 Self Bag Drop<br>- CUSS2 Biometrics<br>- CUSS2 Payments<br>- CUSS2 Illumination<br><br>The IATA Common Use Group (CUG) and the CUSS Technical Solution Group (CUSS-TSG) maintain this API.
+ * Common Use Self Service V2 API Definition (current working version)
+ * <h3>Definiton of the new CUSS2 API.</h3><p>This API definition describes IATA Common Use Self Service (IATA RP 1706c), a standard that allows multiple airlines or entities to share physical kiosks or other hardware devices to offer self-services to their passengers. These services include, but are not limited to passenger check-in functionality and self-service baggage drop off. The standard also defines how airlines and other application suppliers can develop CUSS-compliant applications that are able to run on any device whose platform is CUSS-compliant.<p>In its official release the API definiton is accompanied by the CUSS Specification (CUSS-TS), describing in human readable form (textual and graphical) the concepts, requirements, interaction, workflows and behavior for both CUSS platforms and CUSS applications, and the CUSS Implementation Guide (CUSS-IG) describing best practices and giving examples on how to implement CUSS compliant platforms- and applications.<p>The API requires and includes further schema definitions/domains as listed below<p>- CUSS2 Basic Schemas<br>- CUSS2 Self Bag Drop<br>- CUSS2 Biometrics<br>- CUSS2 Payments<br>- CUSS2 Illumination<p>The IATA Common Use Group (CUG) and the CUSS Technical Solution Group (CUSS-TSG) maintain this API. <p>For bug reports, design issues and/or any other feedback send your e-mail to:**<p><a href=\"mailto:6daf8354.iataonline.onmicrosoft.com@emea.teams.ms\">CUSS-TSG @ IATA</a></p>**-----------<p>&copy; International Air Transport Association (IATA) 2021. - All rights reserved.<p>THIS API DEFINITION AND ALL RELATED DOMAINS ARE PROVIDED ON AN \"AS IS\" AND \"AS AVAILABLE\" BASIS, WITHOUT WARRANTY OF ANY KIND.<p>TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, IATA DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND WARRANTIES OF FITNESS FOR A PARTICULAR PURPOSE, QUALITY, PERFORMANCE, ACCURACY, COMPLETENESS AND NON-INFRINGEMENT OF THIRD PARTY RIGHTS.<p>TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, IATA SHALL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, PUNITIVE, OR EXEMPLARY DAMAGES, INCLUDING BUT NOT LIMITED TO, DAMAGES FOR LOSS OF PROFITS, REVENUE, GOODWILL, BUSINESS INTERRUPTION, LOSS OF BUSINESS INFORMATION OR ANY OTHER PECUNIARY LOSS (EVEN IF LICENSOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES), HOWEVER CAUSED, AND REGARDLESS OF THE THEORY OF LIABILITY, ARISING OUT OF, OR RELATED TO, THIS LICENSE OR THE SPECIFICATIONS, INCLUDING THE USE OR PERFORMANCE OF THE SPECIFICATIONS AND OF ANY PRODUCTS OR SERVICES IMPLEMENTING, IN WHOLE OR IN PART, THE SPECIFICATIONS.<p>THE IATA PSC DATA EXCHANGE SPECIFICATIONS LICENSE TERMS APPLY TO ANY USE OF THIS API AND RELATED DOMAINS.<p>-----------
  *
  * OpenAPI spec version: 1.0.0
  * 
@@ -11,17 +11,28 @@
  */
 
 /**
- * Application state codes...<br><br> UNAVAILABLE : Application state change request to move to UNAVAILBLE <br> AVAILABLE : Application state change request to move to AVAILBLE <br> ACTIVE : Platform initated or application state change request to move to ACTIVE <br> STOPPED : Application state change request to move to STOPPED <br> RELOAD : Application state change request to move to RELOAD <br><br> INITIALIZE : Platform initated application state <br> SUSPENDED : Platform initated application state <br> DISABLED : Platform initated application state
+ * Application state codes and reasons to be passed with the statechange request.
  */
-export type ApplicationStates = 'INITIALIZE' | 'UNAVAILABLE' | 'AVAILABLE' | 'ACTIVE' | 'STOPPED' | 'RELOAD' | 'SUSPENDED' | 'DISABLED';
-
-export const ApplicationStates = {
-    INITIALIZE: 'INITIALIZE' as ApplicationStates,
-    UNAVAILABLE: 'UNAVAILABLE' as ApplicationStates,
-    AVAILABLE: 'AVAILABLE' as ApplicationStates,
-    ACTIVE: 'ACTIVE' as ApplicationStates,
-    STOPPED: 'STOPPED' as ApplicationStates,
-    RELOAD: 'RELOAD' as ApplicationStates,
-    SUSPENDED: 'SUSPENDED' as ApplicationStates,
-    DISABLED: 'DISABLED' as ApplicationStates
-};
+export interface ApplicationStates { 
+    /**
+     * Application state codes...<p> UNAVAILABLE : Application state change request to move to UNAVAILBLE <br> AVAILABLE : Application state change request to move to AVAILBLE <br> ACTIVE : Platform initated or application state change request to move to ACTIVE <br> STOPPED : Application state change request to move to STOPPED <br> RELOAD : Application state change request to move to RELOAD <br> INITIALIZE : Platform initated application state <br> SUSPENDED : Platform initated application state <br> DISABLED : Platform initated application state
+     */
+    applicationStateCode: ApplicationStates.ApplicationStateCodeEnum;
+    /**
+     * The application shall use this optional field to inform the platform about the reason for the current state change. The platform stores this information in its platform logs for bug fixing purposes.
+     */
+    applicationStateChangeReason?: string;
+}
+export namespace ApplicationStates {
+    export type ApplicationStateCodeEnum = 'INITIALIZE' | 'UNAVAILABLE' | 'AVAILABLE' | 'ACTIVE' | 'STOPPED' | 'RELOAD' | 'SUSPENDED' | 'DISABLED';
+    export const ApplicationStateCodeEnum = {
+        INITIALIZE: 'INITIALIZE' as ApplicationStateCodeEnum,
+        UNAVAILABLE: 'UNAVAILABLE' as ApplicationStateCodeEnum,
+        AVAILABLE: 'AVAILABLE' as ApplicationStateCodeEnum,
+        ACTIVE: 'ACTIVE' as ApplicationStateCodeEnum,
+        STOPPED: 'STOPPED' as ApplicationStateCodeEnum,
+        RELOAD: 'RELOAD' as ApplicationStateCodeEnum,
+        SUSPENDED: 'SUSPENDED' as ApplicationStateCodeEnum,
+        DISABLED: 'DISABLED' as ApplicationStateCodeEnum
+    };
+}

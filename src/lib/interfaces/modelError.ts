@@ -9,12 +9,34 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { AmountType } from './amountType';
 
-/**
- * Requested or authorized financial elements.
- */
-export interface AuthorizationAmounts { 
-    requestedAmounts?: AmountType;
-    approvedAmounts?: AmountType;
+export interface ModelError { 
+    /**
+     * A unique identifier for this specific instance of the error
+     */
+    id?: string;
+    /**
+     * The HTTP status code applicable to the error
+     */
+    status: string;
+    /**
+     * an application-specific error code
+     */
+    code?: string;
+    /**
+     * A short, human-readable summary of the problem that **SHOULD NOT** change from occurrence to occurrence of the error, except for purposes of localization
+     */
+    title?: string;
+    /**
+     * The code of the language used in the error message. Not required when the language is a variant of English
+     */
+    language?: string;
+    /**
+     * a human-readable explanation specific to this occurrence of the issue
+     */
+    detail?: string;
+    /**
+     * A link to an on-line description of the error where one COULD find statements pertaining to the consequences of the error and indications as to actions that might be taken and actions that should or must not be taken
+     */
+    url?: string;
 }

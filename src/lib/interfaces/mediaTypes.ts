@@ -1,6 +1,6 @@
 /**
- * Common Use Self Service V2 API Definition
- * <h3>Definiton of the new CUSS2 API.</h3>This API definition idescribes IATA Common Use Self Service (IATA RP 1706c), a standard that allows multiple airlines to share physical kiosks or other hardware devices to offer self-services to their passengers. These services include, but are not limited to passenger check-in functionality and self-service baggage drop off. The standard also defines how airlines and other application suppliers can develop CUSS-compliant applications that are able to run on any device whose platform is CUSS-compliant.<br><br>The API definiton is accompanied by the CUSS Specification (CUSS-TS), describing in human readable form (textual and graphical) the concepts, requirements, interaction, workflows and behavior for both CUSS platforms and CUSS applications, and the CUSS Implementation Guide (CUSS-IG) describing best practices and giving examples on how to implement CUSS compliant platforms- and applications.<br><br>The API requires and includes further schema definitions/domains as<br><br>- CUSS2 Basic Schemas<br>- CUSS2 Self Bag Drop<br>- CUSS2 Biometrics<br>- CUSS2 Payments<br>- CUSS2 Illumination<br><br>The IATA Common Use Group (CUG) and the CUSS Technical Solution Group (CUSS-TSG) maintain this API.
+ * Common Use Self Service V2 API Definition (current working version)
+ * <h3>Definiton of the new CUSS2 API.</h3><p>This API definition describes IATA Common Use Self Service (IATA RP 1706c), a standard that allows multiple airlines or entities to share physical kiosks or other hardware devices to offer self-services to their passengers. These services include, but are not limited to passenger check-in functionality and self-service baggage drop off. The standard also defines how airlines and other application suppliers can develop CUSS-compliant applications that are able to run on any device whose platform is CUSS-compliant.<p>In its official release the API definiton is accompanied by the CUSS Specification (CUSS-TS), describing in human readable form (textual and graphical) the concepts, requirements, interaction, workflows and behavior for both CUSS platforms and CUSS applications, and the CUSS Implementation Guide (CUSS-IG) describing best practices and giving examples on how to implement CUSS compliant platforms- and applications.<p>The API requires and includes further schema definitions/domains as listed below<p>- CUSS2 Basic Schemas<br>- CUSS2 Self Bag Drop<br>- CUSS2 Biometrics<br>- CUSS2 Payments<br>- CUSS2 Illumination<p>The IATA Common Use Group (CUG) and the CUSS Technical Solution Group (CUSS-TSG) maintain this API. <p>For bug reports, design issues and/or any other feedback send your e-mail to:**<p><a href=\"mailto:6daf8354.iataonline.onmicrosoft.com@emea.teams.ms\">CUSS-TSG @ IATA</a></p>**-----------<p>&copy; International Air Transport Association (IATA) 2021. - All rights reserved.<p>THIS API DEFINITION AND ALL RELATED DOMAINS ARE PROVIDED ON AN \"AS IS\" AND \"AS AVAILABLE\" BASIS, WITHOUT WARRANTY OF ANY KIND.<p>TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, IATA DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND WARRANTIES OF FITNESS FOR A PARTICULAR PURPOSE, QUALITY, PERFORMANCE, ACCURACY, COMPLETENESS AND NON-INFRINGEMENT OF THIRD PARTY RIGHTS.<p>TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, IATA SHALL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, PUNITIVE, OR EXEMPLARY DAMAGES, INCLUDING BUT NOT LIMITED TO, DAMAGES FOR LOSS OF PROFITS, REVENUE, GOODWILL, BUSINESS INTERRUPTION, LOSS OF BUSINESS INFORMATION OR ANY OTHER PECUNIARY LOSS (EVEN IF LICENSOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES), HOWEVER CAUSED, AND REGARDLESS OF THE THEORY OF LIABILITY, ARISING OUT OF, OR RELATED TO, THIS LICENSE OR THE SPECIFICATIONS, INCLUDING THE USE OR PERFORMANCE OF THE SPECIFICATIONS AND OF ANY PRODUCTS OR SERVICES IMPLEMENTING, IN WHOLE OR IN PART, THE SPECIFICATIONS.<p>THE IATA PSC DATA EXCHANGE SPECIFICATIONS LICENSE TERMS APPLY TO ANY USE OF THIS API AND RELATED DOMAINS.<p>-----------
  *
  * OpenAPI spec version: 1.0.0
  * 
@@ -11,22 +11,22 @@
  */
 
 /**
- * Media Type definitions with the following semantics...<br><br> nonApplicableMediaType : Media type doesn't fit in any categorie <br> MagneticStripe : Documents with a magnetic stripe <br> JIS : JIS cards <br> Chip : Document with a chip <br> Card : Any type of card <br> Printed : Any printed document (OCR/BarCode/Plain paper)<br> Ticket : ATB ticket <br> InsertedMedia : Document inserted by the user <br> BoardingPass : Regular Boarding Pass <br> GeneralPurposeDoc : General purpose document <br> BaggageTag : Baggage Tag <br> HeavyTag : Special Baggage Tag for heavy baggage <br> RFIDBaggageTag : Baggage Tag with RFID chip or electronic paper
+ * Media Type definitions with the following semantics...<p> NON_APPLICABLE_MEDIATYPE : Media type doesn't fit in any category <br> MAGNETIC_STRIPE : Documents with a magnetic stripe <br> JIS : JIS cards <br> CHIP : Document with a chip <br> CARD : Any type of card <br> PRINTED : Any printed document (OCR/BarCode/Plain paper)<br> TICKET : ATB ticket <br> INSERTED_MEDIA : Document inserted by the user <br> BOARDINGPASS : Regular Boarding Pass <br> GENERAL_PURPOSE_DOC : General purpose document <br> BAGGAGETAG : Baggage Tag <br> HEAVYTAG : Special Baggage Tag for heavy baggage <br> RFID_BAGGAGETAG : Baggage Tag with RFID chip or electronic paper
  */
-export type MediaTypes = 'nonApplicableMediaType' | 'MagneticStripe' | 'JIS' | 'Chip' | 'Card' | 'Printed' | 'Ticket' | 'InsertedMedia' | 'BoardingPass' | 'GeneralPurposeDoc' | 'BaggageTag' | 'HeavyTag' | 'RFIDBaggageTag';
+export type MediaTypes = 'NON_APPLICABLE_MEDIATYPE' | 'MAGNETICS_TRIPE' | 'JIS' | 'CHIP' | 'CARD' | 'PRINTED' | 'TICKET' | 'INSERTED_MEDIA' | 'BOARDINGPASS' | 'GENERAL_PURPOSE_DOC' | 'BAGGAGETAG' | 'HEAVYTAG' | 'RFID_BAGGAGETAG';
 
 export const MediaTypes = {
-    NonApplicableMediaType: 'nonApplicableMediaType' as MediaTypes,
-    MagneticStripe: 'MagneticStripe' as MediaTypes,
+    NONAPPLICABLEMEDIATYPE: 'NON_APPLICABLE_MEDIATYPE' as MediaTypes,
+    MAGNETICSTRIPE: 'MAGNETICS_TRIPE' as MediaTypes,
     JIS: 'JIS' as MediaTypes,
-    Chip: 'Chip' as MediaTypes,
-    Card: 'Card' as MediaTypes,
-    Printed: 'Printed' as MediaTypes,
-    Ticket: 'Ticket' as MediaTypes,
-    InsertedMedia: 'InsertedMedia' as MediaTypes,
-    BoardingPass: 'BoardingPass' as MediaTypes,
-    GeneralPurposeDoc: 'GeneralPurposeDoc' as MediaTypes,
-    BaggageTag: 'BaggageTag' as MediaTypes,
-    HeavyTag: 'HeavyTag' as MediaTypes,
-    RFIDBaggageTag: 'RFIDBaggageTag' as MediaTypes
+    CHIP: 'CHIP' as MediaTypes,
+    CARD: 'CARD' as MediaTypes,
+    PRINTED: 'PRINTED' as MediaTypes,
+    TICKET: 'TICKET' as MediaTypes,
+    INSERTEDMEDIA: 'INSERTED_MEDIA' as MediaTypes,
+    BOARDINGPASS: 'BOARDINGPASS' as MediaTypes,
+    GENERALPURPOSEDOC: 'GENERAL_PURPOSE_DOC' as MediaTypes,
+    BAGGAGETAG: 'BAGGAGETAG' as MediaTypes,
+    HEAVYTAG: 'HEAVYTAG' as MediaTypes,
+    RFIDBAGGAGETAG: 'RFID_BAGGAGETAG' as MediaTypes
 };

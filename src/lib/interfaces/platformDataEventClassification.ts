@@ -9,12 +9,15 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { AmountType } from './amountType';
+import { EventCategories } from './eventCategories';
+import { EventModes } from './eventModes';
+import { EventTypes } from './eventTypes';
 
 /**
- * Requested or authorized financial elements.
+ * More detailed description of the event/indication that is sen t by the platform.
  */
-export interface AuthorizationAmounts { 
-    requestedAmounts?: AmountType;
-    approvedAmounts?: AmountType;
+export interface PlatformDataEventClassification { 
+    eventMode?: EventModes;
+    eventType?: EventTypes;
+    eventCategory?: EventCategories;
 }
