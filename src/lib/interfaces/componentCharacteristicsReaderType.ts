@@ -9,26 +9,12 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { CUSSDataTypes } from './cUSSDataTypes';
-import { ComponentCharacteristicsConveyorSBD } from './componentCharacteristicsConveyorSBD';
-import { ComponentCharacteristicsDisplayType } from './componentCharacteristicsDisplayType';
-import { ComponentCharacteristicsReaderType } from './componentCharacteristicsReaderType';
-import { MediaTypes } from './mediaTypes';
+import { ReaderTypes } from './readerTypes';
 
-export interface ComponentCharacteristics { 
+export interface ComponentCharacteristicsReaderType { 
+    type?: ReaderTypes;
     /**
-     * SSML formatted device help text to be inserted into applications audio output.
+     * The number of tracks the reader can handle.
      */
-    deviceHelpInstruction?: string;
-    /**
-     * A list of DS_TYPES identifiers.
-     */
-    dsTypesList?: Array<CUSSDataTypes>;
-    /**
-     * A list of media type identifiers.
-     */
-    mediaTypesList?: Array<MediaTypes>;
-    readerType?: ComponentCharacteristicsReaderType;
-    displayType?: ComponentCharacteristicsDisplayType;
-    conveyorSBD?: ComponentCharacteristicsConveyorSBD;
+    noOfTracks?: number;
 }

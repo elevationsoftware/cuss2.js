@@ -9,26 +9,17 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { CUSSDataTypes } from './cUSSDataTypes';
-import { ComponentCharacteristicsConveyorSBD } from './componentCharacteristicsConveyorSBD';
-import { ComponentCharacteristicsDisplayType } from './componentCharacteristicsDisplayType';
-import { ComponentCharacteristicsReaderType } from './componentCharacteristicsReaderType';
-import { MediaTypes } from './mediaTypes';
+import { RequestID } from './requestID';
+import { ReturnCodes } from './returnCodes';
 
-export interface ComponentCharacteristics { 
+/**
+ * Direct Interface Return Codes
+ */
+export interface CUSS2ApiResponse { 
+    returnCode: ReturnCodes;
+    requestID: RequestID;
     /**
-     * SSML formatted device help text to be inserted into applications audio output.
+     * Optional description of the returned error (if any)
      */
-    deviceHelpInstruction?: string;
-    /**
-     * A list of DS_TYPES identifiers.
-     */
-    dsTypesList?: Array<CUSSDataTypes>;
-    /**
-     * A list of media type identifiers.
-     */
-    mediaTypesList?: Array<MediaTypes>;
-    readerType?: ComponentCharacteristicsReaderType;
-    displayType?: ComponentCharacteristicsDisplayType;
-    conveyorSBD?: ComponentCharacteristicsConveyorSBD;
+    description?: string;
 }
