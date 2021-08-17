@@ -1,9 +1,9 @@
 import {BehaviorSubject} from "rxjs";
 import {logger} from "./helper";
 import axios from "axios";
-import {APIResponse} from "./interfaces/APIResponse";
 import {PlatformData} from "./interfaces/platformData";
 import {takeWhile} from "rxjs/operators";
+import { CUSS2ApiResponse } from "./interfaces/cUSS2ApiResponse";
 
 export class Connection {
 	/**
@@ -140,7 +140,7 @@ export class Connection {
 
 		logger(`[connection.${type}()] ${path} response:\n`, r.data);
 
-		const { requestID, returnCode } = r.data as APIResponse;
+		const { requestID, returnCode } = r.data as CUSS2ApiResponse;
 		if (returnCode !== 'RC_OK') {
 			return Promise.reject(new Error('HTTP call failed with: ' + returnCode))
 		}

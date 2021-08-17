@@ -11,6 +11,8 @@
  */
 import { ComponentCharacteristics } from './componentCharacteristics';
 import { ComponentTypes } from './componentTypes';
+import { EventCodes } from './eventCodes';
+import { StatusCodes } from './statusCodes';
 
 export interface EnvironmentComponent { 
     /**
@@ -30,4 +32,8 @@ export interface EnvironmentComponent {
      * A list of identifiers of components linked to this component.
      */
     linkedComponentIDs?: Array<number>;
+
+    active?: boolean;
+    eventCode?: EventCodes;
+    statusCode?: StatusCodes;
 }

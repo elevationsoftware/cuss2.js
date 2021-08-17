@@ -3,7 +3,7 @@ import { ComponentName } from "./interfaces/componentNames";
 import { EventCodes } from "./interfaces/eventCodes";
 import { StatusCodes } from "./interfaces/statusCodes";
 import { ReaderTypes } from "./interfaces/readerTypes";
-import { ComponentTypes, DataTypes, MediaTypes } from "./interfaces/models";
+import { ComponentTypes, CUSSDataTypes, MediaTypes } from "./interfaces/models";
 
 /**
  * Find a barcode reader by component's characteristics
@@ -15,7 +15,7 @@ export const isBarcodeReader = (comp: EnvironmentComponent): boolean => {
     if (
       charac &&
       charac.dsTypesList &&
-      charac.dsTypesList.find((d) => d === DataTypes.BARCODE)
+      charac.dsTypesList.find((d) => d === CUSSDataTypes.BARCODE)
     ) {
       return true;
     }
@@ -32,7 +32,7 @@ export const isBagtagPrinter = (comp: EnvironmentComponent): boolean => {
     if (
       charac &&
       charac.mediaTypesList &&
-      charac.mediaTypesList.find((m) => m === MediaTypes.BaggageTag)
+      charac.mediaTypesList.find((m) => m === MediaTypes.BAGGAGETAG)
     ) {
       return true;
     }
@@ -49,7 +49,7 @@ export const isBoardingpassPrinter = (comp: EnvironmentComponent): boolean => {
     if (
       charac &&
       charac.mediaTypesList &&
-      charac.mediaTypesList.find((m) => m === MediaTypes.BoardingPass)
+      charac.mediaTypesList.find((m) => m === MediaTypes.BOARDINGPASS)
     ) {
       return true;
     }
@@ -66,8 +66,8 @@ export const isPassportReader = (comp: EnvironmentComponent): boolean => {
     if (
       charac &&
       charac.dsTypesList &&
-      charac.dsTypesList.find((d) => d === DataTypes.CODELINE) &&
-      charac.readerType === ReaderTypes.FlatbedScan
+      charac.dsTypesList.find((d) => d === CUSSDataTypes.CODELINE) &&
+      charac.readerType === ReaderTypes.FLATBEDSCAN
     ) {
       return true;
     }
@@ -126,7 +126,7 @@ export const componentFinderHelper = [
 export const getCompomentName = (component: EnvironmentComponent) => {
   for (let i = 0; i < componentFinderHelper.length; i++) {
       if (componentFinderHelper[i].finder(component)) {
-        component.componentName = componentFinderHelper[i].name
+        component.componentDescription = componentFinderHelper[i].name
         component.active = isValidEventCode(component.eventCode) && isValidStatusCode(component.statusCode);
         break;
       }
