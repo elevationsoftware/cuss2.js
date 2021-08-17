@@ -17,7 +17,7 @@ import {
 	PaymentDevice,
 	Printer
 } from "./models/component";
-import {DataTypes} from "./interfaces/dataTypes";
+import { CUSSDataTypes } from "./interfaces/cUSSDataTypes";
 import {ReaderTypes} from "./interfaces/readerTypes";
 import {MediaTypes} from "./interfaces/mediaTypes";
 
@@ -43,9 +43,9 @@ export class Cuss2 {
 		connection.messages.subscribe(e => this._handleWebSocketMessage(e))
 	}
 	connection:Connection;
-	environment: EnvironmentLevel = {};
+	environment: any = {};
 	components: any = {};
-	stateChange: BehaviorSubject<ApplicationStates> = new BehaviorSubject<ApplicationStates>(ApplicationStates.STOPPED);
+	stateChange: BehaviorSubject<ApplicationStates.ApplicationStateCodeEnum> = new BehaviorSubject<ApplicationStates.ApplicationStateCodeEnum>(ApplicationStates.ApplicationStateCodeEnum.STOPPED);
 	onmessage: Subject<any> = new Subject<any>();
 
 	bagTagPrinter?: Printer;
@@ -99,7 +99,7 @@ export class Cuss2 {
 					const charac0 = component.componentCharacteristics?.[0];
 					const mediaTypes = charac0?.mediaTypesList;
 
-					const dsTypesHas = (type: DataTypes) => charac0?.dsTypesList?.find((d) => d === type);
+					const dsTypesHas = (type: CUSSDataTypes) => charac0?.dsTypesList?.find((d) => d === type);
 					const mediaTypesHas = (type: MediaTypes) => mediaTypes?.find((m) => m === type);
 
 					let instance;
@@ -107,13 +107,13 @@ export class Cuss2 {
 					const isAnnouncement = () => !self.announcement && type === ComponentTypes.ANNOUNCEMENT;
 					const isFeeder = () => type === ComponentTypes.FEEDER;
 					const isDispenser = () => type === ComponentTypes.DISPENSER;
-					const isBagTagPrinter = () => !self.bagTagPrinter && mediaTypesHas(MediaTypes.BaggageTag);
-					const isBoardingPassPrinter = () => !self.boardingPassPrinter && mediaTypesHas(MediaTypes.BoardingPass);
+					const isBagTagPrinter = () => !self.bagTagPrinter && mediaTypesHas(MediaTypes.BAGGAGETAG);
+					const isBoardingPassPrinter = () => !self.boardingPassPrinter && mediaTypesHas(MediaTypes.BOARDINGPASS);
 					const isDocumentReader = () => !self.documentReader &&
-						charac0?.readerType === ReaderTypes.FlatbedScan && dsTypesHas(DataTypes.CODELINE);
-					const isBarcodeReader = () => !self.barcodeReader && dsTypesHas(DataTypes.BARCODE);
-					const isMsrPayment = () => charac0?.readerType === ReaderTypes.DIP && mediaTypesHas(MediaTypes.MagneticStripe);
-					const isKeypad = () => dsTypesHas(DataTypes.KEY) && dsTypesHas(DataTypes.KEYUP) && dsTypesHas(DataTypes.KEYDOWN);
+						charac0?.readerType === ReaderTypes.FLATBEDSCAN && dsTypesHas(CUSSDataTypes.CODELINE);
+					const isBarcodeReader = () => !self.barcodeReader && dsTypesHas(CUSSDataTypes.BARCODE);
+					const isMsrPayment = () => charac0?.readerType === ReaderTypes.DIP && mediaTypesHas(MediaTypes.MAGNETICSTRIPE);
+					const isKeypad = () => dsTypesHas(CUSSDataTypes.KEY) && dsTypesHas(CUSSDataTypes.KEYUP) && dsTypesHas(CUSSDataTypes.KEYDOWN);
 
 					if (isAnnouncement()) instance = self.announcement = new Announcement(component, self);
 					else if (isFeeder()) instance = new Feeder(component, self);
@@ -191,7 +191,7 @@ export class Cuss2 {
 				return await this.connection.post('/peripherals/userpresent/offer/' + componentID);
 			},
 
-			staterequest: async (state: ApplicationStates): Promise<boolean> => {
+			staterequest: async (state: ApplicationStates.ApplicationStateCodeEnum): Promise<boolean> => {
 				const response = await self.connection.post('/platform/applications/staterequest/' + state, {});
 				if (response.statusCode !== 'OK') {
 					throw new Error(`Request to enter ${state} state failed: ${response.statusCode}`);
@@ -240,18 +240,18 @@ export class Cuss2 {
 		if (this.state === 'INITIALIZE') {
 			await this.requestUnavailableState();
 		}
-		return this.api.staterequest(ApplicationStates.AVAILABLE);
+		return this.api.staterequest(ApplicationStates.ApplicationStateCodeEnum.AVAILABLE);
 	}
 	requestUnavailableState(): Promise<boolean> {
-		return this.api.staterequest(ApplicationStates.UNAVAILABLE);
+		return this.api.staterequest(ApplicationStates.ApplicationStateCodeEnum.UNAVAILABLE);
 	}
 	requestStoppedState(): Promise<boolean> {
-		return this.api.staterequest(ApplicationStates.STOPPED);
+		return this.api.staterequest(ApplicationStates.ApplicationStateCodeEnum.STOPPED);
 	}
 	requestActiveState(): Promise<boolean> {
-		return this.api.staterequest(ApplicationStates.ACTIVE);
+		return this.api.staterequest(ApplicationStates.ApplicationStateCodeEnum.ACTIVE);
 	}
 	requestReload(): Promise<boolean> {
-		return this.api.staterequest(ApplicationStates.RELOAD);
+		return this.api.staterequest(ApplicationStates.ApplicationStateCodeEnum.RELOAD);
 	}
 }
