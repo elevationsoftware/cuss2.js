@@ -3,6 +3,7 @@ import {EnvironmentLevel} from "./interfaces/environmentLevel";
 import {PlatformData} from "./interfaces/platformData";
 import {BehaviorSubject, Subject} from "rxjs";
 import {ApplicationStates} from "./interfaces/applicationStates";
+import ApplicationStateCodeEnum = ApplicationStates.ApplicationStateCodeEnum;
 import {ComponentList} from "./interfaces/componentList";
 
 import {Connection} from "./connection";
@@ -15,11 +16,14 @@ import {
 	DocumentReader, Feeder,
 	Keypad,
 	PaymentDevice,
-	Printer
+	Printer,
+	BagTagPrinter,
+	BoardingPassPrinter
 } from "./models/component";
 import { CUSSDataTypes } from "./interfaces/cUSSDataTypes";
 import {ReaderTypes} from "./interfaces/readerTypes";
 import {MediaTypes} from "./interfaces/mediaTypes";
+import {EventHandlingCodes} from "./interfaces/eventHandlingCodes";
 
 function validateComponentId(componentID:any) {
 	if (typeof componentID !== 'number') {
@@ -40,27 +44,28 @@ export class Cuss2 {
 
 	private constructor(connection: Connection) {
 		this.connection = connection;
-		connection.messages.subscribe(e => this._handleWebSocketMessage(e))
+		connection.messages.subscribe(async e => await this._handleWebSocketMessage(e))
 	}
 	connection:Connection;
-	environment: any = {};
+	environment: EnvironmentLevel = {} as EnvironmentLevel;
 	components: any = {};
-	stateChange: BehaviorSubject<ApplicationStates.ApplicationStateCodeEnum> = new BehaviorSubject<ApplicationStates.ApplicationStateCodeEnum>(ApplicationStates.ApplicationStateCodeEnum.STOPPED);
+	stateChange: BehaviorSubject<ApplicationStateCodeEnum> = new BehaviorSubject<ApplicationStateCodeEnum>(ApplicationStateCodeEnum.STOPPED);
 	onmessage: Subject<any> = new Subject<any>();
 
-	bagTagPrinter?: Printer;
-	boardingPassPrinter?: Printer;
+	bagTagPrinter?: BagTagPrinter;
+	boardingPassPrinter?: BoardingPassPrinter;
 	documentReader?: DocumentReader;
 	barcodeReader?: BarcodeReader;
 	announcement?: Announcement;
 	keypad?: Keypad;
 	msrPayment?: PaymentDevice;
+	_activated?: Function;
 
 	get state() {
 		return this.stateChange.getValue();
 	}
 
-	_handleWebSocketMessage(message: any) {
+	async _handleWebSocketMessage(message: any) {
 		message = message && message.toApplication;
 		if (!message || message.statusCode === undefined) return; // initial value is an empty value
 
@@ -68,6 +73,13 @@ export class Cuss2 {
 
 		if(message.currentApplicationState !== this.stateChange.getValue()) {
 			this.stateChange.next(message.currentApplicationState);
+
+			if (this._online && message.currentApplicationState === ApplicationStates.ApplicationStateCodeEnum.INITIALIZE) {
+				this.checkRequiredComponentsAndSyncState();
+			}
+			else if (this._activated && message.currentApplicationState === ApplicationStateCodeEnum.ACTIVE) {
+				this._handleActivate();
+			}
 		}
 
 		logger("[socket.onmessage]", message);
@@ -118,8 +130,8 @@ export class Cuss2 {
 					if (isAnnouncement()) instance = self.announcement = new Announcement(component, self);
 					else if (isFeeder()) instance = new Feeder(component, self);
 					else if (isDispenser()) instance = new Dispenser(component, self);
-					else if (isBagTagPrinter()) instance = self.bagTagPrinter = new Printer(component, self);
-					else if (isBoardingPassPrinter()) instance = self.boardingPassPrinter = new Printer(component, self);
+					else if (isBagTagPrinter()) instance = self.bagTagPrinter = new BagTagPrinter(component, self);
+					else if (isBoardingPassPrinter()) instance = self.boardingPassPrinter = new BoardingPassPrinter(component, self);
 					else if (isDocumentReader()) instance = self.documentReader = new DocumentReader(component, self);
 					else if (isBarcodeReader()) instance = self.barcodeReader = new BarcodeReader(component, self);
 					else if (isMsrPayment()) instance = self.msrPayment = new PaymentDevice(component, self);
@@ -153,8 +165,20 @@ export class Cuss2 {
 						});
 					}
 				}
-				assignLinks(self.boardingPassPrinter as Printer);
-				assignLinks(self.bagTagPrinter as Printer);
+				assignLinks(self.boardingPassPrinter as BoardingPassPrinter);
+				assignLinks(self.bagTagPrinter as BagTagPrinter);
+
+				await Promise.all(
+					components.map(c => self.api.getStatus(c.componentID as number))
+				)
+				.then(responses => {
+					responses.forEach(response => {
+						const id = String(response.componentID);
+						self.components[id].eventHandlingCode = response.eventHandlingCode
+						self.components[id].status = response.statusCode
+					})
+				});
+
 				return self.components;
 			},
 			getStatus: async (componentID:number): Promise<PlatformData> => {
@@ -191,7 +215,7 @@ export class Cuss2 {
 				return await this.connection.post('/peripherals/userpresent/offer/' + componentID);
 			},
 
-			staterequest: async (state: ApplicationStates.ApplicationStateCodeEnum): Promise<boolean> => {
+			staterequest: async (state: ApplicationStateCodeEnum): Promise<boolean> => {
 				const response = await self.connection.post('/platform/applications/staterequest/' + state, {});
 				if (response.statusCode !== 'OK') {
 					throw new Error(`Request to enter ${state} state failed: ${response.statusCode}`);
@@ -240,18 +264,64 @@ export class Cuss2 {
 		if (this.state === 'INITIALIZE') {
 			await this.requestUnavailableState();
 		}
-		return this.api.staterequest(ApplicationStates.ApplicationStateCodeEnum.AVAILABLE);
+		return this.api.staterequest(ApplicationStateCodeEnum.AVAILABLE);
 	}
 	requestUnavailableState(): Promise<boolean> {
-		return this.api.staterequest(ApplicationStates.ApplicationStateCodeEnum.UNAVAILABLE);
+		return this.api.staterequest(ApplicationStateCodeEnum.UNAVAILABLE);
 	}
 	requestStoppedState(): Promise<boolean> {
-		return this.api.staterequest(ApplicationStates.ApplicationStateCodeEnum.STOPPED);
+		return this.api.staterequest(ApplicationStateCodeEnum.STOPPED);
 	}
 	requestActiveState(): Promise<boolean> {
-		return this.api.staterequest(ApplicationStates.ApplicationStateCodeEnum.ACTIVE);
+		return this.api.staterequest(ApplicationStateCodeEnum.ACTIVE);
 	}
 	requestReload(): Promise<boolean> {
-		return this.api.staterequest(ApplicationStates.ApplicationStateCodeEnum.RELOAD);
+		return this.api.staterequest(ApplicationStateCodeEnum.RELOAD);
+	}
+
+	get unavailableComponents(): Component[] {
+		const components = Object.values(this.components) as Component[];
+		return components.filter((c:Component) => c.eventHandlingCode === EventHandlingCodes.UNAVAILABLE);
+	}
+	get unavailableRequiredComponents(): Component[] {
+		return this.unavailableComponents.filter((c:Component) => c.required)
+	}
+
+	checkRequiredComponentsAndSyncState(): void {
+		if (this._online) {
+			const inactiveRequiredComponents = this.unavailableRequiredComponents;
+			if (!inactiveRequiredComponents.length) {
+				logger('[checkRequiredComponentsAndSyncState] All required components OK. Requesting AVAILABLE state');
+				this.requestAvailableState();
+			}
+			else {
+				logger('[checkRequiredComponentsAndSyncState] Required components inactive:', inactiveRequiredComponents.map((c: Component) => c.constructor.name));
+				this.requestUnavailableState();
+			}
+		}
+		else if (this.state === ApplicationStateCodeEnum.INITIALIZE || this.state === ApplicationStateCodeEnum.AVAILABLE || this.state === ApplicationStateCodeEnum.ACTIVE) {
+			this.requestUnavailableState();
+		}
+	}
+
+	_online: boolean = false;
+	get applicationOnline() { return this._online; }
+	set applicationOnline(online:boolean) {
+		this._online = online;
+		this.checkRequiredComponentsAndSyncState();
+	}
+
+	_handleActivate(): void {
+		if (!this._activated) return;
+		this._activated().catch((e: Error) => {
+			logger('An error happened when calling activated', e)
+		})
+	}
+
+	set activated(fn:Function) {
+		this._activated = fn;
+		if (this.state === ApplicationStateCodeEnum.ACTIVE) {
+			this._handleActivate();
+		}
 	}
 }

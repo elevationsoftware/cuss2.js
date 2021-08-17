@@ -1,6 +1,6 @@
 import {Subject} from "rxjs";
 import {Cuss2} from "../cuss2";
-import {DataExchange, EnvironmentComponent, PlatformData} from "../..";
+import {DataExchange, EnvironmentComponent, EventHandlingCodes, PlatformData, StatusCodes} from "../..";
 
 
 export class Component {
@@ -8,11 +8,17 @@ export class Component {
 	id: number;
 	onmessage: Subject<any> = new Subject<any>();
 	api: any;
+	required: boolean = true;
+	eventHandlingCode: EventHandlingCodes = EventHandlingCodes.UNAVAILABLE;
+	status: StatusCodes = StatusCodes.OK;
 
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		this._component = component;
 		this.id = component.componentID as number;
-		this.api = cuss2.api;
+		Object.defineProperty(this, 'api', {
+			get: () => cuss2.api,
+			enumerable: false
+		})
 		cuss2.onmessage.subscribe((data) => {
 			if (data?.componentID === this.id) {
 				this._handleMessage(data);
@@ -22,6 +28,10 @@ export class Component {
 
 	_handleMessage(data:any) {
 		this.onmessage.next(data);
+	}
+
+	get active() : boolean {
+		return false;//Boolean(this._component.);
 	}
 
 	enable() {
@@ -82,6 +92,9 @@ export class Printer extends Component {
 		await this.sendRaw(rawData);
 	}
 }
+export class BagTagPrinter extends Printer {}
+export class BoardingPassPrinter extends Printer {}
+
 export class Feeder extends Component {
 	printer?: Printer;
 }
