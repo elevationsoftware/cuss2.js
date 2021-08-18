@@ -24,6 +24,7 @@ import { CUSSDataTypes } from "./interfaces/cUSSDataTypes";
 import {ReaderTypes} from "./interfaces/readerTypes";
 import {MediaTypes} from "./interfaces/mediaTypes";
 import {EventHandlingCodes} from "./interfaces/eventHandlingCodes";
+import { ElevatedMetric } from './interfaces/elevatedMetrics';
 
 function validateComponentId(componentID:any) {
 	if (typeof componentID !== 'number') {
@@ -42,9 +43,12 @@ export class Cuss2 {
 	}
 	static logger = logger;
 
+	public metric: BehaviorSubject<ElevatedMetric>;
+
 	private constructor(connection: Connection) {
 		this.connection = connection;
 		connection.messages.subscribe(async e => await this._handleWebSocketMessage(e))
+		this.metric = new BehaviorSubject<ElevatedMetric>(ElevatedMetric.NONE);
 	}
 	connection:Connection;
 	environment: EnvironmentLevel = {} as EnvironmentLevel;
@@ -262,6 +266,7 @@ export class Cuss2 {
 	//
 	async requestAvailableState(): Promise<boolean> {
 		if (this.state === 'INITIALIZE') {
+			this.metric.next(ElevatedMetric.APP_INITIALIZE);
 			await this.requestUnavailableState();
 		}
 		return this.api.staterequest(ApplicationStateCodeEnum.AVAILABLE);
