@@ -5,7 +5,7 @@
     "jsx": "preserve",
     "esModuleInterop": true,
     "sourceMap": true,
-    "lib": ["es2015", "es2016", "dom", "es2018.promise"],
+    "lib": ["es2017", "es2016", "dom", "es2018.promise"],
     "rootDir": "src",
     "moduleResolution": "node",
     "target": "es2015",

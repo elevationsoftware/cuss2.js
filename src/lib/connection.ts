@@ -40,7 +40,7 @@ export class Connection {
 		this._auth = { url: tokenURL, client_id, client_secret };
 
 		let protocol = /^https/.test(baseURL) ? "wss" : "ws";
-		this._socketURL = protocol + baseURL.replace(/^https?/, '') + '/subscribe';
+		this._socketURL = protocol + baseURL.replace(/^https?/, '') + '/platform/subscribe';
 	}
 
 	_auth: any;
@@ -90,6 +90,9 @@ export class Connection {
 					socket.onmessage = (event) => {
 						logger("[socket.onmessage]", event.data);
 						const data = JSON.parse(event.data);
+						if (typeof data.toApplication?.requestID.length) {
+							console.log(data.toApplication?.requestID, Date.now(), 'Websocket message')
+						}
 						this.messages.next(data);
 					};
 					resolve(true);
@@ -141,14 +144,21 @@ export class Connection {
 		logger(`[connection.${type}()] ${path} response:\n`, r.data);
 
 		const { requestID, returnCode } = r.data as CUSS2ApiResponse;
+		console.log(requestID, Date.now(), 'response from '+path)
 		if (returnCode !== 'RC_OK') {
 			return Promise.reject(new Error('HTTP call failed with: ' + returnCode))
 		}
 		logger('[connection._call()] waiting for reply with id: ' + requestID);
 
 		return new Promise<PlatformData>((resolve, reject) => {
+			let timedout = false;
+			setTimeout(() => {
+				timedout = true;
+				reject(new Error(`TIMEOUT waiting for requestID ${requestID} of ${path}`))
+			}, 10000)
 			this.messages.pipe(
 				takeWhile(message => {
+					if (timedout) return false;
 					if (message.toApplication?.requestID === requestID) {
 						if (message.toApplication.statusCode === 'OK') {
 							resolve(message.toApplication as PlatformData);
@@ -160,7 +170,7 @@ export class Connection {
 					return true; // continue getting messages
 				})
 			)
-			.subscribe(()=>{})
+				.subscribe(()=>{})
 		})
 	}
 }
