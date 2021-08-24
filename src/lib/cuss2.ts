@@ -69,20 +69,30 @@ export class Cuss2 {
 		return this.stateChange.getValue();
 	}
 
-	async _handleWebSocketMessage(message: any) {
-		message = message && message.toApplication;
+	async _handleWebSocketMessage(data: DataExchange) {
+		const message = data && data.toApplication;
 		if (!message || message.statusCode === undefined) return; // initial value is an empty value
 
 		logger('[event.currentApplicationState]', message.currentApplicationState);
 
-		if(message.currentApplicationState !== this.stateChange.getValue()) {
-			this.stateChange.next(message.currentApplicationState);
+		const currentApplicationState = message.currentApplicationState.toString();
+		if(currentApplicationState !== this.stateChange.getValue()) {
+			this.stateChange.next(currentApplicationState as ApplicationStateCodeEnum);
 
-			if (this._online && message.currentApplicationState === ApplicationStates.ApplicationStateCodeEnum.INITIALIZE) {
+			if (this._online && currentApplicationState === ApplicationStateCodeEnum.INITIALIZE) {
 				this.checkRequiredComponentsAndSyncState();
 			}
-			else if (this._activated && message.currentApplicationState === ApplicationStateCodeEnum.ACTIVE) {
+			else if (this._activated && currentApplicationState === ApplicationStateCodeEnum.ACTIVE) {
 				this._handleActivate();
+			}
+		}
+
+		if(message.componentID) {
+			const component = this.components[message.componentID];
+			if (component && (component.statusCode !== message.statusCode || component.eventHandlingCode !== message.eventHandlingCode)) {
+				component.statusCode = message.statusCode;
+				component.eventHandlingCode = message.eventHandlingCode;
+				this.checkRequiredComponentsAndSyncState();
 			}
 		}
 
@@ -173,15 +183,16 @@ export class Cuss2 {
 				assignLinks(self.bagTagPrinter as BagTagPrinter);
 
 				await Promise.all(
-					components.map(c => self.api.getStatus(c.componentID as number))
+					components.map(c => self.api.getStatus(c.componentID as number)
+						.catch(e => e)) //it rejects statusCodes that are not "OK" - but here we just need to know what it is, so ignore
 				)
-				.then(responses => {
-					responses.forEach(response => {
-						const id = String(response.componentID);
-						self.components[id].eventHandlingCode = response.eventHandlingCode
-						self.components[id].status = response.statusCode
-					})
-				});
+					.then(responses => {
+						responses.forEach(response => {
+							const id = String(response.componentID);
+							self.components[id].eventHandlingCode = response.eventHandlingCode
+							self.components[id].status = response.statusCode
+						})
+					});
 
 				return self.components;
 			},
@@ -265,23 +276,28 @@ export class Cuss2 {
 	// State requests. Only offer the ones that are valid to request.
 	//
 	async requestAvailableState(): Promise<boolean> {
-		if (this.state === 'INITIALIZE') {
+		// allow hoping directly to AVAILABLE from INITIALIZE
+		if (this.state === ApplicationStateCodeEnum.INITIALIZE) {
 			this.metric.next(ElevatedMetric.APP_INITIALIZE);
 			await this.requestUnavailableState();
 		}
-		return this.api.staterequest(ApplicationStateCodeEnum.AVAILABLE);
+		const okToChange = this.state === ApplicationStateCodeEnum.UNAVAILABLE;
+		return okToChange ? this.api.staterequest(ApplicationStateCodeEnum.AVAILABLE) : Promise.resolve(false);
 	}
 	requestUnavailableState(): Promise<boolean> {
-		return this.api.staterequest(ApplicationStateCodeEnum.UNAVAILABLE);
+		const okToChange = this.state === ApplicationStateCodeEnum.INITIALIZE || this.state === ApplicationStateCodeEnum.AVAILABLE || this.state === ApplicationStateCodeEnum.ACTIVE;
+		return okToChange ? this.api.staterequest(ApplicationStateCodeEnum.UNAVAILABLE) : Promise.resolve(false);
 	}
 	requestStoppedState(): Promise<boolean> {
 		return this.api.staterequest(ApplicationStateCodeEnum.STOPPED);
 	}
 	requestActiveState(): Promise<boolean> {
-		return this.api.staterequest(ApplicationStateCodeEnum.ACTIVE);
+		const okToChange = this.state === ApplicationStateCodeEnum.AVAILABLE || this.state === ApplicationStateCodeEnum.ACTIVE;
+		return okToChange ? this.api.staterequest(ApplicationStateCodeEnum.ACTIVE) : Promise.resolve(false);
 	}
 	requestReload(): Promise<boolean> {
-		return this.api.staterequest(ApplicationStateCodeEnum.RELOAD);
+		const okToChange = this.state === ApplicationStateCodeEnum.UNAVAILABLE || this.state === ApplicationStateCodeEnum.AVAILABLE || this.state === ApplicationStateCodeEnum.ACTIVE;
+		return okToChange ? this.api.staterequest(ApplicationStateCodeEnum.RELOAD) : Promise.resolve(false);
 	}
 
 	get unavailableComponents(): Component[] {
@@ -304,7 +320,7 @@ export class Cuss2 {
 				this.requestUnavailableState();
 			}
 		}
-		else if (this.state === ApplicationStateCodeEnum.INITIALIZE || this.state === ApplicationStateCodeEnum.AVAILABLE || this.state === ApplicationStateCodeEnum.ACTIVE) {
+		else {
 			this.requestUnavailableState();
 		}
 	}

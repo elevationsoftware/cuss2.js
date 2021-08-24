@@ -4,6 +4,7 @@ import axios from "axios";
 import {PlatformData} from "./interfaces/platformData";
 import {takeWhile} from "rxjs/operators";
 import { CUSS2ApiResponse } from "./interfaces/cUSS2ApiResponse";
+import { PlatformResponseError } from "./models/platformResponseError";
 
 export class Connection {
 	/**
@@ -90,9 +91,6 @@ export class Connection {
 					socket.onmessage = (event) => {
 						logger("[socket.onmessage]", event.data);
 						const data = JSON.parse(event.data);
-						if (typeof data.toApplication?.requestID.length) {
-							console.log(data.toApplication?.requestID, Date.now(), 'Websocket message')
-						}
 						this.messages.next(data);
 					};
 					resolve(true);
@@ -144,7 +142,6 @@ export class Connection {
 		logger(`[connection.${type}()] ${path} response:\n`, r.data);
 
 		const { requestID, returnCode } = r.data as CUSS2ApiResponse;
-		console.log(requestID, Date.now(), 'response from '+path)
 		if (returnCode !== 'RC_OK') {
 			return Promise.reject(new Error('HTTP call failed with: ' + returnCode))
 		}
@@ -160,10 +157,11 @@ export class Connection {
 				takeWhile(message => {
 					if (timedout) return false;
 					if (message.toApplication?.requestID === requestID) {
-						if (message.toApplication.statusCode === 'OK') {
+						const pd = message.toApplication as PlatformData
+						if (pd.statusCode === 'OK') {
 							resolve(message.toApplication as PlatformData);
 						} else {
-							reject(new Error('Platform returned status code: ' + message.toApplication.statusCode));
+							reject(new PlatformResponseError(pd));
 						}
 						return false;
 					}
