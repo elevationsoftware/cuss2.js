@@ -236,6 +236,7 @@ export class Cuss2 {
 				if (response.statusCode !== 'OK') {
 					throw new Error(`Request to enter ${state} state failed: ${response.statusCode}`);
 				}
+				this.appStateHandler(state);
 				return true;
 			},
 
@@ -273,6 +274,38 @@ export class Cuss2 {
 		};
 	}
 
+	/**
+	 * Handles the application state for metrics change behavior subjects.
+	 */
+	appStateHandler(state: ApplicationStateCodeEnum) {
+		switch(state) {
+			case ApplicationStateCodeEnum.INITIALIZE:
+				this.metric.next(ElevatedMetric.APP_INITIALIZE);
+				break;
+			case ApplicationStateCodeEnum.ACTIVE:
+				this.metric.next(ElevatedMetric.APP_ACTIVE);
+				break;
+			case ApplicationStateCodeEnum.AVAILABLE:
+				this.metric.next(ElevatedMetric.APP_AVAILABLE);
+				break;
+			case ApplicationStateCodeEnum.UNAVAILABLE:
+				this.metric.next(ElevatedMetric.APP_UNAVAILABLE);
+				break;
+		}
+	}
+
+	/**
+	 * Handles the component failure state for metrics change behavior subjects.
+	 */
+	componentFailureStateMetricHandler(c: Component) {
+		if (c instanceof BagTagPrinter) {
+			this.metric.next(ElevatedMetric.BAGTAG_ERROR);
+		}
+		if (c instanceof BoardingPassPrinter) {
+			this.metric.next(ElevatedMetric.BOARDINGPASS_ERROR);
+		}
+	}
+
 	//
 	// State requests. Only offer the ones that are valid to request.
 	//
@@ -303,7 +336,10 @@ export class Cuss2 {
 
 	get unavailableComponents(): Component[] {
 		const components = Object.values(this.components) as Component[];
-		return components.filter((c:Component) => c.eventHandlingCode === EventHandlingCodes.UNAVAILABLE);
+		return components.filter((c:Component) => {
+			 this.componentFailureStateMetricHandler(c);
+			 return c.eventHandlingCode === EventHandlingCodes.UNAVAILABLE;
+		});
 	}
 	get unavailableRequiredComponents(): Component[] {
 		return this.unavailableComponents.filter((c:Component) => c.required)

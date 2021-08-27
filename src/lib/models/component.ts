@@ -1,6 +1,7 @@
 import {Subject} from "rxjs";
 import {Cuss2} from "../cuss2";
 import {DataExchange, EnvironmentComponent, EventHandlingCodes, PlatformData, StatusCodes} from "../..";
+import { ElevatedMetric } from '../interfaces/elevatedMetrics';
 
 
 export class Component {
@@ -11,10 +12,12 @@ export class Component {
 	required: boolean = true;
 	eventHandlingCode: EventHandlingCodes = EventHandlingCodes.UNAVAILABLE;
 	status: StatusCodes = StatusCodes.OK;
+	_cussRef: Cuss2;
 
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		this._component = component;
 		this.id = component.componentID as number;
+		this._cussRef = cuss2;
 		Object.defineProperty(this, 'api', {
 			get: () => cuss2.api,
 			enumerable: false
@@ -53,6 +56,13 @@ export class Component {
 				]
 			},
 		} as DataExchange;
+
+		if (this instanceof BagTagPrinter) {
+			this._cussRef.metric.next(ElevatedMetric.BAGTAG_PRINTED);
+		}
+		if (this instanceof BoardingPassPrinter) {
+			this._cussRef.metric.next(ElevatedMetric.BOARDINGPASS_PRINTED);
+		}
 
 		return this.api.send(this.id, dataExchange);
 	}
