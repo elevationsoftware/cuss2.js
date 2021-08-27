@@ -140,14 +140,14 @@ export class Cuss2 {
 					const isMsrPayment = () => charac0?.readerType === ReaderTypes.DIP && mediaTypesHas(MediaTypes.MAGNETICSTRIPE);
 					const isKeypad = () => dsTypesHas(CUSSDataTypes.KEY) && dsTypesHas(CUSSDataTypes.KEYUP) && dsTypesHas(CUSSDataTypes.KEYDOWN);
 
-					if (isAnnouncement()) instance = self.announcement = new Announcement(component, self, DeviceType.ANNOUNCEMENT);
-					else if (isFeeder()) instance = new Feeder(component, self, DeviceType.FEEDER);
-					else if (isDispenser()) instance = new Dispenser(component, self, DeviceType.DISPENSER);
-					else if (isBagTagPrinter()) instance = self.bagTagPrinter = new BagTagPrinter(component, self, DeviceType.BAG_TAG_PRINTER);
-					else if (isBoardingPassPrinter()) instance = self.boardingPassPrinter = new BoardingPassPrinter(component, self, DeviceType.BOARDING_PASS_PRINTER);
-					else if (isDocumentReader()) instance = self.documentReader = new DocumentReader(component, self, DeviceType.PASSPORT_READER);
-					else if (isBarcodeReader()) instance = self.barcodeReader = new BarcodeReader(component, self, DeviceType.BARCODE_READER);
-					else if (isMsrPayment()) instance = self.msrPayment = new PaymentDevice(component, self, DeviceType.MSR_READER);
+					if (isAnnouncement()) instance = self.announcement = new Announcement(component, self);
+					else if (isFeeder()) instance = new Feeder(component, self);
+					else if (isDispenser()) instance = new Dispenser(component, self);
+					else if (isBagTagPrinter()) instance = self.bagTagPrinter = new BagTagPrinter(component, self);
+					else if (isBoardingPassPrinter()) instance = self.boardingPassPrinter = new BoardingPassPrinter(component, self);
+					else if (isDocumentReader()) instance = self.documentReader = new DocumentReader(component, self);
+					else if (isBarcodeReader()) instance = self.barcodeReader = new BarcodeReader(component, self);
+					else if (isMsrPayment()) instance = self.msrPayment = new PaymentDevice(component, self);
 					else if (isKeypad()) instance = self.keypad = new Keypad(component, self);
 
 					return components[id] = instance || new Component(component, self);
