@@ -236,7 +236,7 @@ export class Cuss2 {
 				if (response.statusCode !== 'OK') {
 					throw new Error(`Request to enter ${state} state failed: ${response.statusCode}`);
 				}
-				this.appStateHandler(state);
+				this._appStateHandler(state);
 				return true;
 			},
 
@@ -277,7 +277,7 @@ export class Cuss2 {
 	/**
 	 * Handles the application state for metrics change behavior subjects.
 	 */
-	appStateHandler(state: ApplicationStateCodeEnum) {
+	_appStateHandler(state: ApplicationStateCodeEnum) {
 		switch(state) {
 			case ApplicationStateCodeEnum.INITIALIZE:
 				this.metric.next(ElevatedMetric.APP_INITIALIZE);
@@ -297,7 +297,7 @@ export class Cuss2 {
 	/**
 	 * Handles the component failure state for metrics change behavior subjects.
 	 */
-	componentFailureStateMetricHandler(c: Component) {
+	_componentFailureStateMetricHandler(c: Component) {
 		if (c instanceof BagTagPrinter) {
 			this.metric.next(ElevatedMetric.BAGTAG_ERROR);
 		}
@@ -337,7 +337,7 @@ export class Cuss2 {
 	get unavailableComponents(): Component[] {
 		const components = Object.values(this.components) as Component[];
 		return components.filter((c:Component) => {
-			 this.componentFailureStateMetricHandler(c);
+			 this._componentFailureStateMetricHandler(c);
 			 return c.eventHandlingCode === EventHandlingCodes.UNAVAILABLE;
 		});
 	}

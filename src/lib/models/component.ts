@@ -46,6 +46,18 @@ export class Component {
 		return this.api.getStatus(this.id);
 	}
 
+	/**
+	 * @private
+	 */
+	_handleComponentMetrics(c: Component) {
+		if (c instanceof BagTagPrinter) {
+			this._cussRef.metric.next(ElevatedMetric.BAGTAG_PRINTED);
+		}
+		if (c instanceof BoardingPassPrinter) {
+			this._cussRef.metric.next(ElevatedMetric.BOARDINGPASS_PRINTED);
+		}
+	}
+
 	sendRaw(raw: string) {
 		const dataExchange = {
 			toPlatform: {
@@ -57,12 +69,7 @@ export class Component {
 			},
 		} as DataExchange;
 
-		if (this instanceof BagTagPrinter) {
-			this._cussRef.metric.next(ElevatedMetric.BAGTAG_PRINTED);
-		}
-		if (this instanceof BoardingPassPrinter) {
-			this._cussRef.metric.next(ElevatedMetric.BOARDINGPASS_PRINTED);
-		}
+		this._handleComponentMetrics(this);
 
 		return this.api.send(this.id, dataExchange);
 	}
