@@ -30,10 +30,6 @@ export class Component {
 		this.onmessage.next(data);
 	}
 
-	get active() : boolean {
-		return false;//Boolean(this._component.);
-	}
-
 	enable() {
 		return this.api.enable(this.id);
 	}

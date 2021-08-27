@@ -52,7 +52,7 @@ export class Cuss2 {
 	}
 	connection:Connection;
 	environment: EnvironmentLevel = {} as EnvironmentLevel;
-	components: any = {};
+	components: any|undefined = undefined;
 	stateChange: BehaviorSubject<ApplicationStateCodeEnum> = new BehaviorSubject<ApplicationStateCodeEnum>(ApplicationStateCodeEnum.STOPPED);
 	onmessage: Subject<any> = new Subject<any>();
 
@@ -87,7 +87,7 @@ export class Cuss2 {
 			}
 		}
 
-		if(message.componentID) {
+		if(message.componentID && this.components) {
 			const component = this.components[message.componentID];
 			if (component && (component.statusCode !== message.statusCode || component.eventHandlingCode !== message.eventHandlingCode)) {
 				component.statusCode = message.statusCode;
@@ -116,10 +116,10 @@ export class Cuss2 {
 			getComponents: async (): Promise<Component[]> => {
 				const response = await self.connection.get('/platform/components');
 				logger('[getComponents()] response', response);
-				const components = response.componentList as ComponentList;
+				const componentList = response.componentList as ComponentList;
+				const components:any = {};
 
-				self.components = {};
-				components.forEach((component) => {
+				componentList.forEach((component) => {
 					const id = String(component.componentID);
 					const type = component.componentType;
 					const charac0 = component.componentCharacteristics?.[0];
@@ -151,7 +151,7 @@ export class Cuss2 {
 					else if (isMsrPayment()) instance = self.msrPayment = new PaymentDevice(component, self);
 					else if (isKeypad()) instance = self.keypad = new Keypad(component, self);
 
-					return self.components[id] = instance || new Component(component, self);
+					return components[id] = instance || new Component(component, self);
 				});
 
 				function assignLinks(printer: Printer) {
@@ -161,7 +161,7 @@ export class Cuss2 {
 
 					if (printer && links?.length) {
 						links.forEach((id) => {
-							const component = self.components[id] as Component;
+							const component = components[id] as Component;
 							const type = component._component.componentType;
 							if (type === ComponentTypes.FEEDER) {
 								const feeder = component as Feeder;
@@ -183,18 +183,19 @@ export class Cuss2 {
 				assignLinks(self.bagTagPrinter as BagTagPrinter);
 
 				await Promise.all(
-					components.map(c => self.api.getStatus(c.componentID as number)
+					componentList.map(c => self.api.getStatus(c.componentID as number)
 						.catch(e => e)) //it rejects statusCodes that are not "OK" - but here we just need to know what it is, so ignore
 				)
 					.then(responses => {
 						responses.forEach(response => {
 							const id = String(response.componentID);
-							self.components[id].eventHandlingCode = response.eventHandlingCode
-							self.components[id].status = response.statusCode
+							components[id].eventHandlingCode = response.eventHandlingCode
+							components[id].status = response.statusCode
 						})
 					});
 
-				return self.components;
+				self.components = components;
+				return components;
 			},
 			getStatus: async (componentID:number): Promise<PlatformData> => {
 				const response = await this.connection.get('/peripherals/query/' + componentID);
@@ -312,7 +313,7 @@ export class Cuss2 {
 		if (this._online) {
 			const inactiveRequiredComponents = this.unavailableRequiredComponents;
 			if (!inactiveRequiredComponents.length) {
-				logger('[checkRequiredComponentsAndSyncState] All required components OK. Requesting AVAILABLE state');
+				logger('[checkRequiredComponentsAndSyncState] All required components OK ✅. Ready for AVAILABLE state.');
 				this.requestAvailableState();
 			}
 			else {
@@ -320,7 +321,7 @@ export class Cuss2 {
 				this.requestUnavailableState();
 			}
 		}
-		else {
+		else if (this.components) {
 			this.requestUnavailableState();
 		}
 	}
@@ -346,3 +347,5 @@ export class Cuss2 {
 		}
 	}
 }
+
+export * from "./models/component";

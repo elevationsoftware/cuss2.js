@@ -89,7 +89,6 @@ export class Connection {
 				if (data.returnCode) {
 					this._socket = socket;
 					socket.onmessage = (event) => {
-						logger("[socket.onmessage]", event.data);
 						const data = JSON.parse(event.data);
 						this.messages.next(data);
 					};
