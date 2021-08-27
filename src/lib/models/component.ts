@@ -15,7 +15,7 @@ export class Component {
 	_cussRef: Cuss2;
 	deviceType: DeviceType;
 
-	constructor(component: EnvironmentComponent, cuss2: Cuss2, _type: DeviceType) {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2, _type: DeviceType = DeviceType.UNKNOWN) {
 		this._component = component;
 		this.id = component.componentID as number;
 		this._cussRef = cuss2;

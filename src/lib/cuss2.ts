@@ -150,7 +150,7 @@ export class Cuss2 {
 					else if (isMsrPayment()) instance = self.msrPayment = new PaymentDevice(component, self, DeviceType.MSR_READER);
 					else if (isKeypad()) instance = self.keypad = new Keypad(component, self);
 
-					return components[id] = instance || new Component(component, self, DeviceType.UNKNOWN);
+					return components[id] = instance || new Component(component, self);
 				});
 
 				function assignLinks(printer: Printer) {
