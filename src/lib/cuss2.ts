@@ -276,6 +276,7 @@ export class Cuss2 {
 
 	/**
 	 * Handles the application state for metrics change behavior subjects.
+	 * @private
 	 */
 	_appStateHandler(state: ApplicationStateCodeEnum) {
 		switch(state) {
@@ -296,6 +297,7 @@ export class Cuss2 {
 
 	/**
 	 * Handles the component failure state for metrics change behavior subjects.
+	 * @private
 	 */
 	_componentFailureStateMetricHandler(c: Component) {
 		if (c instanceof BagTagPrinter) {
