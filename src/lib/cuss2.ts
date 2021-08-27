@@ -301,9 +301,7 @@ export class Cuss2 {
 
 	get unavailableComponents(): Component[] {
 		const components = Object.values(this.components) as Component[];
-		return components.filter((c:Component) => {
-			 return c.eventHandlingCode === EventHandlingCodes.UNAVAILABLE;
-		});
+		return components.filter((c:Component) => c.eventHandlingCode === EventHandlingCodes.UNAVAILABLE);
 	}
 	get unavailableRequiredComponents(): Component[] {
 		return this.unavailableComponents.filter((c:Component) => c.required)
