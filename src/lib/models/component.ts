@@ -1,7 +1,7 @@
 import {Subject} from "rxjs";
 import {Cuss2} from "../cuss2";
 import {DataExchange, EnvironmentComponent, EventHandlingCodes, PlatformData, StatusCodes} from "../..";
-import { ElevatedMetric } from '../interfaces/elevatedMetrics';
+import { DeviceType } from '../interfaces/deviceType';
 
 
 export class Component {
@@ -13,11 +13,13 @@ export class Component {
 	eventHandlingCode: EventHandlingCodes = EventHandlingCodes.UNAVAILABLE;
 	status: StatusCodes = StatusCodes.OK;
 	_cussRef: Cuss2;
+	deviceType: DeviceType;
 
-	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2, _type: DeviceType) {
 		this._component = component;
 		this.id = component.componentID as number;
 		this._cussRef = cuss2;
+		this.deviceType = _type;
 		Object.defineProperty(this, 'api', {
 			get: () => cuss2.api,
 			enumerable: false
@@ -27,6 +29,15 @@ export class Component {
 				this._handleMessage(data);
 			}
 		});
+	}
+
+	stateChanged(msg: PlatformData): boolean {
+		return this.status !== msg.statusCode || this.eventHandlingCode !== msg.eventHandlingCode;
+	}
+
+	updateState(msg: PlatformData): void {
+		this.status = msg.statusCode;
+		this.eventHandlingCode = msg.eventHandlingCode;
 	}
 
 	_handleMessage(data:any) {
@@ -46,17 +57,6 @@ export class Component {
 		return this.api.getStatus(this.id);
 	}
 
-	/**
-	 * @private
-	 */
-	_handleComponentMetrics(c: Component) {
-		if (c instanceof BagTagPrinter) {
-			this._cussRef.metric.next(ElevatedMetric.BAGTAG_PRINTED);
-		}
-		if (c instanceof BoardingPassPrinter) {
-			this._cussRef.metric.next(ElevatedMetric.BOARDINGPASS_PRINTED);
-		}
-	}
 
 	sendRaw(raw: string) {
 		const dataExchange = {
@@ -68,8 +68,6 @@ export class Component {
 				]
 			},
 		} as DataExchange;
-
-		this._handleComponentMetrics(this);
 
 		return this.api.send(this.id, dataExchange);
 	}
@@ -116,7 +114,7 @@ export class Dispenser extends Component {
 }
 export class Keypad extends Component {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
-		super(component, cuss2);
+		super(component, cuss2, DeviceType.KEY_PAD);
 	}
 
 	_handleMessage(message:PlatformData) {

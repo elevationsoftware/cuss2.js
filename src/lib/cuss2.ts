@@ -24,7 +24,7 @@ import { CUSSDataTypes } from "./interfaces/cUSSDataTypes";
 import {ReaderTypes} from "./interfaces/readerTypes";
 import {MediaTypes} from "./interfaces/mediaTypes";
 import {EventHandlingCodes} from "./interfaces/eventHandlingCodes";
-import { ElevatedMetric } from './interfaces/elevatedMetrics';
+import { DeviceType } from './interfaces/deviceType';
 
 function validateComponentId(componentID:any) {
 	if (typeof componentID !== 'number') {
@@ -43,17 +43,16 @@ export class Cuss2 {
 	}
 	static logger = logger;
 
-	public metric: BehaviorSubject<ElevatedMetric>;
 
 	private constructor(connection: Connection) {
 		this.connection = connection;
 		connection.messages.subscribe(async e => await this._handleWebSocketMessage(e))
-		this.metric = new BehaviorSubject<ElevatedMetric>(ElevatedMetric.NONE);
 	}
 	connection:Connection;
 	environment: EnvironmentLevel = {} as EnvironmentLevel;
 	components: any|undefined = undefined;
 	stateChange: BehaviorSubject<ApplicationStateCodeEnum> = new BehaviorSubject<ApplicationStateCodeEnum>(ApplicationStateCodeEnum.STOPPED);
+	componentStateChange: BehaviorSubject<Component|null> = new BehaviorSubject<Component|null>(null);
 	onmessage: Subject<any> = new Subject<any>();
 
 	bagTagPrinter?: BagTagPrinter;
@@ -89,9 +88,9 @@ export class Cuss2 {
 
 		if(message.componentID && this.components) {
 			const component = this.components[message.componentID];
-			if (component && (component.statusCode !== message.statusCode || component.eventHandlingCode !== message.eventHandlingCode)) {
-				component.statusCode = message.statusCode;
-				component.eventHandlingCode = message.eventHandlingCode;
+			if (component && component.stateChanged(message)) {
+				component.updateState(message);
+				this.componentStateChange.next(component);
 				this.checkRequiredComponentsAndSyncState();
 			}
 		}
@@ -141,17 +140,17 @@ export class Cuss2 {
 					const isMsrPayment = () => charac0?.readerType === ReaderTypes.DIP && mediaTypesHas(MediaTypes.MAGNETICSTRIPE);
 					const isKeypad = () => dsTypesHas(CUSSDataTypes.KEY) && dsTypesHas(CUSSDataTypes.KEYUP) && dsTypesHas(CUSSDataTypes.KEYDOWN);
 
-					if (isAnnouncement()) instance = self.announcement = new Announcement(component, self);
-					else if (isFeeder()) instance = new Feeder(component, self);
-					else if (isDispenser()) instance = new Dispenser(component, self);
-					else if (isBagTagPrinter()) instance = self.bagTagPrinter = new BagTagPrinter(component, self);
-					else if (isBoardingPassPrinter()) instance = self.boardingPassPrinter = new BoardingPassPrinter(component, self);
-					else if (isDocumentReader()) instance = self.documentReader = new DocumentReader(component, self);
-					else if (isBarcodeReader()) instance = self.barcodeReader = new BarcodeReader(component, self);
-					else if (isMsrPayment()) instance = self.msrPayment = new PaymentDevice(component, self);
+					if (isAnnouncement()) instance = self.announcement = new Announcement(component, self, DeviceType.ANNOUNCEMENT);
+					else if (isFeeder()) instance = new Feeder(component, self, DeviceType.FEEDER);
+					else if (isDispenser()) instance = new Dispenser(component, self, DeviceType.DISPENSER);
+					else if (isBagTagPrinter()) instance = self.bagTagPrinter = new BagTagPrinter(component, self, DeviceType.BAG_TAG_PRINTER);
+					else if (isBoardingPassPrinter()) instance = self.boardingPassPrinter = new BoardingPassPrinter(component, self, DeviceType.BOARDING_PASS_PRINTER);
+					else if (isDocumentReader()) instance = self.documentReader = new DocumentReader(component, self, DeviceType.PASSPORT_READER);
+					else if (isBarcodeReader()) instance = self.barcodeReader = new BarcodeReader(component, self, DeviceType.BARCODE_READER);
+					else if (isMsrPayment()) instance = self.msrPayment = new PaymentDevice(component, self, DeviceType.MSR_READER);
 					else if (isKeypad()) instance = self.keypad = new Keypad(component, self);
 
-					return components[id] = instance || new Component(component, self);
+					return components[id] = instance || new Component(component, self, DeviceType.UNKNOWN);
 				});
 
 				function assignLinks(printer: Printer) {
@@ -236,7 +235,6 @@ export class Cuss2 {
 				if (response.statusCode !== 'OK') {
 					throw new Error(`Request to enter ${state} state failed: ${response.statusCode}`);
 				}
-				this._appStateHandler(state);
 				return true;
 			},
 
@@ -274,47 +272,12 @@ export class Cuss2 {
 		};
 	}
 
-	/**
-	 * Handles the application state for metrics change behavior subjects.
-	 * @private
-	 */
-	_appStateHandler(state: ApplicationStateCodeEnum) {
-		switch(state) {
-			case ApplicationStateCodeEnum.INITIALIZE:
-				this.metric.next(ElevatedMetric.APP_INITIALIZE);
-				break;
-			case ApplicationStateCodeEnum.ACTIVE:
-				this.metric.next(ElevatedMetric.APP_ACTIVE);
-				break;
-			case ApplicationStateCodeEnum.AVAILABLE:
-				this.metric.next(ElevatedMetric.APP_AVAILABLE);
-				break;
-			case ApplicationStateCodeEnum.UNAVAILABLE:
-				this.metric.next(ElevatedMetric.APP_UNAVAILABLE);
-				break;
-		}
-	}
-
-	/**
-	 * Handles the component failure state for metrics change behavior subjects.
-	 * @private
-	 */
-	_componentFailureStateMetricHandler(c: Component) {
-		if (c instanceof BagTagPrinter) {
-			this.metric.next(ElevatedMetric.BAGTAG_ERROR);
-		}
-		if (c instanceof BoardingPassPrinter) {
-			this.metric.next(ElevatedMetric.BOARDINGPASS_ERROR);
-		}
-	}
-
 	//
 	// State requests. Only offer the ones that are valid to request.
 	//
 	async requestAvailableState(): Promise<boolean> {
 		// allow hoping directly to AVAILABLE from INITIALIZE
 		if (this.state === ApplicationStateCodeEnum.INITIALIZE) {
-			this.metric.next(ElevatedMetric.APP_INITIALIZE);
 			await this.requestUnavailableState();
 		}
 		const okToChange = this.state === ApplicationStateCodeEnum.UNAVAILABLE;
@@ -339,7 +302,6 @@ export class Cuss2 {
 	get unavailableComponents(): Component[] {
 		const components = Object.values(this.components) as Component[];
 		return components.filter((c:Component) => {
-			 this._componentFailureStateMetricHandler(c);
 			 return c.eventHandlingCode === EventHandlingCodes.UNAVAILABLE;
 		});
 	}
