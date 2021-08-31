@@ -38,6 +38,20 @@ export class Cuss2 {
 		const connection = await Connection.connect(url, client_id, client_secret,  options.tokenURL);
 		const cuss2 = new Cuss2(connection);
 		await cuss2.api.getEnvironment();
+		if (!cuss2.state) {
+			throw new Error('Platform in abnormal state.');
+		}
+		if (cuss2.state === ApplicationStateCodeEnum.SUSPENDED) {
+			throw new Error('Platform has SUSPENDED the application');
+		}
+		// ensure state is INITIALIZE
+		if ([ApplicationStateCodeEnum.STOPPED, ApplicationStateCodeEnum.UNAVAILABLE, ApplicationStateCodeEnum.AVAILABLE, ApplicationStateCodeEnum.ACTIVE].includes(cuss2.state)) {
+			await cuss2.requestReload();
+			await cuss2.api.getEnvironment();
+		}
+		if (cuss2.state !== ApplicationStateCodeEnum.INITIALIZE) {
+			throw new Error('Platform in abnormal state. HALTING.');
+		}
 		await cuss2.api.getComponents();
 		return cuss2;
 	}
@@ -75,7 +89,10 @@ export class Cuss2 {
 
 		logger('[event.currentApplicationState]', message.currentApplicationState);
 
-		const currentApplicationState = message.currentApplicationState.toString();
+		const currentApplicationState = message.currentApplicationState?.toString();
+		if(!currentApplicationState) {
+			throw new Error('Platform in invalid state. Cannot continue.');
+		}
 		if(currentApplicationState !== this.stateChange.getValue()) {
 			this.stateChange.next(currentApplicationState as ApplicationStateCodeEnum);
 
@@ -199,7 +216,7 @@ export class Cuss2 {
 			},
 			getStatus: async (componentID:number): Promise<PlatformData> => {
 				const response = await this.connection.get('/peripherals/query/' + componentID);
-				logger('[queryDevice()] response', response.data);
+				logger('[queryDevice()] response', response);
 				return response as PlatformData;
 			},
 
@@ -233,7 +250,7 @@ export class Cuss2 {
 
 			staterequest: async (state: ApplicationStateCodeEnum): Promise<boolean> => {
 				const response = await self.connection.post('/platform/applications/staterequest/' + state, {});
-				if (response.statusCode !== 'OK') {
+				if (response.statusCode !== 'AL_APPLICATION_REQUEST') {
 					throw new Error(`Request to enter ${state} state failed: ${response.statusCode}`);
 				}
 				return true;
@@ -282,7 +299,7 @@ export class Cuss2 {
 			this.metric.next(ElevatedMetric.APP_INITIALIZE);
 			await this.requestUnavailableState();
 		}
-		const okToChange = this.state === ApplicationStateCodeEnum.UNAVAILABLE;
+		const okToChange = this.state === ApplicationStateCodeEnum.UNAVAILABLE || this.state === ApplicationStateCodeEnum.ACTIVE;
 		return okToChange ? this.api.staterequest(ApplicationStateCodeEnum.AVAILABLE) : Promise.resolve(false);
 	}
 	requestUnavailableState(): Promise<boolean> {
@@ -297,7 +314,7 @@ export class Cuss2 {
 		return okToChange ? this.api.staterequest(ApplicationStateCodeEnum.ACTIVE) : Promise.resolve(false);
 	}
 	requestReload(): Promise<boolean> {
-		const okToChange = this.state === ApplicationStateCodeEnum.UNAVAILABLE || this.state === ApplicationStateCodeEnum.AVAILABLE || this.state === ApplicationStateCodeEnum.ACTIVE;
+		const okToChange = !this.state || this.state === ApplicationStateCodeEnum.UNAVAILABLE || this.state === ApplicationStateCodeEnum.AVAILABLE || this.state === ApplicationStateCodeEnum.ACTIVE;
 		return okToChange ? this.api.staterequest(ApplicationStateCodeEnum.RELOAD) : Promise.resolve(false);
 	}
 
