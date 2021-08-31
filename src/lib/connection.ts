@@ -141,7 +141,7 @@ export class Connection {
 		logger(`[connection.${type}()] ${path} response:\n`, r.data);
 
 		const { requestID, returnCode } = r.data as CUSS2ApiResponse;
-		if (returnCode !== 'RC_OK') {
+		if (returnCode !== 'RC_OK' && returnCode !== 'RC_STATE') {
 			return Promise.reject(new Error('HTTP call failed with: ' + returnCode))
 		}
 		logger('[connection._call()] waiting for reply with id: ' + requestID);
@@ -157,11 +157,11 @@ export class Connection {
 					if (timedout) return false;
 					if (message.toApplication?.requestID === requestID) {
 						const pd = message.toApplication as PlatformData
-						if (pd.statusCode === 'OK') {
+						// if (pd.statusCode === 'OK') {
 							resolve(message.toApplication as PlatformData);
-						} else {
-							reject(new PlatformResponseError(pd));
-						}
+						// } else {
+						// 	reject(new PlatformResponseError(pd));
+						// }
 						return false;
 					}
 					return true; // continue getting messages
