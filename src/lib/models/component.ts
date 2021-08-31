@@ -1,6 +1,6 @@
 import {Subject} from "rxjs";
 import {Cuss2} from "../cuss2";
-import {DataExchange, EnvironmentComponent, EventHandlingCodes, PlatformData, StatusCodes} from "../..";
+import {CUSSDataTypes, DataExchange, EnvironmentComponent, EventHandlingCodes, PlatformData, StatusCodes} from "../..";
 
 
 export class Component {
@@ -43,12 +43,12 @@ export class Component {
 		return this.api.getStatus(this.id);
 	}
 
-	sendRaw(raw: string) {
+	sendRaw(raw: string, dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.CODELINE ] ) {
 		const dataExchange = {
 			toPlatform: {
 				dataRecords: [
 					{
-						data: raw as any
+						data: raw as any, dsTypes: [ CUSSDataTypes.CODELINE ]
 					}
 				]
 			},
@@ -56,10 +56,10 @@ export class Component {
 
 		return this.api.send(this.id, dataExchange);
 	}
-	setupRaw(raw: string) {
+	setupRaw(raw: string, dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.CODELINE ]) {
 		const dataExchange = {
 			toPlatform: {
-				dataRecords: [ { data: raw as any } ]
+				dataRecords: [ { data: raw as any, dsTypes: [ CUSSDataTypes.CODELINE ] } ]
 			},
 		} as DataExchange;
 
