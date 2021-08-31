@@ -1,7 +1,7 @@
 import {Subject} from "rxjs";
 import {Cuss2} from "../cuss2";
 import {CUSSDataTypes, DataExchange, EnvironmentComponent, EventHandlingCodes, PlatformData, StatusCodes} from "../..";
-
+import { DeviceType } from '../interfaces/deviceType';
 
 export class Component {
 	_component: EnvironmentComponent;
@@ -11,10 +11,12 @@ export class Component {
 	required: boolean = true;
 	eventHandlingCode: EventHandlingCodes = EventHandlingCodes.UNAVAILABLE;
 	status: StatusCodes = StatusCodes.OK;
+	deviceType: DeviceType;
 
-	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2, _type: DeviceType = DeviceType.UNKNOWN) {
 		this._component = component;
 		this.id = component.componentID as number;
+		this.deviceType = _type;
 		Object.defineProperty(this, 'api', {
 			get: () => cuss2.api,
 			enumerable: false
@@ -24,6 +26,15 @@ export class Component {
 				this._handleMessage(data);
 			}
 		});
+	}
+
+	stateChanged(msg: PlatformData): boolean {
+		return this.status !== msg.statusCode || this.eventHandlingCode !== msg.eventHandlingCode;
+	}
+
+	updateState(msg: PlatformData): void {
+		this.status = msg.statusCode;
+		this.eventHandlingCode = msg.eventHandlingCode;
 	}
 
 	_handleMessage(data:any) {
@@ -67,9 +78,21 @@ export class Component {
 	}
 }
 
-export class BarcodeReader extends Component {}
-export class DocumentReader extends Component {}
-export class PaymentDevice extends Component {}
+export class BarcodeReader extends Component {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.BARCODE_READER);
+	}
+}
+export class DocumentReader extends Component {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.PASSPORT_READER);
+	}
+}
+export class PaymentDevice extends Component {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.MSR_READER);
+	}
+}
 export class Printer extends Component {
 	feeder?: Component;
 	dispenser?: Component;
@@ -88,18 +111,32 @@ export class Printer extends Component {
 		await this.sendRaw(rawData);
 	}
 }
-export class BagTagPrinter extends Printer {}
-export class BoardingPassPrinter extends Printer {}
+export class BagTagPrinter extends Printer {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.BAG_TAG_PRINTER);
+	}
+}
+export class BoardingPassPrinter extends Printer {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.BOARDING_PASS_PRINTER);
+	}
+}
 
 export class Feeder extends Component {
 	printer?: Printer;
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.FEEDER);
+	}
 }
 export class Dispenser extends Component {
 	printer?: Printer;
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.DISPENSER);
+	}
 }
 export class Keypad extends Component {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
-		super(component, cuss2);
+		super(component, cuss2, DeviceType.KEY_PAD);
 	}
 
 	_handleMessage(message:PlatformData) {

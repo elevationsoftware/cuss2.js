@@ -24,7 +24,7 @@ import { CUSSDataTypes } from "./interfaces/cUSSDataTypes";
 import {ReaderTypes} from "./interfaces/readerTypes";
 import {MediaTypes} from "./interfaces/mediaTypes";
 import {EventHandlingCodes} from "./interfaces/eventHandlingCodes";
-import { ElevatedMetric } from './interfaces/elevatedMetrics';
+import { DeviceType } from './interfaces/deviceType';
 
 function validateComponentId(componentID:any) {
 	if (typeof componentID !== 'number') {
@@ -57,17 +57,16 @@ export class Cuss2 {
 	}
 	static logger = logger;
 
-	public metric: BehaviorSubject<ElevatedMetric>;
 
 	private constructor(connection: Connection) {
 		this.connection = connection;
 		connection.messages.subscribe(async e => await this._handleWebSocketMessage(e))
-		this.metric = new BehaviorSubject<ElevatedMetric>(ElevatedMetric.NONE);
 	}
 	connection:Connection;
 	environment: EnvironmentLevel = {} as EnvironmentLevel;
 	components: any|undefined = undefined;
 	stateChange: BehaviorSubject<ApplicationStateCodeEnum> = new BehaviorSubject<ApplicationStateCodeEnum>(ApplicationStateCodeEnum.STOPPED);
+	componentStateChange: BehaviorSubject<Component|null> = new BehaviorSubject<Component|null>(null);
 	onmessage: Subject<any> = new Subject<any>();
 
 	bagTagPrinter?: BagTagPrinter;
@@ -106,9 +105,9 @@ export class Cuss2 {
 
 		if(message.componentID && this.components) {
 			const component = this.components[message.componentID];
-			if (component && (component.statusCode !== message.statusCode || component.eventHandlingCode !== message.eventHandlingCode)) {
-				component.statusCode = message.statusCode;
-				component.eventHandlingCode = message.eventHandlingCode;
+			if (component && component.stateChanged(message)) {
+				component.updateState(message);
+				this.componentStateChange.next(component);
 				this.checkRequiredComponentsAndSyncState();
 			}
 		}
@@ -296,7 +295,6 @@ export class Cuss2 {
 	async requestAvailableState(): Promise<boolean> {
 		// allow hoping directly to AVAILABLE from INITIALIZE
 		if (this.state === ApplicationStateCodeEnum.INITIALIZE) {
-			this.metric.next(ElevatedMetric.APP_INITIALIZE);
 			await this.requestUnavailableState();
 		}
 		const okToChange = this.state === ApplicationStateCodeEnum.UNAVAILABLE || this.state === ApplicationStateCodeEnum.ACTIVE;
