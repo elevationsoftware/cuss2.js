@@ -24,7 +24,6 @@ import { CUSSDataTypes } from "./interfaces/cUSSDataTypes";
 import {ReaderTypes} from "./interfaces/readerTypes";
 import {MediaTypes} from "./interfaces/mediaTypes";
 import {EventHandlingCodes} from "./interfaces/eventHandlingCodes";
-import { DeviceType } from './interfaces/deviceType';
 
 function validateComponentId(componentID:any) {
 	if (typeof componentID !== 'number') {
@@ -53,6 +52,7 @@ export class Cuss2 {
 			throw new Error('Platform in abnormal state. HALTING.');
 		}
 		await cuss2.api.getComponents();
+		await cuss2.queryComponents();
 		return cuss2;
 	}
 	static logger = logger;
@@ -77,6 +77,7 @@ export class Cuss2 {
 	keypad?: Keypad;
 	msrPayment?: PaymentDevice;
 	_activated?: Function;
+	pendingStateChange?: ApplicationStateCodeEnum;
 
 	get state() {
 		return this.stateChange.getValue();
@@ -133,7 +134,7 @@ export class Cuss2 {
 				const response = await self.connection.get('/platform/components');
 				logger('[getComponents()] response', response);
 				const componentList = response.componentList as ComponentList;
-				const components:any = {};
+				const components:any = self.components || (self.components = {});
 
 				componentList.forEach((component) => {
 					const id = String(component.componentID);
@@ -166,8 +167,9 @@ export class Cuss2 {
 					else if (isBarcodeReader()) instance = self.barcodeReader = new BarcodeReader(component, self);
 					else if (isMsrPayment()) instance = self.msrPayment = new PaymentDevice(component, self);
 					else if (isKeypad()) instance = self.keypad = new Keypad(component, self);
+					else instance = new Component(component, self);
 
-					return components[id] = instance || new Component(component, self);
+					return components[id] = instance;
 				});
 
 				function assignLinks(printer: Printer) {
@@ -198,19 +200,6 @@ export class Cuss2 {
 				assignLinks(self.boardingPassPrinter as BoardingPassPrinter);
 				assignLinks(self.bagTagPrinter as BagTagPrinter);
 
-				await Promise.all(
-					componentList.map(c => self.api.getStatus(c.componentID as number)
-						.catch(e => e)) //it rejects statusCodes that are not "OK" - but here we just need to know what it is, so ignore
-				)
-					.then(responses => {
-						responses.forEach(response => {
-							const id = String(response.componentID);
-							components[id].eventHandlingCode = response.eventHandlingCode
-							components[id].status = response.statusCode
-						})
-					});
-
-				self.components = components;
 				return components;
 			},
 			getStatus: async (componentID:number): Promise<PlatformData> => {
@@ -248,7 +237,12 @@ export class Cuss2 {
 			},
 
 			staterequest: async (state: ApplicationStateCodeEnum): Promise<boolean> => {
+				if (this.pendingStateChange) {
+					return Promise.resolve(false);
+				}
+				this.pendingStateChange = state;
 				const response = await self.connection.post('/platform/applications/staterequest/' + state, {});
+				this.pendingStateChange = undefined;
 				if (response.statusCode !== 'AL_APPLICATION_REQUEST') {
 					throw new Error(`Request to enter ${state} state failed: ${response.statusCode}`);
 				}
@@ -302,7 +296,13 @@ export class Cuss2 {
 	}
 	requestUnavailableState(): Promise<boolean> {
 		const okToChange = this.state === ApplicationStateCodeEnum.INITIALIZE || this.state === ApplicationStateCodeEnum.AVAILABLE || this.state === ApplicationStateCodeEnum.ACTIVE;
-		return okToChange ? this.api.staterequest(ApplicationStateCodeEnum.UNAVAILABLE) : Promise.resolve(false);
+		if (!okToChange) {
+			return Promise.resolve(false);
+		}
+
+		return this.api.staterequest(ApplicationStateCodeEnum.UNAVAILABLE).then(async (b) =>
+			this.queryComponents().catch(logger).then(x => b)
+		);
 	}
 	requestStoppedState(): Promise<boolean> {
 		return this.api.staterequest(ApplicationStateCodeEnum.STOPPED);
@@ -314,6 +314,25 @@ export class Cuss2 {
 	requestReload(): Promise<boolean> {
 		const okToChange = !this.state || this.state === ApplicationStateCodeEnum.UNAVAILABLE || this.state === ApplicationStateCodeEnum.AVAILABLE || this.state === ApplicationStateCodeEnum.ACTIVE;
 		return okToChange ? this.api.staterequest(ApplicationStateCodeEnum.RELOAD) : Promise.resolve(false);
+	}
+
+	async queryComponents(): Promise<boolean> {
+		if (!this.components) {
+			return false;
+		}
+		const componentList = Object.values(this.components) as Component[];
+		await Promise.all(
+			componentList.map(c => this.api.getStatus(c.id as number)
+				.catch(e => e)) //it rejects statusCodes that are not "OK" - but here we just need to know what it is, so ignore
+			)
+			.then(responses => {
+				responses.forEach(response => {
+					const id = String(response.componentID);
+					this.components[id].eventHandlingCode = response.eventHandlingCode;
+					this.components[id].status = response.statusCode;
+				})
+			});
+		return true;
 	}
 
 	get unavailableComponents(): Component[] {
