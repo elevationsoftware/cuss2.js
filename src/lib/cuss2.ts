@@ -52,7 +52,6 @@ export class Cuss2 {
 			throw new Error('Platform in abnormal state. HALTING.');
 		}
 		await cuss2.api.getComponents();
-		await cuss2.queryComponents();
 		return cuss2;
 	}
 	static logger = logger;
@@ -91,12 +90,15 @@ export class Cuss2 {
 
 		const currentApplicationState = message.currentApplicationState?.toString();
 		if(!currentApplicationState) {
+			this.connection._socket?.close();
 			throw new Error('Platform in invalid state. Cannot continue.');
 		}
-		if(currentApplicationState !== this.stateChange.getValue()) {
+		if(currentApplicationState !== this.state) {
+			logger(`[state changed] old:${this.state} new:${currentApplicationState}`);
 			this.stateChange.next(currentApplicationState as ApplicationStateCodeEnum);
 
-			if (this._online && currentApplicationState === ApplicationStateCodeEnum.INITIALIZE) {
+			if (this._online && currentApplicationState === ApplicationStateCodeEnum.UNAVAILABLE) {
+				await this.queryComponents().catch(e => logger('failed to queryComponents', e));
 				this.checkRequiredComponentsAndSyncState();
 			}
 			else if (this._activated && currentApplicationState === ApplicationStateCodeEnum.ACTIVE) {
@@ -109,7 +111,9 @@ export class Cuss2 {
 			if (component && component.stateChanged(message)) {
 				component.updateState(message);
 				this.componentStateChange.next(component);
-				this.checkRequiredComponentsAndSyncState();
+				if (message.functionName === 'unsolicited') {
+					this.checkRequiredComponentsAndSyncState();
+				}
 			}
 		}
 
@@ -296,13 +300,7 @@ export class Cuss2 {
 	}
 	requestUnavailableState(): Promise<boolean> {
 		const okToChange = this.state === ApplicationStateCodeEnum.INITIALIZE || this.state === ApplicationStateCodeEnum.AVAILABLE || this.state === ApplicationStateCodeEnum.ACTIVE;
-		if (!okToChange) {
-			return Promise.resolve(false);
-		}
-
-		return this.api.staterequest(ApplicationStateCodeEnum.UNAVAILABLE).then(async (b) =>
-			this.queryComponents().catch(logger).then(x => b)
-		);
+		return okToChange ? this.api.staterequest(ApplicationStateCodeEnum.UNAVAILABLE) : Promise.resolve(false);
 	}
 	requestStoppedState(): Promise<boolean> {
 		return this.api.staterequest(ApplicationStateCodeEnum.STOPPED);
