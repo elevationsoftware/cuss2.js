@@ -54,23 +54,24 @@ export class Component {
 		return this.api.getStatus(this.id);
 	}
 
-	sendRaw(raw: string, dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.CODELINE ] ) {
+	async sendRaw(raw: string, dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.SBDAEA ] ) {
 		const dataExchange = {
 			toPlatform: {
 				dataRecords: [
 					{
-						data: raw as any, dsTypes: [ CUSSDataTypes.CODELINE ]
+						data: raw as any, dsTypes: [ CUSSDataTypes.SBDAEA ]
 					}
 				]
 			},
 		} as DataExchange;
 
+		await this.enable();
 		return this.api.send(this.id, dataExchange);
 	}
-	setupRaw(raw: string, dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.CODELINE ]) {
+	setupRaw(raw: string, dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.SBDAEA ]) {
 		const dataExchange = {
 			toPlatform: {
-				dataRecords: [ { data: raw as any, dsTypes: [ CUSSDataTypes.CODELINE ] } ]
+				dataRecords: [ { data: raw as any, dsTypes: [ CUSSDataTypes.SBDAEA ] } ]
 			},
 		} as DataExchange;
 
