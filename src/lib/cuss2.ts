@@ -3,7 +3,7 @@ import {EnvironmentLevel} from "./interfaces/environmentLevel";
 import {PlatformData} from "./interfaces/platformData";
 import {BehaviorSubject, Subject} from "rxjs";
 import {ApplicationStates} from "./interfaces/applicationStates";
-import ApplicationStateCodeEnum = ApplicationStates.ApplicationStateCodeEnum;
+import AppState = ApplicationStates.ApplicationStateCodeEnum;
 import {ComponentList} from "./interfaces/componentList";
 
 import {Connection} from "./connection";
@@ -34,24 +34,26 @@ function validateComponentId(componentID:any) {
 export class Cuss2 {
 
 	static async connect(url: string, client_id: string, client_secret: string, options: any = {}): Promise<Cuss2> {
-		const connection = await Connection.connect(url, client_id, client_secret,  options.tokenURL);
+		const connection = await Connection.connect(url, client_id, client_secret,  options);
 		const cuss2 = new Cuss2(connection);
 		await cuss2.api.getEnvironment();
 		if (!cuss2.state) {
 			throw new Error('Platform in abnormal state.');
 		}
-		if (cuss2.state === ApplicationStateCodeEnum.SUSPENDED) {
+		if (cuss2.state === AppState.SUSPENDED) {
 			throw new Error('Platform has SUSPENDED the application');
 		}
 		// ensure state is INITIALIZE
-		if ([ApplicationStateCodeEnum.STOPPED, ApplicationStateCodeEnum.UNAVAILABLE, ApplicationStateCodeEnum.AVAILABLE, ApplicationStateCodeEnum.ACTIVE].includes(cuss2.state)) {
+		if ([AppState.STOPPED, AppState.UNAVAILABLE, AppState.AVAILABLE, AppState.ACTIVE].includes(cuss2.state)) {
 			await cuss2.requestReload();
 			await cuss2.api.getEnvironment();
 		}
-		if (cuss2.state !== ApplicationStateCodeEnum.INITIALIZE) {
+		if (cuss2.state !== AppState.INITIALIZE) {
 			throw new Error('Platform in abnormal state. HALTING.');
 		}
 		await cuss2.api.getComponents();
+		await cuss2.requestUnavailableState();
+		cuss2.queryComponents().catch(e => logger('error querying components', e))
 		return cuss2;
 	}
 	static logger = logger;
@@ -64,7 +66,7 @@ export class Cuss2 {
 	connection:Connection;
 	environment: EnvironmentLevel = {} as EnvironmentLevel;
 	components: any|undefined = undefined;
-	stateChange: BehaviorSubject<ApplicationStateCodeEnum> = new BehaviorSubject<ApplicationStateCodeEnum>(ApplicationStateCodeEnum.STOPPED);
+	stateChange: BehaviorSubject<AppState> = new BehaviorSubject<AppState>(AppState.STOPPED);
 	componentStateChange: BehaviorSubject<Component|null> = new BehaviorSubject<Component|null>(null);
 	onmessage: Subject<any> = new Subject<any>();
 
@@ -76,7 +78,7 @@ export class Cuss2 {
 	keypad?: Keypad;
 	msrPayment?: PaymentDevice;
 	_activated?: Function;
-	pendingStateChange?: ApplicationStateCodeEnum;
+	pendingStateChange?: AppState;
 
 	get state() {
 		return this.stateChange.getValue();
@@ -88,20 +90,20 @@ export class Cuss2 {
 
 		logger('[event.currentApplicationState]', message.currentApplicationState);
 
-		const currentApplicationState = message.currentApplicationState?.toString();
-		if(!currentApplicationState) {
+		const currentState = message.currentApplicationState?.toString();
+		if(!currentState) {
 			this.connection._socket?.close();
 			throw new Error('Platform in invalid state. Cannot continue.');
 		}
-		if(currentApplicationState !== this.state) {
-			logger(`[state changed] old:${this.state} new:${currentApplicationState}`);
-			this.stateChange.next(currentApplicationState as ApplicationStateCodeEnum);
+		if(currentState !== this.state) {
+			logger(`[state changed] old:${this.state} new:${currentState}`);
+			this.stateChange.next(currentState as AppState);
 
-			if (this._online && currentApplicationState === ApplicationStateCodeEnum.UNAVAILABLE) {
+			if (this._online && currentState === AppState.UNAVAILABLE) {
 				await this.queryComponents().catch(e => logger('failed to queryComponents', e));
 				this.checkRequiredComponentsAndSyncState();
 			}
-			else if (this._activated && currentApplicationState === ApplicationStateCodeEnum.ACTIVE) {
+			else if (this._activated && currentState === AppState.ACTIVE) {
 				this._handleActivate();
 			}
 		}
@@ -111,7 +113,7 @@ export class Cuss2 {
 			if (component && component.stateChanged(message)) {
 				component.updateState(message);
 				this.componentStateChange.next(component);
-				if (message.functionName === 'unsolicited') {
+				if (message.functionName === '' || message.functionName === 'query') {
 					this.checkRequiredComponentsAndSyncState();
 				}
 			}
@@ -240,7 +242,7 @@ export class Cuss2 {
 				return await this.connection.post('/peripherals/userpresent/offer/' + componentID);
 			},
 
-			staterequest: async (state: ApplicationStateCodeEnum): Promise<boolean> => {
+			staterequest: async (state: AppState): Promise<boolean> => {
 				if (this.pendingStateChange) {
 					return Promise.resolve(false);
 				}
@@ -292,26 +294,26 @@ export class Cuss2 {
 	//
 	async requestAvailableState(): Promise<boolean> {
 		// allow hoping directly to AVAILABLE from INITIALIZE
-		if (this.state === ApplicationStateCodeEnum.INITIALIZE) {
+		if (this.state === AppState.INITIALIZE) {
 			await this.requestUnavailableState();
 		}
-		const okToChange = this.state === ApplicationStateCodeEnum.UNAVAILABLE || this.state === ApplicationStateCodeEnum.ACTIVE;
-		return okToChange ? this.api.staterequest(ApplicationStateCodeEnum.AVAILABLE) : Promise.resolve(false);
+		const okToChange = this.state === AppState.UNAVAILABLE || this.state === AppState.ACTIVE;
+		return okToChange ? this.api.staterequest(AppState.AVAILABLE) : Promise.resolve(false);
 	}
 	requestUnavailableState(): Promise<boolean> {
-		const okToChange = this.state === ApplicationStateCodeEnum.INITIALIZE || this.state === ApplicationStateCodeEnum.AVAILABLE || this.state === ApplicationStateCodeEnum.ACTIVE;
-		return okToChange ? this.api.staterequest(ApplicationStateCodeEnum.UNAVAILABLE) : Promise.resolve(false);
+		const okToChange = this.state === AppState.INITIALIZE || this.state === AppState.AVAILABLE || this.state === AppState.ACTIVE;
+		return okToChange ? this.api.staterequest(AppState.UNAVAILABLE) : Promise.resolve(false);
 	}
 	requestStoppedState(): Promise<boolean> {
-		return this.api.staterequest(ApplicationStateCodeEnum.STOPPED);
+		return this.api.staterequest(AppState.STOPPED);
 	}
 	requestActiveState(): Promise<boolean> {
-		const okToChange = this.state === ApplicationStateCodeEnum.AVAILABLE || this.state === ApplicationStateCodeEnum.ACTIVE;
-		return okToChange ? this.api.staterequest(ApplicationStateCodeEnum.ACTIVE) : Promise.resolve(false);
+		const okToChange = this.state === AppState.AVAILABLE || this.state === AppState.ACTIVE;
+		return okToChange ? this.api.staterequest(AppState.ACTIVE) : Promise.resolve(false);
 	}
 	requestReload(): Promise<boolean> {
-		const okToChange = !this.state || this.state === ApplicationStateCodeEnum.UNAVAILABLE || this.state === ApplicationStateCodeEnum.AVAILABLE || this.state === ApplicationStateCodeEnum.ACTIVE;
-		return okToChange ? this.api.staterequest(ApplicationStateCodeEnum.RELOAD) : Promise.resolve(false);
+		const okToChange = !this.state || this.state === AppState.UNAVAILABLE || this.state === AppState.AVAILABLE || this.state === AppState.ACTIVE;
+		return okToChange ? this.api.staterequest(AppState.RELOAD) : Promise.resolve(false);
 	}
 
 	async queryComponents(): Promise<boolean> {
@@ -342,6 +344,7 @@ export class Cuss2 {
 	}
 
 	checkRequiredComponentsAndSyncState(): void {
+		if (this.pendingStateChange) return;
 		if (this._online) {
 			const inactiveRequiredComponents = this.unavailableRequiredComponents;
 			if (!inactiveRequiredComponents.length) {
@@ -374,7 +377,7 @@ export class Cuss2 {
 
 	set activated(fn:Function) {
 		this._activated = fn;
-		if (this.state === ApplicationStateCodeEnum.ACTIVE) {
+		if (this.state === AppState.ACTIVE) {
 			this._handleActivate();
 		}
 	}
