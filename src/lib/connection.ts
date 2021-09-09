@@ -4,7 +4,6 @@ import axios from "axios";
 import {PlatformData} from "./interfaces/platformData";
 import {takeWhile} from "rxjs/operators";
 import { CUSS2ApiResponse } from "./interfaces/cUSS2ApiResponse";
-import { PlatformResponseError } from "./models/platformResponseError";
 
 export class Connection {
 	/**
@@ -12,9 +11,10 @@ export class Connection {
 	 */
 	static authorize(url: string, client_id: string, client_secret: string): Promise<string> {
 		logger('[authorize()] url', url);
-		return axios.post(url, {client_id, client_secret})
+		return axios.post(url, {client_id, client_secret}, {timeout: 10000})
 			.then(({data: {access_token}}: any) => {
 				logger("Token acquired", access_token);
+
 				return access_token;
 			})
 	}
@@ -25,7 +25,8 @@ export class Connection {
 		return connection;
 	}
 
-	private constructor(baseURL:string, client_id: string, client_secret: string, tokenURL?: string) {
+	private constructor(baseURL:string, client_id: string, client_secret: string, options:any = {}) {
+		this.timeout = options.timeout || 10000;
 		const endOfHostname = baseURL.indexOf('?');
 		if (endOfHostname > -1) {
 			baseURL = baseURL.substr(0, endOfHostname);
@@ -35,6 +36,7 @@ export class Connection {
 		}
 		this._baseURL = baseURL;
 
+		let tokenURL = options.tokenURL;
 		if (!tokenURL) {
 			tokenURL = baseURL + '/oauth/token';
 		}
@@ -54,8 +56,16 @@ export class Connection {
 		headers: {
 			'Authorization': '',
 			'Content-Type': 'application/json'
-		}
+		},
+		timeout: 10000
 	};
+
+	get timeout() : number {
+		return this._config.timeout;
+	}
+	set timeout(t: number) {
+		this._config.timeout = t;
+	}
 
 	async _connect() : Promise<any> {
 		const access_token = await Connection.authorize(
@@ -141,7 +151,7 @@ export class Connection {
 		logger(`[connection.${type}()] ${path} response:\n`, r.data);
 
 		const { requestID, returnCode } = r.data as CUSS2ApiResponse;
-		if (returnCode !== 'RC_OK' && returnCode !== 'RC_STATE') {
+		if (returnCode !== 'RC_OK' && (path === '/platform/applications/staterequest/UNAVAILABLE' && returnCode !== 'RC_STATE')) {
 			return Promise.reject(new Error('HTTP call failed with: ' + returnCode))
 		}
 		logger('[connection._call()] waiting for reply with id: ' + requestID);
@@ -151,14 +161,15 @@ export class Connection {
 			setTimeout(() => {
 				timedout = true;
 				reject(new Error(`TIMEOUT waiting for requestID ${requestID} of ${path}`))
-			}, 10000)
+			}, this._config.timeout);
 			this.messages.pipe(
 				takeWhile(message => {
 					if (timedout) return false;
 					if (message.toApplication?.requestID === requestID) {
-						const pd = message.toApplication as PlatformData
+						const pd = message.toApplication as PlatformData;
+						console.log('>>>>>>>>>>>>>>>>>>>>', pd.functionName, pd.statusCode);
 						// if (pd.statusCode === 'OK') {
-							resolve(message.toApplication as PlatformData);
+							resolve(pd);
 						// } else {
 						// 	reject(new PlatformResponseError(pd));
 						// }
