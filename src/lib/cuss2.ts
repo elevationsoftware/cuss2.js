@@ -36,24 +36,7 @@ export class Cuss2 {
 	static async connect(url: string, client_id: string, client_secret: string, options: any = {}): Promise<Cuss2> {
 		const connection = await Connection.connect(url, client_id, client_secret,  options);
 		const cuss2 = new Cuss2(connection);
-		await cuss2.api.getEnvironment();
-		if (!cuss2.state) {
-			throw new Error('Platform in abnormal state.');
-		}
-		if (cuss2.state === AppState.SUSPENDED) {
-			throw new Error('Platform has SUSPENDED the application');
-		}
-		// ensure state is INITIALIZE
-		if ([AppState.STOPPED, AppState.UNAVAILABLE, AppState.AVAILABLE, AppState.ACTIVE].includes(cuss2.state)) {
-			await cuss2.requestReload();
-			await cuss2.api.getEnvironment();
-		}
-		if (cuss2.state !== AppState.INITIALIZE) {
-			throw new Error('Platform in abnormal state. HALTING.');
-		}
-		await cuss2.api.getComponents();
-		await cuss2.requestUnavailableState();
-		cuss2.queryComponents().catch(e => logger('error querying components', e))
+		await cuss2._initialize();
 		return cuss2;
 	}
 	static logger = logger;
@@ -62,6 +45,10 @@ export class Cuss2 {
 	private constructor(connection: Connection) {
 		this.connection = connection;
 		connection.messages.subscribe(async e => await this._handleWebSocketMessage(e))
+		connection.onclose.subscribe(async () => {
+			await connection._connect();
+			await this._initialize();
+		});
 	}
 	connection:Connection;
 	environment: EnvironmentLevel = {} as EnvironmentLevel;
@@ -84,6 +71,27 @@ export class Cuss2 {
 		return this.stateChange.getValue();
 	}
 
+	async _initialize(): Promise<any> {
+		await this.api.getEnvironment();
+		if (!this.state) {
+			throw new Error('Platform in abnormal state.');
+		}
+		if (this.state === AppState.SUSPENDED) {
+			throw new Error('Platform has SUSPENDED the application');
+		}
+		// ensure state is INITIALIZE
+		if ([AppState.STOPPED, AppState.UNAVAILABLE, AppState.AVAILABLE, AppState.ACTIVE].includes(this.state)) {
+			await this.api.staterequest(AppState.RELOAD);
+			await this.api.getEnvironment();
+		}
+		if (this.state !== AppState.INITIALIZE) {
+			throw new Error('Platform in abnormal state. HALTING.');
+		}
+		await this.api.getComponents();
+		await this.requestUnavailableState();
+		this.queryComponents().catch(e => logger('error querying components', e))
+	}
+
 	async _handleWebSocketMessage(data: DataExchange) {
 		const message = data && data.toApplication;
 		if (!message || message.statusCode === undefined) return; // initial value is an empty value
@@ -91,6 +99,7 @@ export class Cuss2 {
 		logger('[event.currentApplicationState]', message.currentApplicationState);
 
 		const currentState = message.currentApplicationState?.toString();
+		const unsolicited = !message.functionName;
 		if(!currentState) {
 			this.connection._socket?.close();
 			throw new Error('Platform in invalid state. Cannot continue.');
@@ -113,7 +122,7 @@ export class Cuss2 {
 			if (component && component.stateChanged(message)) {
 				component.updateState(message);
 				this.componentStateChange.next(component);
-				if (message.functionName === '' || message.functionName === 'query') {
+				if (unsolicited || message.functionName === 'query') {
 					this.checkRequiredComponentsAndSyncState();
 				}
 			}
@@ -136,11 +145,13 @@ export class Cuss2 {
 				self.environment = response.environmentLevel as EnvironmentLevel;
 				return self.environment;
 			},
-			getComponents: async (): Promise<Component[]> => {
+			getComponents: async (): Promise<ComponentList> => {
 				const response = await self.connection.get('/platform/components');
 				logger('[getComponents()] response', response);
 				const componentList = response.componentList as ComponentList;
-				const components:any = self.components || (self.components = {});
+				if (self.components) return componentList;
+
+				const components:any = self.components = {};
 
 				componentList.forEach((component) => {
 					const id = String(component.componentID);
@@ -153,14 +164,13 @@ export class Cuss2 {
 
 					let instance;
 
-					const isAnnouncement = () => !self.announcement && type === ComponentTypes.ANNOUNCEMENT;
+					const isAnnouncement = () => type === ComponentTypes.ANNOUNCEMENT;
 					const isFeeder = () => type === ComponentTypes.FEEDER;
 					const isDispenser = () => type === ComponentTypes.DISPENSER;
-					const isBagTagPrinter = () => !self.bagTagPrinter && mediaTypesHas(MediaTypes.BAGGAGETAG);
-					const isBoardingPassPrinter = () => !self.boardingPassPrinter && mediaTypesHas(MediaTypes.BOARDINGPASS);
-					const isDocumentReader = () => !self.documentReader &&
-						charac0?.readerType === ReaderTypes.FLATBEDSCAN && dsTypesHas(CUSSDataTypes.CODELINE);
-					const isBarcodeReader = () => !self.barcodeReader && dsTypesHas(CUSSDataTypes.BARCODE);
+					const isBagTagPrinter = () => mediaTypesHas(MediaTypes.BAGGAGETAG);
+					const isBoardingPassPrinter = () => mediaTypesHas(MediaTypes.BOARDINGPASS);
+					const isDocumentReader = () => charac0?.readerType === ReaderTypes.FLATBEDSCAN && dsTypesHas(CUSSDataTypes.CODELINE);
+					const isBarcodeReader = () => dsTypesHas(CUSSDataTypes.BARCODE);
 					const isMsrPayment = () => charac0?.readerType === ReaderTypes.DIP && mediaTypesHas(MediaTypes.MAGNETICSTRIPE);
 					const isKeypad = () => dsTypesHas(CUSSDataTypes.KEY) && dsTypesHas(CUSSDataTypes.KEYUP) && dsTypesHas(CUSSDataTypes.KEYDOWN);
 
@@ -206,7 +216,7 @@ export class Cuss2 {
 				assignLinks(self.boardingPassPrinter as BoardingPassPrinter);
 				assignLinks(self.bagTagPrinter as BagTagPrinter);
 
-				return components;
+				return componentList;
 			},
 			getStatus: async (componentID:number): Promise<PlatformData> => {
 				const response = await this.connection.get('/peripherals/query/' + componentID);
@@ -242,17 +252,26 @@ export class Cuss2 {
 				return await this.connection.post('/peripherals/userpresent/offer/' + componentID);
 			},
 
-			staterequest: async (state: AppState): Promise<boolean> => {
+			staterequest: async (state: AppState): Promise<PlatformData|undefined> => {
 				if (this.pendingStateChange) {
-					return Promise.resolve(false);
+					return Promise.resolve(undefined);
 				}
 				this.pendingStateChange = state;
-				const response = await self.connection.post('/platform/applications/staterequest/' + state, {});
-				this.pendingStateChange = undefined;
-				if (response.statusCode !== 'AL_APPLICATION_REQUEST') {
-					throw new Error(`Request to enter ${state} state failed: ${response.statusCode}`);
+				let response:PlatformData|undefined;
+				try {
+					response = await self.connection.post('/platform/applications/staterequest/' + state, {})
+						.catch(e => {
+							// API is returning AL_APPLICATION_REQUEST instead of OK. Suppress it...
+							if (e.statusCode !== 'AL_APPLICATION_REQUEST') {
+								throw e;
+							}
+							return e;
+						});
+					return response;
 				}
-				return true;
+				finally {
+					this.pendingStateChange = undefined;
+				}
 			},
 
 			/*
@@ -292,28 +311,34 @@ export class Cuss2 {
 	//
 	// State requests. Only offer the ones that are valid to request.
 	//
-	async requestAvailableState(): Promise<boolean> {
+	async requestAvailableState(): Promise<PlatformData|undefined> {
 		// allow hoping directly to AVAILABLE from INITIALIZE
 		if (this.state === AppState.INITIALIZE) {
 			await this.requestUnavailableState();
 		}
 		const okToChange = this.state === AppState.UNAVAILABLE || this.state === AppState.ACTIVE;
-		return okToChange ? this.api.staterequest(AppState.AVAILABLE) : Promise.resolve(false);
+		return okToChange ? this.api.staterequest(AppState.AVAILABLE) : Promise.resolve(undefined);
 	}
-	requestUnavailableState(): Promise<boolean> {
+	requestUnavailableState(): Promise<PlatformData|undefined> {
 		const okToChange = this.state === AppState.INITIALIZE || this.state === AppState.AVAILABLE || this.state === AppState.ACTIVE;
-		return okToChange ? this.api.staterequest(AppState.UNAVAILABLE) : Promise.resolve(false);
+		return okToChange ? this.api.staterequest(AppState.UNAVAILABLE) : Promise.resolve(undefined);
 	}
-	requestStoppedState(): Promise<boolean> {
+	requestStoppedState(): Promise<PlatformData|undefined> {
 		return this.api.staterequest(AppState.STOPPED);
 	}
-	requestActiveState(): Promise<boolean> {
+	requestActiveState(): Promise<PlatformData|undefined> {
 		const okToChange = this.state === AppState.AVAILABLE || this.state === AppState.ACTIVE;
-		return okToChange ? this.api.staterequest(AppState.ACTIVE) : Promise.resolve(false);
+		return okToChange ? this.api.staterequest(AppState.ACTIVE) : Promise.resolve(undefined);
 	}
-	requestReload(): Promise<boolean> {
+	async requestReload(): Promise<boolean> {
 		const okToChange = !this.state || this.state === AppState.UNAVAILABLE || this.state === AppState.AVAILABLE || this.state === AppState.ACTIVE;
-		return okToChange ? this.api.staterequest(AppState.RELOAD) : Promise.resolve(false);
+		if (!okToChange) {
+			return Promise.resolve(false);
+		}
+
+		await this.api.staterequest(AppState.RELOAD);
+		this.connection._socket?.close();
+		return true;
 	}
 
 	async queryComponents(): Promise<boolean> {

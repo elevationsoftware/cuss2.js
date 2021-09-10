@@ -4,6 +4,7 @@ import axios from "axios";
 import {PlatformData} from "./interfaces/platformData";
 import {takeWhile} from "rxjs/operators";
 import { CUSS2ApiResponse } from "./interfaces/cUSS2ApiResponse";
+import {PlatformResponseError} from "./models/platformResponseError";
 
 export class Connection {
 	/**
@@ -173,11 +174,11 @@ export class Connection {
 					if (message.toApplication?.requestID === requestID) {
 						const pd = message.toApplication as PlatformData;
 						console.log('>>>>>>>>>>>>>>>>>>>>', pd.functionName, pd.statusCode);
-						// if (pd.statusCode === 'OK') {
+						if (pd.statusCode === 'OK') {
 							resolve(pd);
-						// } else {
-						// 	reject(new PlatformResponseError(pd));
-						// }
+						} else {
+							reject(new PlatformResponseError(pd));
+						}
 						return false;
 					}
 					return true; // continue getting messages
