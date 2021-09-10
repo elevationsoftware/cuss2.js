@@ -1,4 +1,4 @@
-import {BehaviorSubject} from "rxjs";
+import {BehaviorSubject, Subject} from "rxjs";
 import {logger} from "./helper";
 import axios from "axios";
 import {PlatformData} from "./interfaces/platformData";
@@ -51,6 +51,7 @@ export class Connection {
 	_socketURL: string;
 	_socket?: WebSocket;
 	messages: BehaviorSubject<any> = new BehaviorSubject<any>({});
+	onclose: Subject<void> = new Subject();
 
 	_config = {
 		headers: {
@@ -101,6 +102,10 @@ export class Connection {
 					socket.onmessage = (event) => {
 						const data = JSON.parse(event.data);
 						this.messages.next(data);
+					};
+					socket.onclose = () => {
+						removeListeners();
+						this.onclose.next();
 					};
 					resolve(true);
 				} else {
