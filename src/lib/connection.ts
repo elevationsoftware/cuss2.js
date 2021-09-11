@@ -173,7 +173,6 @@ export class Connection {
 					if (timedout) return false;
 					if (message.toApplication?.requestID === requestID) {
 						const pd = message.toApplication as PlatformData;
-						console.log('>>>>>>>>>>>>>>>>>>>>', pd.functionName, pd.statusCode);
 						if (pd.statusCode === 'OK') {
 							resolve(pd);
 						} else {

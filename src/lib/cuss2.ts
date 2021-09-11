@@ -1,4 +1,4 @@
-import { logger } from "./helper";
+import { logger, helpers } from "./helper";
 import {EnvironmentLevel} from "./interfaces/environmentLevel";
 import {PlatformData} from "./interfaces/platformData";
 import {BehaviorSubject, Subject} from "rxjs";
@@ -40,6 +40,7 @@ export class Cuss2 {
 		return cuss2;
 	}
 	static logger = logger;
+	static helpers = helpers;
 
 
 	private constructor(connection: Connection) {
@@ -133,180 +134,174 @@ export class Cuss2 {
 		this.onmessage.next(message)
 	}
 
-	get api() {
-		const self = this;
-		return {
-			//
-			// "GET" calls
-			//
-			getEnvironment: async (): Promise<EnvironmentLevel> => {
-				const response = await self.connection.get('/platform/environment');
-				logger('[getEnvironment()] response', response);
-				self.environment = response.environmentLevel as EnvironmentLevel;
-				return self.environment;
-			},
-			getComponents: async (): Promise<ComponentList> => {
-				const response = await self.connection.get('/platform/components');
-				logger('[getComponents()] response', response);
-				const componentList = response.componentList as ComponentList;
-				if (self.components) return componentList;
+	api = {
+		//
+		// "GET" calls
+		//
+		getEnvironment: async (): Promise<EnvironmentLevel> => {
+			const response = await this.connection.get('/platform/environment');
+			logger('[getEnvironment()] response', response);
+			this.environment = response.environmentLevel as EnvironmentLevel;
+			return this.environment;
+		},
+		getComponents: async (): Promise<ComponentList> => {
+			const response = await this.connection.get('/platform/components');
+			logger('[getComponents()] response', response);
+			const componentList = response.componentList as ComponentList;
+			if (this.components) return componentList;
 
-				const components:any = self.components = {};
+			const components:any = this.components = {};
 
-				componentList.forEach((component) => {
-					const id = String(component.componentID);
-					const type = component.componentType;
-					const charac0 = component.componentCharacteristics?.[0];
-					const mediaTypes = charac0?.mediaTypesList;
+			componentList.forEach((component) => {
+				const id = String(component.componentID);
+				const type = component.componentType;
+				const charac0 = component.componentCharacteristics?.[0];
+				const mediaTypes = charac0?.mediaTypesList;
 
-					const dsTypesHas = (type: CUSSDataTypes) => charac0?.dsTypesList?.find((d) => d === type);
-					const mediaTypesHas = (type: MediaTypes) => mediaTypes?.find((m) => m === type);
+				const dsTypesHas = (type: CUSSDataTypes) => charac0?.dsTypesList?.find((d) => d === type);
+				const mediaTypesHas = (type: MediaTypes) => mediaTypes?.find((m) => m === type);
 
-					let instance;
+				let instance;
 
-					const isAnnouncement = () => type === ComponentTypes.ANNOUNCEMENT;
-					const isFeeder = () => type === ComponentTypes.FEEDER;
-					const isDispenser = () => type === ComponentTypes.DISPENSER;
-					const isBagTagPrinter = () => mediaTypesHas(MediaTypes.BAGGAGETAG);
-					const isBoardingPassPrinter = () => mediaTypesHas(MediaTypes.BOARDINGPASS);
-					const isDocumentReader = () => charac0?.readerType === ReaderTypes.FLATBEDSCAN && dsTypesHas(CUSSDataTypes.CODELINE);
-					const isBarcodeReader = () => dsTypesHas(CUSSDataTypes.BARCODE);
-					const isMsrPayment = () => charac0?.readerType === ReaderTypes.DIP && mediaTypesHas(MediaTypes.MAGNETICSTRIPE);
-					const isKeypad = () => dsTypesHas(CUSSDataTypes.KEY) && dsTypesHas(CUSSDataTypes.KEYUP) && dsTypesHas(CUSSDataTypes.KEYDOWN);
+				const isAnnouncement = () => type === ComponentTypes.ANNOUNCEMENT;
+				const isFeeder = () => type === ComponentTypes.FEEDER;
+				const isDispenser = () => type === ComponentTypes.DISPENSER;
+				const isBagTagPrinter = () => mediaTypesHas(MediaTypes.BAGGAGETAG);
+				const isBoardingPassPrinter = () => mediaTypesHas(MediaTypes.BOARDINGPASS);
+				const isDocumentReader = () => charac0?.readerType === ReaderTypes.FLATBEDSCAN && dsTypesHas(CUSSDataTypes.CODELINE);
+				const isBarcodeReader = () => dsTypesHas(CUSSDataTypes.BARCODE);
+				const isMsrPayment = () => charac0?.readerType === ReaderTypes.DIP && mediaTypesHas(MediaTypes.MAGNETICSTRIPE);
+				const isKeypad = () => dsTypesHas(CUSSDataTypes.KEY) && dsTypesHas(CUSSDataTypes.KEYUP) && dsTypesHas(CUSSDataTypes.KEYDOWN);
 
-					if (isAnnouncement()) instance = self.announcement = new Announcement(component, self);
-					else if (isFeeder()) instance = new Feeder(component, self);
-					else if (isDispenser()) instance = new Dispenser(component, self);
-					else if (isBagTagPrinter()) instance = self.bagTagPrinter = new BagTagPrinter(component, self);
-					else if (isBoardingPassPrinter()) instance = self.boardingPassPrinter = new BoardingPassPrinter(component, self);
-					else if (isDocumentReader()) instance = self.documentReader = new DocumentReader(component, self);
-					else if (isBarcodeReader()) instance = self.barcodeReader = new BarcodeReader(component, self);
-					else if (isMsrPayment()) instance = self.msrPayment = new PaymentDevice(component, self);
-					else if (isKeypad()) instance = self.keypad = new Keypad(component, self);
-					else instance = new Component(component, self);
+				if (isAnnouncement()) instance = this.announcement = new Announcement(component, this);
+				else if (isFeeder()) instance = new Feeder(component, this);
+				else if (isDispenser()) instance = new Dispenser(component, this);
+				else if (isBagTagPrinter()) instance = this.bagTagPrinter = new BagTagPrinter(component, this);
+				else if (isBoardingPassPrinter()) instance = this.boardingPassPrinter = new BoardingPassPrinter(component, this);
+				else if (isDocumentReader()) instance = this.documentReader = new DocumentReader(component, this);
+				else if (isBarcodeReader()) instance = this.barcodeReader = new BarcodeReader(component, this);
+				else if (isMsrPayment()) instance = this.msrPayment = new PaymentDevice(component, this);
+				else if (isKeypad()) instance = this.keypad = new Keypad(component, this);
+				else instance = new Component(component, this);
 
-					return components[id] = instance;
-				});
+				return components[id] = instance;
+			});
 
-				function assignLinks(printer: Printer) {
-					if (!printer) return;
+			function assignLinks(printer: Printer) {
+				if (!printer) return;
 
-					const links = printer._component.linkedComponentIDs;
+				const links = printer._component.linkedComponentIDs;
 
-					if (printer && links?.length) {
-						links.forEach((id) => {
-							const component = components[id] as Component;
-							const type = component._component.componentType;
-							if (type === ComponentTypes.FEEDER) {
-								const feeder = component as Feeder;
-								feeder.printer = printer;
-								printer.feeder = component;
-								return;
-							}
-							if (type === ComponentTypes.DISPENSER) {
-								const dispenser = component as Dispenser;
-								dispenser.printer = printer;
-								printer.dispenser = component;
-								return;
-							}
-							console.error('unknown linked component: ' + id)
-						});
-					}
-				}
-				assignLinks(self.boardingPassPrinter as BoardingPassPrinter);
-				assignLinks(self.bagTagPrinter as BagTagPrinter);
-
-				return componentList;
-			},
-			getStatus: async (componentID:number): Promise<PlatformData> => {
-				const response = await this.connection.get('/peripherals/query/' + componentID);
-				logger('[queryDevice()] response', response);
-				return response as PlatformData;
-			},
-
-			send: async (componentID:number, dataExchange:DataExchange) => {
-				return this.connection.post('/peripherals/send/' + componentID, dataExchange);
-			},
-			setup: async (componentID:number, dataExchange:DataExchange) => {
-				validateComponentId(componentID);
-				return await this.connection.post('/peripherals/setup/' + componentID, dataExchange);
-			},
-			cancel: async (componentID:number) => {
-				validateComponentId(componentID);
-				return await this.connection.post('/peripherals/cancel/' + componentID);
-			},
-
-			/*
-			*		/peripherals/userpresent/XXXXX
-			*/
-			enable: async (componentID:number) => {
-				validateComponentId(componentID);
-				return await this.connection.post('/peripherals/userpresent/enable/' + componentID);
-			},
-			disable: async (componentID:number) => {
-				validateComponentId(componentID);
-				return await this.connection.post('/peripherals/userpresent/disable/' + componentID);
-			},
-			offer: async (componentID:number) => {
-				validateComponentId(componentID);
-				return await this.connection.post('/peripherals/userpresent/offer/' + componentID);
-			},
-
-			staterequest: async (state: AppState): Promise<PlatformData|undefined> => {
-				if (this.pendingStateChange) {
-					return Promise.resolve(undefined);
-				}
-				this.pendingStateChange = state;
-				let response:PlatformData|undefined;
-				try {
-					response = await self.connection.post('/platform/applications/staterequest/' + state, {})
-						.catch(e => {
-							// API is returning AL_APPLICATION_REQUEST instead of OK. Suppress it...
-							if (e.statusCode !== 'AL_APPLICATION_REQUEST') {
-								throw e;
-							}
-							return e;
-						});
-					return response;
-				}
-				finally {
-					this.pendingStateChange = undefined;
-				}
-			},
-
-			/*
-			*		/peripherals/announcement/XXXXX
-			*/
-			get announcement() {
-				return {
-					play: async (componentID:number, rawData:string) => {
-						validateComponentId(componentID);
-						const dataExchange = {
-							toPlatform: {
-								dataRecords: [{dataStatus: 'DS_OK', data: rawData}]
-							}
-						};
-						return await self.connection.post('/peripherals/announcement/play/' + componentID, dataExchange);
-					},
-					pause: async (componentID:number) => {
-						validateComponentId(componentID);
-						return await self.connection.post('/peripherals/announcement/pause/' + componentID);
-					},
-
-					resume: async (componentID:number) => {
-						validateComponentId(componentID);
-						return await self.connection.post('/peripherals/announcement/resume/' + componentID);
-					},
-
-					stop: async (componentID:number) => {
-						validateComponentId(componentID);
-						return await self.connection.post('/peripherals/announcement/stop/' + componentID);
-					}
+				if (printer && links?.length) {
+					links.forEach((id) => {
+						const component = components[id] as Component;
+						const type = component._component.componentType;
+						if (type === ComponentTypes.FEEDER) {
+							const feeder = component as Feeder;
+							feeder.printer = printer;
+							printer.feeder = component;
+							return;
+						}
+						if (type === ComponentTypes.DISPENSER) {
+							const dispenser = component as Dispenser;
+							dispenser.printer = printer;
+							printer.dispenser = component;
+							return;
+						}
+						console.error('unknown linked component: ' + id)
+					});
 				}
 			}
+			assignLinks(this.boardingPassPrinter as BoardingPassPrinter);
+			assignLinks(this.bagTagPrinter as BagTagPrinter);
 
-		};
-	}
+			return componentList;
+		},
+		getStatus: async (componentID:number): Promise<PlatformData> => {
+			const response = await this.connection.get('/peripherals/query/' + componentID);
+			logger('[queryDevice()] response', response);
+			return response as PlatformData;
+		},
+
+		send: async (componentID:number, dataExchange:DataExchange) => {
+			return this.connection.post('/peripherals/send/' + componentID, dataExchange);
+		},
+		setup: async (componentID:number, dataExchange:DataExchange) => {
+			validateComponentId(componentID);
+			return await this.connection.post('/peripherals/setup/' + componentID, dataExchange);
+		},
+		cancel: async (componentID:number) => {
+			validateComponentId(componentID);
+			return await this.connection.post('/peripherals/cancel/' + componentID);
+		},
+
+		/*
+		*		/peripherals/userpresent/XXXXX
+		*/
+		enable: async (componentID:number) => {
+			validateComponentId(componentID);
+			return await this.connection.post('/peripherals/userpresent/enable/' + componentID);
+		},
+		disable: async (componentID:number) => {
+			validateComponentId(componentID);
+			return await this.connection.post('/peripherals/userpresent/disable/' + componentID);
+		},
+		offer: async (componentID:number) => {
+			validateComponentId(componentID);
+			return await this.connection.post('/peripherals/userpresent/offer/' + componentID);
+		},
+
+		staterequest: async (state: AppState): Promise<PlatformData|undefined> => {
+			if (this.pendingStateChange) {
+				return Promise.resolve(undefined);
+			}
+			this.pendingStateChange = state;
+			let response:PlatformData|undefined;
+			try {
+				response = await this.connection.post('/platform/applications/staterequest/' + state, {})
+					.catch(e => {
+						// API is returning AL_APPLICATION_REQUEST instead of OK. Suppress it...
+						if (e.statusCode !== 'AL_APPLICATION_REQUEST') {
+							throw e;
+						}
+						return e;
+					});
+				return response;
+			}
+			finally {
+				this.pendingStateChange = undefined;
+			}
+		},
+
+		/*
+		*		/peripherals/announcement/XXXXX
+		*/
+		announcement: {
+			play: async (componentID:number, rawData:string) => {
+				validateComponentId(componentID);
+				const dataExchange = {
+					toPlatform: {
+						dataRecords: [{dataStatus: 'DS_OK', data: rawData}]
+					}
+				};
+				return await this.connection.post('/peripherals/announcement/play/' + componentID, dataExchange);
+			},
+			pause: async (componentID:number) => {
+				validateComponentId(componentID);
+				return await this.connection.post('/peripherals/announcement/pause/' + componentID);
+			},
+
+			resume: async (componentID:number) => {
+				validateComponentId(componentID);
+				return await this.connection.post('/peripherals/announcement/resume/' + componentID);
+			},
+
+			stop: async (componentID:number) => {
+				validateComponentId(componentID);
+				return await this.connection.post('/peripherals/announcement/stop/' + componentID);
+			}
+		}
+	};
 
 	//
 	// State requests. Only offer the ones that are valid to request.

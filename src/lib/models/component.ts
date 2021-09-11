@@ -98,6 +98,36 @@ export class Printer extends Component {
 	feeder?: Component;
 	dispenser?: Component;
 
+	logos:any = {
+		clear: async (id='') => {
+			const response = await this.aeaCommand('LC'+id);
+			return response[0] && response[0].indexOf('OK') > -1;
+		},
+		query: async (id='') => {
+			return this._getPairedResponse('LS')
+		},
+	};
+
+	pectabs:any = {
+		clear: async (id='') => {
+			const response = await this.aeaCommand('PC'+id);
+			return response[0] && response[0].indexOf('OK') > -1;
+		},
+		query: async (id='') => {
+			return this._getPairedResponse('PS')
+		},
+	};
+
+	templates:any = {
+		clear: async (id='') => {
+			const response = await this.aeaCommand('TC'+id);
+			return response[0] && response[0].indexOf('OK') > -1;
+		},
+		query: async (id='') => {
+			return this._getPairedResponse('TA')
+		},
+	};
+
 	async setupAndPrintRaw(rawSetupData?: string[], rawData?: string) {
 		if (typeof rawData !== 'string') {
 			throw new TypeError('Invalid argument: rawData');
@@ -110,6 +140,17 @@ export class Printer extends Component {
 		}
 
 		await this.sendRaw(rawData);
+	}
+	async aeaCommand(cmd:string) {
+		const response = await this.setupRaw(cmd);
+		return (response.dataRecords||[]).map((r:any)=>r.data||'')
+	}
+	async getEnvironment() {
+		return Cuss2.helpers.deserializeDictionary((await this.aeaCommand('ES'))[0]);
+	}
+	async _getPairedResponse(cmd:string) {
+		const response = (await this.aeaCommand(cmd))[0];
+		return Cuss2.helpers.split_every(response.substr(response.indexOf('OK')+2), 2) || [];
 	}
 }
 export class BagTagPrinter extends Printer {
