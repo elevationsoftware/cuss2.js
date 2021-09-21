@@ -139,10 +139,10 @@ export class Connection {
 		logger(`[connection.${type}()] ${path}`);
 
 		const invalidTokenHandler = async (e:any) => {
-			if (e.response.status === 401) {
+			if (e.response?.status === 401) {
 				logger('got a 401 - trying to re-authenticate')
 				await this._connect();
-				logger('re-trying http request')
+				logger('re-trying http request');
 				//try again
 				return get_or_post();
 			}

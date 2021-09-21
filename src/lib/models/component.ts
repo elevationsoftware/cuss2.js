@@ -2,6 +2,7 @@ import {Subject} from "rxjs";
 import {Cuss2} from "../cuss2";
 import {CUSSDataTypes, DataExchange, EnvironmentComponent, EventHandlingCodes, PlatformData, StatusCodes} from "../..";
 import { DeviceType } from '../interfaces/deviceType';
+import {PlatformResponseError} from "./platformResponseError";
 
 export class Component {
 	_component: EnvironmentComponent;
@@ -65,7 +66,10 @@ export class Component {
 			},
 		} as DataExchange;
 
-		await this.enable();
+		await this.enable()
+			// Ignore OUTOFSEQUENCE
+			.catch((e:PlatformResponseError) => e.statusCode === StatusCodes.OUTOFSEQUENCE ? e : Promise.reject(e));
+
 		return this.api.send(this.id, dataExchange);
 	}
 	setupRaw(raw: string, dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.SBDAEA ]) {
@@ -93,6 +97,7 @@ export class PaymentDevice extends Component {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.MSR_READER);
 	}
+	//enable/disable FOID
 }
 export class Printer extends Component {
 	feeder?: Component;
@@ -105,26 +110,6 @@ export class Printer extends Component {
 		},
 		query: async (id='') => {
 			return this._getPairedResponse('LS')
-		},
-	};
-
-	pectabs:any = {
-		clear: async (id='') => {
-			const response = await this.aeaCommand('PC'+id);
-			return response[0] && response[0].indexOf('OK') > -1;
-		},
-		query: async (id='') => {
-			return this._getPairedResponse('PS')
-		},
-	};
-
-	templates:any = {
-		clear: async (id='') => {
-			const response = await this.aeaCommand('TC'+id);
-			return response[0] && response[0].indexOf('OK') > -1;
-		},
-		query: async (id='') => {
-			return this._getPairedResponse('TA')
 		},
 	};
 
@@ -148,20 +133,50 @@ export class Printer extends Component {
 	async getEnvironment() {
 		return Cuss2.helpers.deserializeDictionary((await this.aeaCommand('ES'))[0]);
 	}
-	async _getPairedResponse(cmd:string) {
+	async _getPairedResponse(cmd:string, n:number=2) {
 		const response = (await this.aeaCommand(cmd))[0];
-		return Cuss2.helpers.split_every(response.substr(response.indexOf('OK')+2), 2) || [];
+		return Cuss2.helpers.split_every(response.substr(response.indexOf('OK')+2), n) || [];
 	}
+	pectabs:any = {
+		clear: async (id='') => {
+			const response = await this.aeaCommand('PC'+id);
+			return response[0] && response[0].indexOf('OK') > -1;
+		},
+		query: async () => {
+			return this._getPairedResponse('PS')
+		},
+	};
+
 }
 export class BagTagPrinter extends Printer {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.BAG_TAG_PRINTER);
 	}
+
+	pectabs:any = {
+		clear: async (id='') => {
+			const response = await this.aeaCommand('PC'+id);
+			return response[0] && response[0].indexOf('OK') > -1;
+		},
+		query: async () => {
+			return this._getPairedResponse('PS', 4)
+		},
+	};
 }
 export class BoardingPassPrinter extends Printer {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.BOARDING_PASS_PRINTER);
 	}
+
+	templates:any = {
+		clear: async (id='') => {
+			const response = await this.aeaCommand('TC'+id);
+			return response[0] && response[0].indexOf('OK') > -1;
+		},
+		query: async (id='') => {
+			return this._getPairedResponse('TA')
+		},
+	};
 }
 
 export class Feeder extends Component {

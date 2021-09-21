@@ -281,9 +281,9 @@ export class Cuss2 {
 				validateComponentId(componentID);
 				const dataExchange = {
 					toPlatform: {
-						dataRecords: [{dataStatus: 'DS_OK', data: rawData}]
-					}
-				};
+						dataRecords: [ { data: rawData as any, dsTypes: [ CUSSDataTypes.SSML10 ] } ]
+					},
+				} as DataExchange;
 				return await this.connection.post('/peripherals/announcement/play/' + componentID, dataExchange);
 			},
 			pause: async (componentID:number) => {
@@ -368,8 +368,10 @@ export class Cuss2 {
 		if (this._online) {
 			const inactiveRequiredComponents = this.unavailableRequiredComponents;
 			if (!inactiveRequiredComponents.length) {
-				logger('[checkRequiredComponentsAndSyncState] All required components OK ✅. Ready for AVAILABLE state.');
-				this.requestAvailableState();
+				if (this.state === AppState.UNAVAILABLE) {
+					logger('[checkRequiredComponentsAndSyncState] All required components OK ✅. Ready for AVAILABLE state.');
+					this.requestAvailableState();
+				}
 			}
 			else {
 				logger('[checkRequiredComponentsAndSyncState] Required components inactive:', inactiveRequiredComponents.map((c: Component) => c.constructor.name));
