@@ -10,9 +10,13 @@ export class Component {
 	onmessage: Subject<any> = new Subject<any>();
 	api: any;
 	required: boolean = true;
-	eventHandlingCode: EventHandlingCodes = EventHandlingCodes.UNAVAILABLE;
 	status: StatusCodes = StatusCodes.OK;
+	eventHandlingCode: EventHandlingCodes = EventHandlingCodes.UNAVAILABLE;
+	get ready(): boolean { return this.eventHandlingCode === EventHandlingCodes.READY; }
 	deviceType: DeviceType;
+	pendingCalls: number = 0;
+
+	get pending(): boolean { return this.pendingCalls > 0; }
 
 	constructor(component: EnvironmentComponent, cuss2: Cuss2, _type: DeviceType = DeviceType.UNKNOWN) {
 		this._component = component;
@@ -21,7 +25,7 @@ export class Component {
 		Object.defineProperty(this, 'api', {
 			get: () => cuss2.api,
 			enumerable: false
-		})
+		});
 		cuss2.onmessage.subscribe((data) => {
 			if (data?.componentID === this.id) {
 				this._handleMessage(data);
@@ -41,18 +45,26 @@ export class Component {
 	_handleMessage(data:any) {
 		this.onmessage.next(data);
 	}
+	async _call(action:Function) {
+		this.pendingCalls++;
+		const decrement = (r:any)=>{
+			this.pendingCalls--;
+			return r;
+		};
+		return action().then(decrement).catch((e:any) => Promise.reject(decrement(e)))
+	}
 
 	enable() {
-		return this.api.enable(this.id);
+		return this._call(() => this.api.enable(this.id));
 	}
 	disable() {
-		return this.api.disable(this.id);
+		return this._call(() => this.api.disable(this.id));
 	}
 	cancel() {
-		return this.api.cancel(this.id);
+		return this._call(() => this.api.cancel(this.id));
 	}
 	query() {
-		return this.api.getStatus(this.id);
+		return this._call(() => this.api.getStatus(this.id));
 	}
 
 	async sendRaw(raw: string, dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.SBDAEA ] ) {
