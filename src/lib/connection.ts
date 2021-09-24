@@ -1,5 +1,5 @@
 import {BehaviorSubject, Subject} from "rxjs";
-import {logger} from "./helper";
+import {log} from "./helper";
 import axios from "axios";
 import {PlatformData} from "./interfaces/platformData";
 import {takeWhile} from "rxjs/operators";
@@ -11,10 +11,10 @@ export class Connection {
 	 * Retrieve a token from the CUSS Oauth Server using a client id and client secret
 	 */
 	static authorize(url: string, client_id: string, client_secret: string): Promise<string> {
-		logger('[authorize()] url', url);
+		log('info', `Authorizing client '${client_id}'`, url);
 		return axios.post(url, {client_id, client_secret}, {timeout: 10000})
 			.then(({data: {access_token}}: any) => {
-				logger("Token acquired", access_token);
+				log('info', "Token acquired", access_token);
 
 				return access_token;
 			})
@@ -79,7 +79,7 @@ export class Connection {
 
 		return new Promise(async (resolve, reject) => {
 			if (this._socket && this._socket.readyState === 1) {
-				logger('open socket already exists');
+				log('error', 'open socket already exists');
 				return resolve(true);
 			}
 			const socket = new WebSocket(this._socketURL);
@@ -91,14 +91,15 @@ export class Connection {
 				socket.onmessage = null
 			}
 			socket.onopen = () => {
-				logger("[socket.onopen] open to: " + this._socketURL);
+				log('info', "Socket opened; Sending Token...", this._socketURL);
 				socket.send(JSON.stringify({access_token}));
 			};
 			socket.onmessage = (event: any) => {
-				logger("[socket.onmessage]", event.data);
+				log('verbose', "[socket.onmessage]", event.data);
 				removeListeners();
 				const data = JSON.parse(event.data);
 				if (data.returnCode) {
+					log('info', "Token Confirmed", event.data);
 					this._socket = socket;
 					socket.onmessage = (event) => {
 						const data = JSON.parse(event.data);
@@ -114,7 +115,7 @@ export class Connection {
 				}
 			};
 			socket.onclose = () => {
-				logger("[socket.onclose] Socket closed");
+				log('error', "Socket closed: Invalid Token");
 				removeListeners();
 				reject(new Error('Invalid Token'))
 			};
@@ -136,13 +137,13 @@ export class Connection {
 
 	// this consolidates get/post to simplify logging and reply handling
 	async _call(type: string, path: string, data:any): Promise<any> {
-		logger(`[connection.${type}()] ${path}`);
+		log("verbose", `[connection.${type}()] ${path}`);
 
 		const invalidTokenHandler = async (e:any) => {
 			if (e.response?.status === 401) {
-				logger('got a 401 - trying to re-authenticate')
+				log("verbose",'got a 401 - trying to re-authenticate')
 				await this._connect();
-				logger('re-trying http request');
+				log("verbose",'re-trying http request');
 				//try again
 				return get_or_post();
 			}
@@ -154,13 +155,13 @@ export class Connection {
 
 		const r = await get_or_post().catch(invalidTokenHandler);
 
-		logger(`[connection.${type}()] ${path} response:\n`, r.data);
+		log("verbose",`[connection.${type}()] ${path} response:\n`, r.data);
 
 		const { requestID, returnCode } = r.data as CUSS2ApiResponse;
 		if (returnCode !== 'RC_OK' && (path === '/platform/applications/staterequest/UNAVAILABLE' && returnCode !== 'RC_STATE')) {
 			return Promise.reject(new Error('HTTP call failed with: ' + returnCode))
 		}
-		logger('[connection._call()] waiting for reply with id: ' + requestID);
+		log("verbose",'[connection._call()] waiting for reply with id: ' + requestID);
 
 		return new Promise<PlatformData>((resolve, reject) => {
 			let timedout = false;

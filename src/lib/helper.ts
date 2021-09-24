@@ -1,10 +1,22 @@
-export const logger = (...args: any[]) => {
-  if (logger.enabled)  {
-      console.log(...args);
-  }
-}
+import {Subject} from "rxjs";
 
-logger.enabled = false
+export class LogMessage {
+	action: string;
+	data: any;
+	level: string;
+
+	constructor(level:string, action:string, data:any) {
+		this.action = action;
+		this.level = level;
+		this.data = data;
+	}
+}
+export class Logger extends Subject<LogMessage> {}
+
+export const logger = new Logger();
+export const log = (level:string, action:string, data?:any) => {
+	logger.next(new LogMessage(level, action, data));
+};
 
 export const helpers = {
 	splitAndFilter: (text:string, delimiter1='#') : string[] => {

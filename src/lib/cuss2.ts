@@ -1,4 +1,4 @@
-import { logger, helpers } from "./helper";
+import { log, logger, helpers, LogMessage } from "./helper";
 import {EnvironmentLevel} from "./interfaces/environmentLevel";
 import {PlatformData} from "./interfaces/platformData";
 import {BehaviorSubject, Subject} from "rxjs";
@@ -39,7 +39,8 @@ export class Cuss2 {
 		await cuss2._initialize();
 		return cuss2;
 	}
-	static logger = logger;
+	static log = log;
+	static logger: Subject<LogMessage> = logger;
 	static helpers = helpers;
 
 
@@ -73,6 +74,7 @@ export class Cuss2 {
 	}
 
 	async _initialize(): Promise<any> {
+		log("info", "Getting Environment Information");
 		await this.api.getEnvironment();
 		if (!this.state) {
 			throw new Error('Platform in abnormal state.');
@@ -82,22 +84,25 @@ export class Cuss2 {
 		}
 		// ensure state is INITIALIZE
 		if ([AppState.STOPPED, AppState.UNAVAILABLE, AppState.AVAILABLE, AppState.ACTIVE].includes(this.state)) {
+			log("info", "Platform not in INITIALIZE state");
 			await this.api.staterequest(AppState.RELOAD);
+			log("info", "Getting Environment Information");
 			await this.api.getEnvironment();
 		}
 		if (this.state !== AppState.INITIALIZE) {
 			throw new Error('Platform in abnormal state. HALTING.');
 		}
+		log("info", "Getting Component List");
 		await this.api.getComponents();
 		await this.requestUnavailableState();
-		this.queryComponents().catch(e => logger('error querying components', e))
+		this.queryComponents().catch(e => log("error",'error querying components', e))
 	}
 
 	async _handleWebSocketMessage(data: DataExchange) {
 		const message = data && data.toApplication;
 		if (!message || message.statusCode === undefined) return; // initial value is an empty value
 
-		logger('[event.currentApplicationState]', message.currentApplicationState);
+		log('verbose', '[event.currentApplicationState]', message.currentApplicationState);
 
 		const currentState = message.currentApplicationState?.toString();
 		const unsolicited = !message.functionName;
@@ -106,11 +111,11 @@ export class Cuss2 {
 			throw new Error('Platform in invalid state. Cannot continue.');
 		}
 		if(currentState !== this.state) {
-			logger(`[state changed] old:${this.state} new:${currentState}`);
+			log('verbose', `[state changed] old:${this.state} new:${currentState}`);
 			this.stateChange.next(currentState as AppState);
 
 			if (this._online && currentState === AppState.UNAVAILABLE) {
-				await this.queryComponents().catch(e => logger('failed to queryComponents', e));
+				await this.queryComponents().catch(e => log('verbose', 'failed to queryComponents', e));
 				this.checkRequiredComponentsAndSyncState();
 			}
 			else if (this._activated && currentState === AppState.ACTIVE) {
@@ -129,7 +134,7 @@ export class Cuss2 {
 			}
 		}
 
-		logger("[socket.onmessage]", message);
+		log('verbose', "[socket.onmessage]", message);
 
 		this.onmessage.next(message)
 	}
@@ -140,13 +145,13 @@ export class Cuss2 {
 		//
 		getEnvironment: async (): Promise<EnvironmentLevel> => {
 			const response = await this.connection.get('/platform/environment');
-			logger('[getEnvironment()] response', response);
+			log('verbose', '[getEnvironment()] response', response);
 			this.environment = response.environmentLevel as EnvironmentLevel;
 			return this.environment;
 		},
 		getComponents: async (): Promise<ComponentList> => {
 			const response = await this.connection.get('/platform/components');
-			logger('[getComponents()] response', response);
+			log('verbose', '[getComponents()] response', response);
 			const componentList = response.componentList as ComponentList;
 			if (this.components) return componentList;
 
@@ -219,7 +224,7 @@ export class Cuss2 {
 		},
 		getStatus: async (componentID:number): Promise<PlatformData> => {
 			const response = await this.connection.get('/peripherals/query/' + componentID);
-			logger('[queryDevice()] response', response);
+			log('verbose', '[queryDevice()] response', response);
 			return response as PlatformData;
 		},
 
@@ -255,6 +260,7 @@ export class Cuss2 {
 			if (this.pendingStateChange) {
 				return Promise.resolve(undefined);
 			}
+			log("info", `Requesting ${state} state`);
 			this.pendingStateChange = state;
 			let response:PlatformData|undefined;
 			try {
@@ -342,7 +348,7 @@ export class Cuss2 {
 		}
 		const componentList = Object.values(this.components) as Component[];
 		await Promise.all(
-			componentList.map(c => this.api.getStatus(c.id as number)
+			componentList.map(c => c.query()
 				.catch(e => e)) //it rejects statusCodes that are not "OK" - but here we just need to know what it is, so ignore
 			)
 			.then(responses => {
@@ -369,12 +375,12 @@ export class Cuss2 {
 			const inactiveRequiredComponents = this.unavailableRequiredComponents;
 			if (!inactiveRequiredComponents.length) {
 				if (this.state === AppState.UNAVAILABLE) {
-					logger('[checkRequiredComponentsAndSyncState] All required components OK ✅. Ready for AVAILABLE state.');
+					log('verbose', '[checkRequiredComponentsAndSyncState] All required components OK ✅. Ready for AVAILABLE state.');
 					this.requestAvailableState();
 				}
 			}
 			else {
-				logger('[checkRequiredComponentsAndSyncState] Required components inactive:', inactiveRequiredComponents.map((c: Component) => c.constructor.name));
+				log('verbose', '[checkRequiredComponentsAndSyncState] Required components inactive:', inactiveRequiredComponents.map((c: Component) => c.constructor.name));
 				this.requestUnavailableState();
 			}
 		}
@@ -393,7 +399,7 @@ export class Cuss2 {
 	_handleActivate(): void {
 		if (!this._activated) return;
 		this._activated().catch((e: Error) => {
-			logger('An error happened when calling activated', e)
+			log('verbose', 'An error happened when calling activated', e)
 		})
 	}
 
@@ -406,3 +412,4 @@ export class Cuss2 {
 }
 
 export * from "./models/component";
+export * from "./helper";
