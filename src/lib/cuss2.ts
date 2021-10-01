@@ -15,7 +15,7 @@ import {
 	Component, Dispenser,
 	DocumentReader, Feeder,
 	Keypad,
-	PaymentDevice,
+	CardReader,
 	Printer,
 	BagTagPrinter,
 	BoardingPassPrinter
@@ -24,6 +24,7 @@ import { CUSSDataTypes } from "./interfaces/cUSSDataTypes";
 import {ReaderTypes} from "./interfaces/readerTypes";
 import {MediaTypes} from "./interfaces/mediaTypes";
 import {EventHandlingCodes} from "./interfaces/eventHandlingCodes";
+import {StateChange} from "./models/stateChange";
 
 function validateComponentId(componentID:any) {
 	if (typeof componentID !== 'number') {
@@ -55,9 +56,9 @@ export class Cuss2 {
 	connection:Connection;
 	environment: EnvironmentLevel = {} as EnvironmentLevel;
 	components: any|undefined = undefined;
-	stateChange: BehaviorSubject<AppState> = new BehaviorSubject<AppState>(AppState.STOPPED);
+	stateChange: BehaviorSubject<StateChange> = new BehaviorSubject<StateChange>(new StateChange(AppState.STOPPED, AppState.STOPPED));
 	componentStateChange: BehaviorSubject<Component|null> = new BehaviorSubject<Component|null>(null);
-	onmessage: Subject<any> = new Subject<any>();
+	onmessage: Subject<PlatformData> = new Subject<PlatformData>();
 
 	bagTagPrinter?: BagTagPrinter;
 	boardingPassPrinter?: BoardingPassPrinter;
@@ -65,12 +66,13 @@ export class Cuss2 {
 	barcodeReader?: BarcodeReader;
 	announcement?: Announcement;
 	keypad?: Keypad;
-	msrPayment?: PaymentDevice;
-	_activated?: Function;
+	cardReader?: CardReader;
+	activated: Subject<undefined> = new Subject<undefined>();
+	deactivated: Subject<AppState> = new Subject<AppState>();
 	pendingStateChange?: AppState;
 
 	get state() {
-		return this.stateChange.getValue();
+		return this.stateChange.getValue().current;
 	}
 
 	async _initialize(): Promise<any> {
@@ -111,15 +113,19 @@ export class Cuss2 {
 			throw new Error('Platform in invalid state. Cannot continue.');
 		}
 		if(currentState !== this.state) {
-			log('verbose', `[state changed] old:${this.state} new:${currentState}`);
-			this.stateChange.next(currentState as AppState);
+			const prevState = this.state;
+			log('verbose', `[state changed] old:${prevState} new:${currentState}`);
+			this.stateChange.next(new StateChange(prevState, currentState as AppState));
 
 			if (this._online && currentState === AppState.UNAVAILABLE) {
 				await this.queryComponents().catch(e => log('verbose', 'failed to queryComponents', e));
 				this.checkRequiredComponentsAndSyncState();
 			}
-			else if (this._activated && currentState === AppState.ACTIVE) {
-				this._handleActivate();
+			else if (currentState === AppState.ACTIVE) {
+				this.activated.next();
+			}
+			else if (prevState === AppState.ACTIVE) {
+				this.deactivated.next(currentState as AppState);
 			}
 		}
 
@@ -173,9 +179,9 @@ export class Cuss2 {
 				const isDispenser = () => type === ComponentTypes.DISPENSER;
 				const isBagTagPrinter = () => mediaTypesHas(MediaTypes.BAGGAGETAG);
 				const isBoardingPassPrinter = () => mediaTypesHas(MediaTypes.BOARDINGPASS);
-				const isDocumentReader = () => charac0?.readerType === ReaderTypes.FLATBEDSCAN && dsTypesHas(CUSSDataTypes.CODELINE);
+				const isDocumentReader = () => component.componentDescription === "PassportReader";// charac0?.readerType === ReaderTypes.FLATBEDSCAN && dsTypesHas(CUSSDataTypes.CODELINE);
 				const isBarcodeReader = () => dsTypesHas(CUSSDataTypes.BARCODE);
-				const isMsrPayment = () => charac0?.readerType === ReaderTypes.DIP && mediaTypesHas(MediaTypes.MAGNETICSTRIPE);
+				const isMsrPayment = () => component.componentDescription === "MagneticCardReader";// charac0?.readerType === ReaderTypes.DIP && mediaTypesHas(MediaTypes.MAGNETICSTRIPE);
 				const isKeypad = () => dsTypesHas(CUSSDataTypes.KEY) && dsTypesHas(CUSSDataTypes.KEYUP) && dsTypesHas(CUSSDataTypes.KEYDOWN);
 
 				if (isAnnouncement()) instance = this.announcement = new Announcement(component, this);
@@ -185,7 +191,7 @@ export class Cuss2 {
 				else if (isBoardingPassPrinter()) instance = this.boardingPassPrinter = new BoardingPassPrinter(component, this);
 				else if (isDocumentReader()) instance = this.documentReader = new DocumentReader(component, this);
 				else if (isBarcodeReader()) instance = this.barcodeReader = new BarcodeReader(component, this);
-				else if (isMsrPayment()) instance = this.msrPayment = new PaymentDevice(component, this);
+				else if (isMsrPayment()) instance = this.cardReader = new CardReader(component, this);
 				else if (isKeypad()) instance = this.keypad = new Keypad(component, this);
 				else instance = new Component(component, this);
 
@@ -395,21 +401,8 @@ export class Cuss2 {
 		this._online = online;
 		this.checkRequiredComponentsAndSyncState();
 	}
-
-	_handleActivate(): void {
-		if (!this._activated) return;
-		this._activated().catch((e: Error) => {
-			log('verbose', 'An error happened when calling activated', e)
-		})
-	}
-
-	set activated(fn:Function) {
-		this._activated = fn;
-		if (this.state === AppState.ACTIVE) {
-			this._handleActivate();
-		}
-	}
 }
 
 export * from "./models/component";
+export * from "./models/stateChange";
 export * from "./helper";

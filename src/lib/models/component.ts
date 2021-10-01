@@ -1,8 +1,18 @@
-import {Subject} from "rxjs";
+import {Subject, Subscription} from "rxjs";
 import {Cuss2} from "../cuss2";
-import {CUSSDataTypes, DataExchange, EnvironmentComponent, EventHandlingCodes, PlatformData, StatusCodes} from "../..";
+import {
+	CUSSDataTypes,
+	DataExchange,
+	DataRecord,
+	EnvironmentComponent,
+	EventHandlingCodes,
+	PlatformData,
+	StatusCodes,
+	ApplicationStates
+} from "../..";
 import { DeviceType } from '../interfaces/deviceType';
 import {PlatformResponseError} from "./platformResponseError";
+import {take, timeout} from "rxjs/operators";
 
 export class Component {
 	_component: EnvironmentComponent;
@@ -15,6 +25,7 @@ export class Component {
 	get ready(): boolean { return this.eventHandlingCode === EventHandlingCodes.READY; }
 	deviceType: DeviceType;
 	pendingCalls: number = 0;
+	enabled: boolean = false;
 
 	get pending(): boolean { return this.pendingCalls > 0; }
 
@@ -26,10 +37,13 @@ export class Component {
 			get: () => cuss2.api,
 			enumerable: false
 		});
-		cuss2.onmessage.subscribe((data) => {
+		cuss2.onmessage.subscribe((data:PlatformData) => {
 			if (data?.componentID === this.id) {
 				this._handleMessage(data);
 			}
+		});
+		cuss2.deactivated.subscribe(() => {
+			this.enabled = false;
 		});
 	}
 
@@ -40,6 +54,9 @@ export class Component {
 	updateState(msg: PlatformData): void {
 		this.status = msg.statusCode;
 		this.eventHandlingCode = msg.eventHandlingCode;
+		if (msg.eventHandlingCode !== EventHandlingCodes.READY) {
+			this.enabled = false;
+		}
 	}
 
 	_handleMessage(data:any) {
@@ -55,10 +72,32 @@ export class Component {
 	}
 
 	enable() {
-		return this._call(() => this.api.enable(this.id));
+		return this._call(() => this.api.enable(this.id))
+			.then((r:any) => {
+				this.enabled = true;
+				return r;
+			})
+			.catch((e:PlatformResponseError) => {
+				if (e.statusCode === StatusCodes.OUTOFSEQUENCE) {
+					this.enabled = true;
+					return e;
+				}
+				return Promise.reject(e);
+			});
 	}
 	disable() {
-		return this._call(() => this.api.disable(this.id));
+		return this._call(() => this.api.disable(this.id))
+			.then((r:any) => {
+				this.enabled = false;
+				return r;
+			})
+			.catch((e:PlatformResponseError) => {
+				if (e.statusCode === StatusCodes.OUTOFSEQUENCE) {
+					this.enabled = false;
+					return e;
+				}
+				return Promise.reject(e);
+			});
 	}
 	cancel() {
 		return this._call(() => this.api.cancel(this.id));
@@ -70,47 +109,75 @@ export class Component {
 	async sendRaw(raw: string, dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.SBDAEA ] ) {
 		const dataExchange = {
 			toPlatform: {
-				dataRecords: [
-					{
-						data: raw as any, dsTypes: [ CUSSDataTypes.SBDAEA ]
-					}
-				]
+				dataRecords: [{	data: (raw || '') as any, dsTypes: dsTypes }]
 			},
 		} as DataExchange;
 
-		await this.enable()
-			// Ignore OUTOFSEQUENCE
-			.catch((e:PlatformResponseError) => e.statusCode === StatusCodes.OUTOFSEQUENCE ? e : Promise.reject(e));
+		await this.enable();
 
 		return this.api.send(this.id, dataExchange);
 	}
 	setupRaw(raw: string, dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.SBDAEA ]) {
 		const dataExchange = {
 			toPlatform: {
-				dataRecords: [ { data: raw as any, dsTypes: [ CUSSDataTypes.SBDAEA ] } ]
+				dataRecords: [ { data: (raw || '') as any, dsTypes: dsTypes } ]
 			},
 		} as DataExchange;
 
 		return this.api.setup(this.id, dataExchange);
 	}
 }
+export class DataReaderComponent extends Component {
+	data = new Subject<string[]>();
+	previousData: string[] = [];
 
-export class BarcodeReader extends Component {
+	_handleMessage(data:PlatformData) {
+		this.onmessage.next(data);
+		if (data.statusCode === StatusCodes.DATAPRESENT && data.dataRecords?.length) {
+			this.previousData = data.dataRecords?.map((dr:DataRecord) => dr.data);
+			this.data.next(this.previousData)
+		}
+	}
+
+	async read(ms:number=30000) {
+		return new Promise(async(resolve,reject)=>{
+				await this.enable();
+
+				const subscription = this.data
+					.pipe(take(1))
+					.pipe(timeout(ms))
+					.subscribe(resolve,reject);
+
+			})
+			.finally(() => this.disable());
+	}
+}
+export class BarcodeReader extends DataReaderComponent {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.BARCODE_READER);
 	}
 }
-export class DocumentReader extends Component {
+export class DocumentReader extends DataReaderComponent {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.PASSPORT_READER);
 	}
 }
-export class PaymentDevice extends Component {
+export class CardReader extends DataReaderComponent {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.MSR_READER);
 	}
-	//enable/disable FOID
+
+	async enablePayment(yes:boolean) {
+		this.setupRaw('', [ yes? 'DS_TYPES_PAYMENT_ISO' as CUSSDataTypes : CUSSDataTypes.FOIDISO ]);
+	}
+
+	async readPayment(ms:number=30000) {
+		await this.enablePayment(true);
+		await this.read(ms);
+		await this.enablePayment(false);
+	}
 }
+
 export class Printer extends Component {
 	feeder?: Component;
 	dispenser?: Component;
