@@ -5,6 +5,7 @@ import {PlatformData} from "./interfaces/platformData";
 import {takeWhile} from "rxjs/operators";
 import { CUSS2ApiResponse } from "./interfaces/cUSS2ApiResponse";
 import {PlatformResponseError} from "./models/platformResponseError";
+import {ReturnCodes} from "./interfaces/returnCodes";
 
 export class Connection {
 	/**
@@ -158,7 +159,7 @@ export class Connection {
 		log("verbose",`[connection.${type}()] ${path} response:\n`, r.data);
 
 		const { requestID, returnCode } = r.data as CUSS2ApiResponse;
-		if (returnCode !== 'RC_OK' && (path === '/platform/applications/staterequest/UNAVAILABLE' && returnCode !== 'RC_STATE')) {
+		if (returnCode !== ReturnCodes.OK || (path === '/platform/applications/staterequest/UNAVAILABLE' && returnCode === ReturnCodes.STATE)) {
 			return Promise.reject(new Error('HTTP call failed with: ' + returnCode))
 		}
 		log("verbose",'[connection._call()] waiting for reply with id: ' + requestID);
