@@ -280,20 +280,23 @@ export class Keypad extends Component {
 		if (message.componentID !== this.id) return;
 
 		const dataRecords = message.dataRecords;
-		if (dataRecords?.length === 1) {
-			const data = String(dataRecords[0].data);
-			this.onbuttonpress.next({
-				UP: data.includes('UP'),
-				DOWN: data.includes('DOWN'),
-				PREVIOUS: data.includes('PREVIOUS'),
-				NEXT: data.includes('NEXT'),
-				ENTER: data.includes('ENTER'),
-				HOME: data.includes('HOME'),
-				END: data.includes('END'),
+		if (dataRecords?.length) {
+			const data = dataRecords.map(dr => dr.data);
+			this.data.next({
+				UP: data.includes('NAVUP'),
+				DOWN: data.includes('NAVDOWN'),
+				PREVIOUS: data.includes('NAVPREVIOUS'),
+				NEXT: data.includes('NAVNEXT'),
+				ENTER: data.includes('NAVENTER'),
+				HOME: data.includes('NAVHOME'),
+				END: data.includes('NAVEND'),
+				HELP: data.includes('NAVHELP'),
+				VOLUMEUP: data.includes('VOLUMEUP'),
+				VOLUMEDOWN: data.includes('VOLUMEDOWN'),
 			});
 		}
 	}
-	onbuttonpress: Subject<any> = new Subject<any>();
+	data: Subject<any> = new Subject<any>();
 }
 export class Announcement extends Component {
 	say(text:string, lang:string='en-US') {
