@@ -113,18 +113,27 @@ export class Component {
 			},
 		} as DataExchange;
 
-		await this.enable();
+		if (!this.enabled) {
+			await this.enable();
+		}
 
 		return this.api.send(this.id, dataExchange);
 	}
-	setupRaw(raw: string, dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.SBDAEA ]) {
-		const dataExchange = {
-			toPlatform: {
-				dataRecords: [ { data: (raw || '') as any, dsTypes: dsTypes } ]
-			},
-		} as DataExchange;
+	async setupRaw(raw: string|string[], dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.SBDAEA ]) {
+		const isArray = Array.isArray(raw);
+		if (!raw || (isArray && !raw[0])) {
+			return Promise.resolve(isArray? [] : undefined);
+		}
+		const rawArray:string[] = isArray? raw as string[] : [raw as string];
 
-		return this.api.setup(this.id, dataExchange);
+		const dx = (r:string) => ({
+			toPlatform: {
+				dataRecords: [ { data: (r || '') as any, dsTypes: dsTypes } ]
+			},
+		} as DataExchange);
+
+		return await Promise.all(rawArray.map(r => this.api.setup(this.id, dx(r))))
+			.then(results => isArray? results : results[0])
 	}
 }
 export class DataReaderComponent extends Component {
@@ -179,31 +188,23 @@ export class CardReader extends DataReaderComponent {
 }
 
 export class Printer extends Component {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2, _type: DeviceType) {
+		super(component, cuss2, _type);
+		cuss2.activated.subscribe(() => {
+			this.enable();
+		})
+	}
+
 	feeder?: Component;
 	dispenser?: Component;
 
-	logos:any = {
-		clear: async (id='') => {
-			const response = await this.aeaCommand('LC'+id);
-			return response[0] && response[0].indexOf('OK') > -1;
-		},
-		query: async (id='') => {
-			return this._getPairedResponse('LS')
-		},
-	};
-
-	async setupAndPrintRaw(rawSetupData?: string[], rawData?: string) {
+	async setupAndPrintRaw(rawSetupData: string[], rawData?: string) {
 		if (typeof rawData !== 'string') {
 			throw new TypeError('Invalid argument: rawData');
 		}
 
-		if (Array.isArray(rawSetupData)) {
-			for (const rawPectab of rawSetupData) {
-				await this.setupRaw(rawPectab);
-			}
-		}
-
-		await this.sendRaw(rawData);
+		await this.setupRaw(rawSetupData);
+		return this.sendRaw(rawData);
 	}
 	async aeaCommand(cmd:string) {
 		const response = await this.setupRaw(cmd);
@@ -216,6 +217,16 @@ export class Printer extends Component {
 		const response = (await this.aeaCommand(cmd))[0];
 		return Cuss2.helpers.split_every(response.substr(response.indexOf('OK')+2), n) || [];
 	}
+
+	logos:any = {
+		clear: async (id='') => {
+			const response = await this.aeaCommand('LC'+id);
+			return response[0] && response[0].indexOf('OK') > -1;
+		},
+		query: async (id='') => {
+			return this._getPairedResponse('LS')
+		},
+	};
 	pectabs:any = {
 		clear: async (id='') => {
 			const response = await this.aeaCommand('PC'+id);
