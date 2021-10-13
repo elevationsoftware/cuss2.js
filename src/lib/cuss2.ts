@@ -22,10 +22,21 @@ import {
 	BoardingPassPrinter
 } from "./models/component";
 import { CUSSDataTypes } from "./interfaces/cUSSDataTypes";
-import {MediaTypes} from "./interfaces/mediaTypes";
-
 import {EventHandlingCodes} from "./interfaces/eventHandlingCodes";
 import {StateChange} from "./models/stateChange";
+import {ComponentInterrogation} from "./componentInterrogation";
+
+const {
+	isAnnouncement,
+	isFeeder,
+	isDispenser,
+	isBagTagPrinter,
+	isBoardingPassPrinter,
+	isDocumentReader,
+	isBarcodeReader,
+	isCardReader,
+	isKeypad
+} = ComponentInterrogation;
 
 function validateComponentId(componentID:any) {
 	if (typeof componentID !== 'number') {
@@ -166,34 +177,17 @@ export class Cuss2 {
 
 			componentList.forEach((component) => {
 				const id = String(component.componentID);
-				const type = component.componentType;
-				const charac0 = component.componentCharacteristics?.[0];
-				const mediaTypes = charac0?.mediaTypesList;
-
-				const dsTypesHas = (type: CUSSDataTypes) => charac0?.dsTypesList?.find((d) => d === type);
-				const mediaTypesHas = (type: MediaTypes) => mediaTypes?.find((m) => m === type);
-
 				let instance;
 
-				const isAnnouncement = () => type === ComponentTypes.ANNOUNCEMENT;
-				const isFeeder = () => type === ComponentTypes.FEEDER;
-				const isDispenser = () => type === ComponentTypes.DISPENSER;
-				const isBagTagPrinter = () => mediaTypesHas(MediaTypes.BAGGAGETAG);
-				const isBoardingPassPrinter = () => mediaTypesHas(MediaTypes.BOARDINGPASS);
-				const isDocumentReader = () => component.componentDescription === "PassportReader";// charac0?.readerType === ReaderTypes.FLATBEDSCAN && dsTypesHas(CUSSDataTypes.CODELINE);
-				const isBarcodeReader = () => dsTypesHas(CUSSDataTypes.BARCODE);
-				const isMsrPayment = () => component.componentDescription === "MagneticCardReader";// charac0?.readerType === ReaderTypes.DIP && mediaTypesHas(MediaTypes.MAGNETICSTRIPE);
-				const isKeypad = () => dsTypesHas(CUSSDataTypes.KEY) && dsTypesHas(CUSSDataTypes.KEYUP) && dsTypesHas(CUSSDataTypes.KEYDOWN);
-
-				if (isAnnouncement()) instance = this.announcement = new Announcement(component, this);
-				else if (isFeeder()) instance = new Feeder(component, this);
-				else if (isDispenser()) instance = new Dispenser(component, this);
-				else if (isBagTagPrinter()) instance = this.bagTagPrinter = new BagTagPrinter(component, this);
-				else if (isBoardingPassPrinter()) instance = this.boardingPassPrinter = new BoardingPassPrinter(component, this);
-				else if (isDocumentReader()) instance = this.documentReader = new DocumentReader(component, this);
-				else if (isBarcodeReader()) instance = this.barcodeReader = new BarcodeReader(component, this);
-				else if (isMsrPayment()) instance = this.cardReader = new CardReader(component, this);
-				else if (isKeypad()) instance = this.keypad = new Keypad(component, this);
+				if (isAnnouncement(component)) instance = this.announcement = new Announcement(component, this);
+				else if (isFeeder(component)) instance = new Feeder(component, this);
+				else if (isDispenser(component)) instance = new Dispenser(component, this);
+				else if (isBagTagPrinter(component)) instance = this.bagTagPrinter = new BagTagPrinter(component, this);
+				else if (isBoardingPassPrinter(component)) instance = this.boardingPassPrinter = new BoardingPassPrinter(component, this);
+				else if (isDocumentReader(component)) instance = this.documentReader = new DocumentReader(component, this);
+				else if (isBarcodeReader(component)) instance = this.barcodeReader = new BarcodeReader(component, this);
+				else if (isCardReader(component)) instance = this.cardReader = new CardReader(component, this);
+				else if (isKeypad(component)) instance = this.keypad = new Keypad(component, this);
 				else instance = new Component(component, this);
 
 				return components[id] = instance;
@@ -411,3 +405,4 @@ export class Cuss2 {
 export * from "./models/component";
 export * from "./models/stateChange";
 export * from "./helper";
+export * from "./componentInterrogation";
