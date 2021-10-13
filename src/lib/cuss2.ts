@@ -22,7 +22,6 @@ import {
 	BoardingPassPrinter
 } from "./models/component";
 import { CUSSDataTypes } from "./interfaces/cUSSDataTypes";
-import {ReaderTypes} from "./interfaces/readerTypes";
 import {MediaTypes} from "./interfaces/mediaTypes";
 
 import {EventHandlingCodes} from "./interfaces/eventHandlingCodes";
