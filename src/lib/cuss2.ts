@@ -4,6 +4,7 @@ import {PlatformData} from "./interfaces/platformData";
 import {BehaviorSubject, Subject} from "rxjs";
 import {ApplicationStates} from "./interfaces/applicationStates";
 import AppState = ApplicationStates.ApplicationStateCodeEnum;
+import ChangeReason = ApplicationStates.ApplicationStateChangeReasonCodeEnum;
 import {ComponentList} from "./interfaces/componentList";
 
 import {Connection} from "./connection";
@@ -23,6 +24,7 @@ import {
 import { CUSSDataTypes } from "./interfaces/cUSSDataTypes";
 import {ReaderTypes} from "./interfaces/readerTypes";
 import {MediaTypes} from "./interfaces/mediaTypes";
+
 import {EventHandlingCodes} from "./interfaces/eventHandlingCodes";
 import {StateChange} from "./models/stateChange";
 
@@ -262,7 +264,7 @@ export class Cuss2 {
 			return await this.connection.post('/peripherals/userpresent/offer/' + componentID);
 		},
 
-		staterequest: async (state: AppState): Promise<PlatformData|undefined> => {
+		staterequest: async (state: AppState, reasonCode = ChangeReason.NOTAPPLICABLE, reason = ''): Promise<PlatformData|undefined> => {
 			if (this.pendingStateChange) {
 				return Promise.resolve(undefined);
 			}
@@ -270,7 +272,11 @@ export class Cuss2 {
 			this.pendingStateChange = state;
 			let response:PlatformData|undefined;
 			try {
-				response = await this.connection.post('/platform/applications/staterequest/' + state, {})
+				response = await this.connection.post('/platform/applications/staterequest', {
+					"applicationStateCode": state,
+					"applicationStateChangeReasonCode": reasonCode,
+					"applicationStateChangeReason": reason
+				})
 					.catch(e => {
 						// API is returning AL_APPLICATION_REQUEST instead of OK. Suppress it...
 						if (e.statusCode !== 'AL_APPLICATION_REQUEST') {

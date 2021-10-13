@@ -9,27 +9,8 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { AlibiType } from './alibiType';
+import { NavigationTypes } from './navigationTypes';
 
-/**
- * Provide object dimension measurements
- */
-export interface DimensionType { 
-    alibi?: AlibiType;
-    /**
-     * Height of the object, in centimetres (cm)
-     */
-    height?: number;
-    /**
-     * Length of the object, in centimetres (cm)
-     */
-    length?: number;
-    /**
-     * Width of the object, in centimetres (cm)
-     */
-    width?: number;
-    /**
-     * Indicates if the measurement is stable
-     */
-    stable: boolean;
+export interface ComponentCharacteristicsNavigationType { 
+    type?: NavigationTypes;
 }

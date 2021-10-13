@@ -12,7 +12,9 @@
 import { CUSSDataTypes } from './cUSSDataTypes';
 import { ComponentCharacteristicsConveyorSBD } from './componentCharacteristicsConveyorSBD';
 import { ComponentCharacteristicsDisplayType } from './componentCharacteristicsDisplayType';
-import { ComponentCharacteristicsReaderType } from './componentCharacteristicsReaderType';
+import { ComponentCharacteristicsDocumentBin } from './componentCharacteristicsDocumentBin';
+import { ComponentCharacteristicsNavigationType } from './componentCharacteristicsNavigationType';
+import { DeviceTypes } from './deviceTypes';
 import { MediaTypes } from './mediaTypes';
 
 export interface ComponentCharacteristics { 
@@ -21,14 +23,19 @@ export interface ComponentCharacteristics {
      */
     deviceHelpInstruction?: string;
     /**
-     * A list of DS_TYPES identifiers.
+     * A list of data types identifiers.
      */
     dsTypesList?: Array<CUSSDataTypes>;
     /**
      * A list of media type identifiers.
      */
-    mediaTypesList?: Array<MediaTypes>;
-    readerType?: ComponentCharacteristicsReaderType;
+    mediaTypesList: Array<MediaTypes>;
+    /**
+     * A list of device type identifiers.
+     */
+    deviceTypesList?: Array<DeviceTypes>;
+    navigationType?: ComponentCharacteristicsNavigationType;
     displayType?: ComponentCharacteristicsDisplayType;
+    documentBin?: ComponentCharacteristicsDocumentBin;
     conveyorSBD?: ComponentCharacteristicsConveyorSBD;
 }

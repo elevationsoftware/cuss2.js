@@ -9,12 +9,16 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { ReaderTypes } from './readerTypes';
 
-export interface ComponentCharacteristicsReaderType { 
-    type?: ReaderTypes;
-    /**
-     * The number of tracks the reader can handle.
-     */
-    noOfTracks?: number;
-}
+/**
+ * Describes the type of the navigation pad...<p> NON_APPLICABLE_NAVIGATION_TYPE : Navigation type doesn't fit in any category <br> NAVPAD_5_KEY :  The usual STORM navigation pad with 5 keys <br> NAVPAD_8_KEY :  The usual STORM navigation pad with 8 keys <br> AUDIONAV_6_KEY : The diamond shaped STORM audio navigation pad with 6 keys <br> AUDIONAV_6_KEY_BAR : The STORM audio navigation pad with 6 keys in horizontal order 
+ */
+export type NavigationTypes = 'NON_APPLICABLE_NAVIGATION_TYPE' | 'NAVPAD_5_KEY' | 'NAVPAD_8_KEY' | 'AUDIONAV_6_KEY' | 'AUDIONAV_6_KEY_BAR';
+
+export const NavigationTypes = {
+    NONAPPLICABLENAVIGATIONTYPE: 'NON_APPLICABLE_NAVIGATION_TYPE' as NavigationTypes,
+    NAVPAD5KEY: 'NAVPAD_5_KEY' as NavigationTypes,
+    NAVPAD8KEY: 'NAVPAD_8_KEY' as NavigationTypes,
+    AUDIONAV6KEY: 'AUDIONAV_6_KEY' as NavigationTypes,
+    AUDIONAV6KEYBAR: 'AUDIONAV_6_KEY_BAR' as NavigationTypes
+};

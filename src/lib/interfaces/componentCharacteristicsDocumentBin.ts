@@ -9,27 +9,21 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { AlibiType } from './alibiType';
 
 /**
- * Provide object dimension measurements
+ * Document bin characteristics for Feeder-, Dispenser-, Capture- components.
  */
-export interface DimensionType { 
-    alibi?: AlibiType;
+export interface ComponentCharacteristicsDocumentBin { 
     /**
-     * Height of the object, in centimetres (cm)
+     * Describes the maximum number of documents a bin can hold.
      */
-    height?: number;
+    binSize?: number;
     /**
-     * Length of the object, in centimetres (cm)
+     * Shows the high threshold of the bin if appropriate sensor is installed.
      */
-    length?: number;
+    allmostFullLevel?: number;
     /**
-     * Width of the object, in centimetres (cm)
+     * Shows the low threshold of the bin if appropriate sensor is installed.
      */
-    width?: number;
-    /**
-     * Indicates if the measurement is stable
-     */
-    stable: boolean;
+    allmostEmptyLevel?: number;
 }

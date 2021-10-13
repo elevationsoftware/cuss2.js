@@ -11,9 +11,9 @@
  */
 
 /**
- * Interface Return Codes definitions with the following semantics...<p> RC_OK : Directive has been accepted by the CUSS interface <br> RC_STATE : Application is not in the correct state to invoke this directive <br> RC_DENIED : Application is not allowed to use that component <br> RC_PARAMETER : Error in parameters <br> RC_LISTENER : There is no application listener to respond to <br> RC_SHARE : Request in wrong share mode (the component may be blocked by any application) <br> RC_NOT_SUPPORTED : Unauthorized command within data stream (DF, SVG or AEA) <br> RC_ERROR : Any error that does not fall into the error categories above
+ * Interface Return Codes definitions with the following semantics...<p> RC_OK : Directive has been accepted by the CUSS interface <br> RC_STATE : Application is not in the correct state to invoke this directive <br> RC_DENIED : Application is not allowed to use that component <br> RC_PARAMETER : Error in parameters <br> RC_LISTENER : There is no application listener to respond to <br> RC_SHARE : Request in wrong share mode (the component may be blocked by any application) <br> RC_NOT_SUPPORTED : Unauthorized command within data stream (DF, SVG or AEA/ITPS) <br> RC_TIMEOUT : Execution timeout in processing the request <br> RC_ERROR : Any error that does not fall into the error categories above
  */
-export type ReturnCodes = 'RC_OK' | 'RC_STATE' | 'RC_DENIED' | 'RC_PARAMETER' | 'RC_LISTENER' | 'RC_SHARE' | 'RC_NOT_SUPPORTED' | 'RC_ERROR';
+export type ReturnCodes = 'RC_OK' | 'RC_STATE' | 'RC_DENIED' | 'RC_PARAMETER' | 'RC_LISTENER' | 'RC_SHARE' | 'RC_NOT_SUPPORTED' | 'RC_TIMEOUT' | 'RC_ERROR';
 
 export const ReturnCodes = {
     OK: 'RC_OK' as ReturnCodes,
@@ -23,5 +23,6 @@ export const ReturnCodes = {
     LISTENER: 'RC_LISTENER' as ReturnCodes,
     SHARE: 'RC_SHARE' as ReturnCodes,
     NOTSUPPORTED: 'RC_NOT_SUPPORTED' as ReturnCodes,
+    TIMEOUT: 'RC_TIMEOUT' as ReturnCodes,
     ERROR: 'RC_ERROR' as ReturnCodes
 };

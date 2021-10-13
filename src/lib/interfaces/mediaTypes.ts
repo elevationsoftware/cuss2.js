@@ -11,22 +11,33 @@
  */
 
 /**
- * Media Type definitions with the following semantics...<p> NON_APPLICABLE_MEDIATYPE : Media type doesn't fit in any category <br> MAGNETIC_STRIPE : Documents with a magnetic stripe <br> JIS : JIS cards <br> CHIP : Document with a chip <br> CARD : Any type of card <br> PRINTED : Any printed document (OCR/BarCode/Plain paper)<br> TICKET : ATB ticket <br> INSERTED_MEDIA : Document inserted by the user <br> BOARDINGPASS : Regular Boarding Pass <br> GENERAL_PURPOSE_DOC : General purpose document <br> BAGGAGETAG : Baggage Tag <br> HEAVYTAG : Special Baggage Tag for heavy baggage <br> RFID_BAGGAGETAG : Baggage Tag with RFID chip or electronic paper
+ * A Media Type describes what the component does and is able to handle/process<p> NON_APPLICABLE_MEDIATYPE : Media type doesn't fit in any category <br> MAGCARD : Cards with Mag-Stripes<br> JISCARD : JIS II Magnetic Stripe Encoding (Japanese Industrial Standard)<br> CARD : Any card not falling under more specific descriptions<br> CHIP : Cards equipped with chips (e.g. Chip & PIN)<br> BARCODE : Any type of 1- or 2D bar-code<br> TICKET : Ticket document<br> RECEIPT : Receipt document<br> BOARDINGPASS : Standard Boarding Pass<br> BAGGAGETAG : Standard Baggage Tag<br> HEAVYTAG : Standard Heavy Tag<br> BAGGAGE : Passenger Baggage<br> PASSPORT : Machine readable Passport Document<br> IDCARD : Machine readable National ID-Card<br> VISA :  Machine readable Visa Document<br> DRIVERLICENSE :  Machine readable Driver License<br> RFID : Documents with RFID chips<br> NFC : Documents with NFC chip<br> OCR : OCR data<br> IMAGE : Image data<br> PRINTED : Any printed document not falling under more specific descriptions<br> AUDIO : Any audible data<br> VISUAL : Any visual data<br> TOUCH : Touch Screen input<br> DATASTRUCTURE : XML or JSON formatted structured data
  */
-export type MediaTypes = 'NON_APPLICABLE_MEDIATYPE' | 'MAGNETICS_TRIPE' | 'JIS' | 'CHIP' | 'CARD' | 'PRINTED' | 'TICKET' | 'INSERTED_MEDIA' | 'BOARDINGPASS' | 'GENERAL_PURPOSE_DOC' | 'BAGGAGETAG' | 'HEAVYTAG' | 'RFID_BAGGAGETAG';
+export type MediaTypes = 'MAGCARD' | 'JISCARD' | 'CARD' | 'CHIP' | 'BARCODE' | 'TICKET' | 'RECEIPT' | 'BOARDINGPASS' | 'BAGGAGETAG' | 'HEAVYTAG' | 'BAGGAGE' | 'PASSPORT' | 'IDCARD' | 'VISA' | 'DRIVERLICENSE' | 'RFID' | 'NFC' | 'OCR' | 'IMAGE' | 'PRINTED' | 'AUDIO' | 'VISUAL' | 'TOUCH' | 'DATASTRUCTURE';
 
 export const MediaTypes = {
-    NONAPPLICABLEMEDIATYPE: 'NON_APPLICABLE_MEDIATYPE' as MediaTypes,
-    MAGNETICSTRIPE: 'MAGNETICS_TRIPE' as MediaTypes,
-    JIS: 'JIS' as MediaTypes,
-    CHIP: 'CHIP' as MediaTypes,
+    MAGCARD: 'MAGCARD' as MediaTypes,
+    JISCARD: 'JISCARD' as MediaTypes,
     CARD: 'CARD' as MediaTypes,
-    PRINTED: 'PRINTED' as MediaTypes,
+    CHIP: 'CHIP' as MediaTypes,
+    BARCODE: 'BARCODE' as MediaTypes,
     TICKET: 'TICKET' as MediaTypes,
-    INSERTEDMEDIA: 'INSERTED_MEDIA' as MediaTypes,
+    RECEIPT: 'RECEIPT' as MediaTypes,
     BOARDINGPASS: 'BOARDINGPASS' as MediaTypes,
-    GENERALPURPOSEDOC: 'GENERAL_PURPOSE_DOC' as MediaTypes,
     BAGGAGETAG: 'BAGGAGETAG' as MediaTypes,
     HEAVYTAG: 'HEAVYTAG' as MediaTypes,
-    RFIDBAGGAGETAG: 'RFID_BAGGAGETAG' as MediaTypes
+    BAGGAGE: 'BAGGAGE' as MediaTypes,
+    PASSPORT: 'PASSPORT' as MediaTypes,
+    IDCARD: 'IDCARD' as MediaTypes,
+    VISA: 'VISA' as MediaTypes,
+    DRIVERLICENSE: 'DRIVERLICENSE' as MediaTypes,
+    RFID: 'RFID' as MediaTypes,
+    NFC: 'NFC' as MediaTypes,
+    OCR: 'OCR' as MediaTypes,
+    IMAGE: 'IMAGE' as MediaTypes,
+    PRINTED: 'PRINTED' as MediaTypes,
+    AUDIO: 'AUDIO' as MediaTypes,
+    VISUAL: 'VISUAL' as MediaTypes,
+    TOUCH: 'TOUCH' as MediaTypes,
+    DATASTRUCTURE: 'DATASTRUCTURE' as MediaTypes
 };

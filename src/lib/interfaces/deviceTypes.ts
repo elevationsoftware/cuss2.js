@@ -11,17 +11,26 @@
  */
 
 /**
- * Describes the type of media reader...<p> NON_APPLICABLE_READER_TYPE : Reader type doesn't fit in any category <br> MOTORIZED : Motorized reader like standard card readers <br> DIP : Manual insertion or removal of documents <br> SWIPE : Document has to be swiped through reader manually <br> CONTACTLESS : Document is read via an antenna (radio frequency) <br> FLATBED_SCAN : Standard scanner technology or camera <br> PEN_SCAN : Standard barcode reader technology
+ * Device Types describe how applications handle the device and how to advise users<p> NON_APPLICABLE_DEVICE_TYPE : Device doesn't fit in any category <br> PRINT : Device can print documents<br> READ : Device can read documents<br> MOTORIZED : Device can move in and out a document (e.g. cards)<br> DIP : User has to dip in and remove a document (e.g. cards or passports)<br> SWIPE : User has to the document or card<br> CONTACTLESS : Device can read a document from a (usually short) distance<br> INSERT : Documents have to be inserted into the device<br> DISPENSE : Devices can dispense a document to the user or another component<br> CAPTURE : Device can retract documents or cards<br> CONVEYOR : Device can move baggage back and forth<br> SCALE : Device can weigh items<br> CHIP_AND_PIN : Device is a Chip & PIN device / payment device<br> EXTERNAL : Device is not contained in the CUSS device<br> BIOMETRICS : Device is a biometrics device / interface <br> ASSISTIVE : Device can assist users with disabilities<br> ILLUMINATION : Device represents a light<br> DISPLAY : Device represents a display (e.g. a touch screen)
  */
-export type ReaderTypes = 'NON_APPLICABLE_READER_TYPE' | 'MOTORIZED' | 'DIP' | 'SWIPE' | 'CONTACTLESS' | 'FLATBED_SCAN' | 'TICKET' | 'PEN_SCAN';
+export type DeviceTypes = 'PRINT' | 'READ' | 'MOTORIZED' | 'DIP' | 'SWIPE' | 'CONTACTLESS' | 'INSERT' | 'DISPENSE' | 'CAPTURE' | 'CONVEYOR' | 'SCALE' | 'CHIP_AND_PIN' | 'EXTERNAL' | 'BIOMETRICS' | 'ASSISTIVE' | 'ILLUMINATION' | 'DISPLAY';
 
-export const ReaderTypes = {
-    NONAPPLICABLEREADERTYPE: 'NON_APPLICABLE_READER_TYPE' as ReaderTypes,
-    MOTORIZED: 'MOTORIZED' as ReaderTypes,
-    DIP: 'DIP' as ReaderTypes,
-    SWIPE: 'SWIPE' as ReaderTypes,
-    CONTACTLESS: 'CONTACTLESS' as ReaderTypes,
-    FLATBEDSCAN: 'FLATBED_SCAN' as ReaderTypes,
-    TICKET: 'TICKET' as ReaderTypes,
-    PENSCAN: 'PEN_SCAN' as ReaderTypes
+export const DeviceTypes = {
+    PRINT: 'PRINT' as DeviceTypes,
+    READ: 'READ' as DeviceTypes,
+    MOTORIZED: 'MOTORIZED' as DeviceTypes,
+    DIP: 'DIP' as DeviceTypes,
+    SWIPE: 'SWIPE' as DeviceTypes,
+    CONTACTLESS: 'CONTACTLESS' as DeviceTypes,
+    INSERT: 'INSERT' as DeviceTypes,
+    DISPENSE: 'DISPENSE' as DeviceTypes,
+    CAPTURE: 'CAPTURE' as DeviceTypes,
+    CONVEYOR: 'CONVEYOR' as DeviceTypes,
+    SCALE: 'SCALE' as DeviceTypes,
+    CHIPANDPIN: 'CHIP_AND_PIN' as DeviceTypes,
+    EXTERNAL: 'EXTERNAL' as DeviceTypes,
+    BIOMETRICS: 'BIOMETRICS' as DeviceTypes,
+    ASSISTIVE: 'ASSISTIVE' as DeviceTypes,
+    ILLUMINATION: 'ILLUMINATION' as DeviceTypes,
+    DISPLAY: 'DISPLAY' as DeviceTypes
 };

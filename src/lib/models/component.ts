@@ -106,7 +106,7 @@ export class Component {
 		return this._call(() => this.api.getStatus(this.id));
 	}
 
-	async sendRaw(raw: string, dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.SBDAEA ] ) {
+	async sendRaw(raw: string, dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.ITPS ] ) {
 		const dataExchange = {
 			toPlatform: {
 				dataRecords: [{	data: (raw || '') as any, dsTypes: dsTypes }]
@@ -119,7 +119,7 @@ export class Component {
 
 		return this.api.send(this.id, dataExchange);
 	}
-	async setupRaw(raw: string|string[], dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.SBDAEA ]) {
+	async setupRaw(raw: string|string[], dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.ITPS ]) {
 		const isArray = Array.isArray(raw);
 		if (!raw || (isArray && !raw[0])) {
 			return Promise.resolve(isArray? [] : undefined);
