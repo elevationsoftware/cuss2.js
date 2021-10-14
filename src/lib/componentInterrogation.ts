@@ -3,15 +3,6 @@ import {MediaTypes} from "./interfaces/mediaTypes";
 import {ComponentTypes} from "./interfaces/componentTypes";
 import {ComponentCharacteristics} from "./interfaces/componentCharacteristics";
 import {EnvironmentComponent} from "../../dist";
-import {
-	Announcement,
-	BagTagPrinter, BarcodeReader,
-	BoardingPassPrinter,
-	CardReader,
-	Component,
-	Dispenser, DocumentReader,
-	Feeder, Keypad
-} from "./models/component";
 
 const dsTypesHas = (charac0:ComponentCharacteristics, type: CUSSDataTypes) => {
 	return charac0?.dsTypesList?.find((d) => d === type);
@@ -19,10 +10,6 @@ const dsTypesHas = (charac0:ComponentCharacteristics, type: CUSSDataTypes) => {
 const mediaTypesHas = (mediaTypes:MediaTypes[], type: MediaTypes) => {
 	return mediaTypes?.find((m) => m === type);
 }
-// const id = String(component.componentID);
-// const type = component.componentType;
-// const charac0 = component.componentCharacteristics?.[0];
-// const mediaTypes = charac0?.mediaTypesList;
 
 export class ComponentInterrogation {
 	static isAnnouncement = (component:EnvironmentComponent) => {
