@@ -25,6 +25,8 @@ import { CUSSDataTypes } from "./interfaces/cUSSDataTypes";
 import {EventHandlingCodes} from "./interfaces/eventHandlingCodes";
 import {StateChange} from "./models/stateChange";
 import {ComponentInterrogation} from "./componentInterrogation";
+import {ApplicationActivation} from "./interfaces/applicationActivation";
+import ExecutionModeEnum = ApplicationActivation.ExecutionModeEnum;
 
 const {
 	isAnnouncement,
@@ -82,6 +84,9 @@ export class Cuss2 {
 	activated: Subject<undefined> = new Subject<undefined>();
 	deactivated: Subject<AppState> = new Subject<AppState>();
 	pendingStateChange?: AppState;
+	multiTenant?: boolean;
+	accessibleMode: boolean = false;
+	language?: string;
 
 	get state() {
 		return this.stateChange.getValue().current;
@@ -134,6 +139,9 @@ export class Cuss2 {
 				this.checkRequiredComponentsAndSyncState();
 			}
 			else if (currentState === AppState.ACTIVE) {
+				this.multiTenant = message.applicationActivation?.executionMode === ExecutionModeEnum.MAM;
+				this.accessibleMode = message.applicationActivation?.accessibleMode || false;
+				this.language = message.applicationActivation?.languageID;
 				this.activated.next();
 			}
 			else if (prevState === AppState.ACTIVE) {
@@ -143,7 +151,7 @@ export class Cuss2 {
 
 		if(message.componentID && this.components) {
 			const component = this.components[message.componentID];
-			if (component && component.stateChanged(message)) {
+			if (component && component.stateIsDifferent(message)) {
 				component.updateState(message);
 				this.componentStateChange.next(component);
 				if (unsolicited || message.functionName === 'query') {
@@ -175,13 +183,26 @@ export class Cuss2 {
 
 			const components:any = this.components = {};
 
+			//first find feeders & dispensers so they can be linked when printers are created
 			componentList.forEach((component) => {
 				const id = String(component.componentID);
 				let instance;
 
-				if (isAnnouncement(component)) instance = this.announcement = new Announcement(component, this);
-				else if (isFeeder(component)) instance = new Feeder(component, this);
+				if (isFeeder(component)) instance = new Feeder(component, this);
 				else if (isDispenser(component)) instance = new Dispenser(component, this);
+				else return;
+
+				return components[id] = instance;
+			});
+
+			componentList.forEach((component) => {
+				if (isFeeder(component)) return;
+				if (isDispenser(component)) return;
+
+				const id = String(component.componentID);
+				let instance;
+
+				if (isAnnouncement(component)) instance = this.announcement = new Announcement(component, this);
 				else if (isBagTagPrinter(component)) instance = this.bagTagPrinter = new BagTagPrinter(component, this);
 				else if (isBoardingPassPrinter(component)) instance = this.boardingPassPrinter = new BoardingPassPrinter(component, this);
 				else if (isDocumentReader(component)) instance = this.documentReader = new DocumentReader(component, this);
@@ -192,34 +213,6 @@ export class Cuss2 {
 
 				return components[id] = instance;
 			});
-
-			function assignLinks(printer: Printer) {
-				if (!printer) return;
-
-				const links = printer._component.linkedComponentIDs;
-
-				if (printer && links?.length) {
-					links.forEach((id) => {
-						const component = components[id] as Component;
-						const type = component._component.componentType;
-						if (type === ComponentTypes.FEEDER) {
-							const feeder = component as Feeder;
-							feeder.printer = printer;
-							printer.feeder = component;
-							return;
-						}
-						if (type === ComponentTypes.DISPENSER) {
-							const dispenser = component as Dispenser;
-							dispenser.printer = printer;
-							printer.dispenser = component;
-							return;
-						}
-						console.error('unknown linked component: ' + id)
-					});
-				}
-			}
-			assignLinks(this.boardingPassPrinter as BoardingPassPrinter);
-			assignLinks(this.bagTagPrinter as BagTagPrinter);
 
 			return componentList;
 		},
@@ -356,19 +349,12 @@ export class Cuss2 {
 			componentList.map(c => c.query()
 				.catch(e => e)) //it rejects statusCodes that are not "OK" - but here we just need to know what it is, so ignore
 			)
-			.then(responses => {
-				responses.forEach(response => {
-					const id = String(response.componentID);
-					this.components[id].eventHandlingCode = response.eventHandlingCode;
-					this.components[id].status = response.statusCode;
-				})
-			});
 		return true;
 	}
 
 	get unavailableComponents(): Component[] {
 		const components = Object.values(this.components) as Component[];
-		return components.filter((c:Component) => c.eventHandlingCode === EventHandlingCodes.UNAVAILABLE);
+		return components.filter((c:Component) => !c.ready);
 	}
 	get unavailableRequiredComponents(): Component[] {
 		return this.unavailableComponents.filter((c:Component) => c.required)
