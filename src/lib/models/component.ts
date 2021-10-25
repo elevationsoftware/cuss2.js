@@ -1,4 +1,4 @@
-import {Subject, Subscription} from "rxjs";
+import {BehaviorSubject, combineLatest, Subject, Subscription} from "rxjs";
 import {Cuss2} from "../cuss2";
 import {
 	CUSSDataTypes,
@@ -8,7 +8,7 @@ import {
 	EventHandlingCodes,
 	PlatformData,
 	StatusCodes,
-	ApplicationStates
+	ApplicationStates, ComponentTypes
 } from "../..";
 import { DeviceType } from '../interfaces/deviceType';
 import {PlatformResponseError} from "./platformResponseError";
@@ -19,15 +19,21 @@ export class Component {
 	id: number;
 	onmessage: Subject<any> = new Subject<any>();
 	api: any;
-	required: boolean = true;
-	status: StatusCodes = StatusCodes.OK;
-	eventHandlingCode: EventHandlingCodes = EventHandlingCodes.UNAVAILABLE;
-	get ready(): boolean { return this.eventHandlingCode === EventHandlingCodes.READY; }
+	required: boolean = false;
+	statusChanged: BehaviorSubject<StatusCodes> = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
+	_eventHandlingCode: EventHandlingCodes = EventHandlingCodes.UNAVAILABLE;
 	deviceType: DeviceType;
 	pendingCalls: number = 0;
 	enabled: boolean = false;
 
+	_ready = false;
+	get ready(): boolean {
+		return this._ready;
+	}
+	readyStateChanged: Subject<boolean> = new Subject<boolean>();
+
 	get pending(): boolean { return this.pendingCalls > 0; }
+	get status(): StatusCodes { return this.statusChanged.getValue(); }
 
 	constructor(component: EnvironmentComponent, cuss2: Cuss2, _type: DeviceType = DeviceType.UNKNOWN) {
 		this._component = component;
@@ -47,15 +53,21 @@ export class Component {
 		});
 	}
 
-	stateChanged(msg: PlatformData): boolean {
-		return this.status !== msg.statusCode || this.eventHandlingCode !== msg.eventHandlingCode;
+	stateIsDifferent(msg: PlatformData): boolean {
+		return this.status !== msg.statusCode || this._eventHandlingCode !== msg.eventHandlingCode;
 	}
 
 	updateState(msg: PlatformData): void {
-		this.status = msg.statusCode;
-		this.eventHandlingCode = msg.eventHandlingCode;
-		if (msg.eventHandlingCode !== EventHandlingCodes.READY) {
-			this.enabled = false;
+		if (msg.eventHandlingCode !== this._eventHandlingCode) {
+			this._eventHandlingCode = msg.eventHandlingCode;
+			if (msg.eventHandlingCode !== EventHandlingCodes.READY) {
+				this.enabled = false;
+			}
+			this._ready = this._eventHandlingCode === EventHandlingCodes.READY;
+			this.readyStateChanged.next(this._ready)
+		}
+		if (this.status !== msg.statusCode) {
+			this.statusChanged.next(msg.statusCode);
 		}
 	}
 
@@ -77,13 +89,6 @@ export class Component {
 				this.enabled = true;
 				return r;
 			})
-			.catch((e:PlatformResponseError) => {
-				if (e.statusCode === StatusCodes.OUTOFSEQUENCE) {
-					this.enabled = true;
-					return e;
-				}
-				return Promise.reject(e);
-			});
 	}
 	disable() {
 		return this._call(() => this.api.disable(this.id))
@@ -112,10 +117,6 @@ export class Component {
 				dataRecords: [{	data: (raw || '') as any, dsTypes: dsTypes }]
 			},
 		} as DataExchange;
-
-		if (!this.enabled) {
-			await this.enable();
-		}
 
 		return this.api.send(this.id, dataExchange);
 	}
@@ -190,13 +191,61 @@ export class CardReader extends DataReaderComponent {
 export class Printer extends Component {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2, _type: DeviceType) {
 		super(component, cuss2, _type);
+
+		const missingLink = (msg:string) => { throw new Error(msg); };
+		const linked = component.linkedComponentIDs?.map(id => cuss2.components[id] as Component) || [];
+
+		this.feeder = linked.find(c => c instanceof Feeder) || missingLink('Feeder not found for Printer ' + this.id);
+		this.feeder.printer = this;
+
+		this.dispenser = linked.find(c => c instanceof Dispenser) || missingLink('Dispenser not found for Printer ' + this.id);
+		this.dispenser.printer = this;
+
+		// @ts-ignore cause you're not smart enough
+		this.superReadyStateChanged = this.readyStateChanged;
+
+		combineLatest(
+			this.superReadyStateChanged,
+			this.feeder.readyStateChanged,
+			this.dispenser.readyStateChanged
+		)
+		.subscribe(([printerReady,feederReady,dispenserReady]) => {
+			const ready = printerReady && feederReady && dispenserReady;
+			if (this.ready !== ready) {
+				this._combinedReady = ready;
+				this.readyStateChanged.next(ready);
+			}
+		});
+		this.readyStateChanged = new Subject<boolean>();
+
 		cuss2.activated.subscribe(() => {
-			this.enable();
-		})
+			if (this.ready) {
+				this.enable();
+			}
+		});
 	}
 
-	feeder?: Component;
-	dispenser?: Component;
+	feeder: Feeder;
+	dispenser: Dispenser;
+	readyStateChanged: Subject<boolean>;
+	superReadyStateChanged: BehaviorSubject<boolean>;
+
+	_combinedReady = false;
+	get ready(): boolean {
+		return this._combinedReady;
+	}
+
+	updateState(msg: PlatformData): void {
+		// if now ready, query linked components to get their latest status
+		if (!this._ready && msg.eventHandlingCode === EventHandlingCodes.READY) {
+			this.feeder.query().catch(console.error);
+			this.dispenser.query().catch(console.error);
+		}
+		const rsc = this.readyStateChanged;
+		this.readyStateChanged = this.superReadyStateChanged;
+		super.updateState(msg);
+		this.readyStateChanged = rsc;
+	}
 
 	async setupAndPrintRaw(rawSetupData: string[], rawData?: string) {
 		if (typeof rawData !== 'string') {
@@ -204,6 +253,9 @@ export class Printer extends Component {
 		}
 
 		await this.setupRaw(rawSetupData);
+		return this.sendRaw(rawData);
+	}
+	async printRaw(rawData: string) {
 		return this.sendRaw(rawData);
 	}
 	async aeaCommand(cmd:string) {
