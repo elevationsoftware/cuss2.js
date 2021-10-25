@@ -28,7 +28,7 @@ export class Connection {
 	}
 
 	private constructor(baseURL:string, client_id: string, client_secret: string, options:any = {}) {
-		this.timeout = options.timeout || 10000;
+		this.timeout = options.timeout || 30000;
 		const endOfHostname = baseURL.indexOf('?');
 		if (endOfHostname > -1) {
 			baseURL = baseURL.substr(0, endOfHostname);
@@ -54,13 +54,15 @@ export class Connection {
 	_socket?: WebSocket;
 	messages: BehaviorSubject<any> = new BehaviorSubject<any>({});
 	onclose: Subject<void> = new Subject();
+	pingInterval = 90000;
+	lastPong = 0;
 
 	_config = {
 		headers: {
 			'Authorization': '',
 			'Content-Type': 'application/json'
 		},
-		timeout: 10000
+		timeout: 30000
 	};
 
 	get timeout() : number {
@@ -97,13 +99,26 @@ export class Connection {
 			};
 			socket.onmessage = (event: any) => {
 				log('verbose', "[socket.onmessage]", event.data);
-				removeListeners();
 				const data = JSON.parse(event.data);
-				if (data.returnCode) {
+				if (data.description === 'Client already connected') {
+					removeListeners();
+					log('error', data.description, event.data);
+					return reject(new Error('Client already connected'))
+				}
+
+				if (data.description === 'Client authorized' && data.returnCode === 'RC_OK') {
+					removeListeners();
 					log('info', "Token Confirmed", event.data);
 					this._socket = socket;
+					this.lastPong = Date.now() + (this.pingInterval + 2000);
+					this._startPingPong();
+
 					socket.onmessage = (event) => {
 						const data = JSON.parse(event.data);
+						if (data.pong) {
+							// move the expiration time ahead
+							return this.lastPong = Date.now() + (this.pingInterval + 2000);
+						}
 						this.messages.next(data);
 					};
 					socket.onclose = () => {
@@ -111,21 +126,31 @@ export class Connection {
 						this.onclose.next();
 					};
 					resolve(true);
-				} else {
-					reject(new Error('Platform did not confirm token'))
 				}
 			};
-			socket.onclose = () => {
+			const rejectionHandler = () => {
 				log('error', "Socket closed: Invalid Token");
 				removeListeners();
 				reject(new Error('Invalid Token'))
 			};
-
-			socket.onerror = (err:any) => {
-				removeListeners();
-				reject(err);
-			};
+			socket.onclose = rejectionHandler;
+			socket.onerror = rejectionHandler;
 		});
+	}
+	_startPingPong() {
+		const ping = () => {
+			this._socket?.send(`{ "ping": ${Date.now()} }`);
+		};
+		const interval = setInterval(() => {
+			if(this.lastPong < Date.now()) {
+				clearInterval(interval);
+				this._socket?.close();
+			}
+			else{
+				log('info', 'pong OK.', this.lastPong - Date.now());
+				ping();
+			}
+		}, this.pingInterval);
 	}
 
 	async post(path: string, data?: any): Promise<any> {
