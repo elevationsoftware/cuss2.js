@@ -1,4 +1,5 @@
 import {Subject} from "rxjs";
+import {StatusCodes} from "./interfaces/statusCodes";
 
 export class LogMessage {
 	action: string;
@@ -32,5 +33,53 @@ export const helpers = {
 			if (v) out[k] = v;
 		});
 		return out;
+	},
+	isNonCritical: (status:StatusCodes) => {
+		return !criticalErrors.some(s => s == status)
 	}
 };
+
+// @ts-ignore
+window.isNonCritical = helpers.isNonCritical;
+
+const criticalErrors = [
+	StatusCodes.CANCELLED,
+	StatusCodes.WRONGSTATE,
+	StatusCodes.OUTOFSEQUENCE,
+	StatusCodes.SESSIONTIMEOUT,
+	StatusCodes.KILLTIMEOUT,
+	StatusCodes.SOFTWAREERROR,
+	StatusCodes.CRITICALSOFTWAREERROR,
+	StatusCodes.CONFIGURATIONERROR,
+	StatusCodes.FORMATERROR,
+	StatusCodes.LENGTHERROR,
+	StatusCodes.DATAMISSING,
+	StatusCodes.THRESHOLDERROR,
+	StatusCodes.THRESHOLDUSAGE,
+	StatusCodes.HARDWAREERROR,
+	StatusCodes.NOTREACHABLE,
+	StatusCodes.NOTRESPONDING,
+	StatusCodes.BAGGAGEFULL,
+	StatusCodes.BAGGAGEUNDETECTED,
+	StatusCodes.BAGGAGEOVERSIZED,
+	StatusCodes.BAGGAGETOOMANYBAGS,
+	StatusCodes.BAGGAGEUNEXPECTEDBAG,
+	StatusCodes.BAGGAGETOOHIGH,
+	StatusCodes.BAGGAGETOOLONG,
+	StatusCodes.BAGGAGETOOFLAT,
+	StatusCodes.BAGGAGETOOSHORT,
+	StatusCodes.BAGGAGEINVALIDDATA,
+	StatusCodes.BAGGAGEWEIGHTOUTOFRANGE,
+	StatusCodes.BAGGAGEJAMMED,
+	StatusCodes.BAGGAGEEMERGENCYSTOP,
+	StatusCodes.BAGGAGERESTLESS,
+	StatusCodes.BAGGAGETRANSPORTBUSY,
+	StatusCodes.BAGGAGEMISTRACKED,
+	StatusCodes.BAGGAGEUNEXPECTEDCHANGE,
+	StatusCodes.BAGGAGEINTERFERENCEUSER,
+	StatusCodes.BAGGAGEINTRUSIONSAFETY,
+	StatusCodes.BAGGAGENOTCONVEYABLE,
+	StatusCodes.BAGGAGEIRREGULARBAG,
+	StatusCodes.BAGGAGEVOLUMENOTDETERMINABLE,
+	StatusCodes.BAGGAGEOVERFLOWTUB
+]

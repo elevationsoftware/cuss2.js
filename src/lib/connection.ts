@@ -1,5 +1,5 @@
 import {BehaviorSubject, Subject} from "rxjs";
-import {log} from "./helper";
+import {helpers, log} from "./helper";
 import axios from "axios";
 import {PlatformData} from "./interfaces/platformData";
 import {takeWhile} from "rxjs/operators";
@@ -200,7 +200,7 @@ export class Connection {
 					if (timedout) return false;
 					if (message.toApplication?.requestID === requestID) {
 						const pd = message.toApplication as PlatformData;
-						if (pd.statusCode === 'OK') {
+						if (helpers.isNonCritical(pd.statusCode)) {
 							resolve(pd);
 						} else {
 							reject(new PlatformResponseError(pd));
