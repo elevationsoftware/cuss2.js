@@ -46,6 +46,7 @@ const criticalErrors = [
 	StatusCodes.CANCELLED,
 	StatusCodes.WRONGSTATE,
 	StatusCodes.OUTOFSEQUENCE,
+	StatusCodes.TIMEOUT,
 	StatusCodes.SESSIONTIMEOUT,
 	StatusCodes.KILLTIMEOUT,
 	StatusCodes.SOFTWAREERROR,
