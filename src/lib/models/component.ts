@@ -236,6 +236,11 @@ export class Printer extends Component {
 	}
 
 	updateState(msg: PlatformData): void {
+		//CUTnHOLD can cause a TIMEOUT response if the tag is not taken in a certain amount of time.
+		// Unfortunately, it briefly consider the Printer to be UNAVAILABLE.
+		if (msg.functionName === 'send' && msg.statusCode === StatusCodes.TIMEOUT && msg.eventHandlingCode === EventHandlingCodes.UNAVAILABLE) {
+			msg.eventHandlingCode = EventHandlingCodes.READY;
+		}
 		// if now ready, query linked components to get their latest status
 		if (!this._ready && msg.eventHandlingCode === EventHandlingCodes.READY) {
 			this.feeder.query().catch(console.error);
