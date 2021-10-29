@@ -258,10 +258,13 @@ export class Printer extends Component {
 		}
 
 		await this.setupRaw(rawSetupData);
-		return this.sendRaw(rawData);
+		return this.printRaw(rawData);
 	}
 	async printRaw(rawData: string) {
-		return this.sendRaw(rawData);
+		return this.sendRaw(rawData)
+			.catch((e:PlatformResponseError) => {
+				return this.cancel().then(() => { throw e })
+			});
 	}
 	async aeaCommand(cmd:string) {
 		const response = await this.setupRaw(cmd);
