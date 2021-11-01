@@ -2,7 +2,7 @@ import {CUSSDataTypes} from "./interfaces/cUSSDataTypes";
 import {MediaTypes} from "./interfaces/mediaTypes";
 import {ComponentTypes} from "./interfaces/componentTypes";
 import {ComponentCharacteristics} from "./interfaces/componentCharacteristics";
-import {EnvironmentComponent} from "../../dist";
+import {EnvironmentComponent} from "./interfaces/environmentComponent";
 
 const dsTypesHas = (charac0:ComponentCharacteristics, type: CUSSDataTypes) => {
 	return charac0?.dsTypesList?.find((d) => d === type);
