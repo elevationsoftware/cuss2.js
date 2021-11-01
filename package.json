@@ -8,10 +8,11 @@
     "build": "tsc"
   },
   "dependencies": {
+    "@types/node": "^12.11.1",
     "axios": "0.21.1",
+    "retry-axios": "^2.6.0",
     "rxjs": "6.6.3",
-    "ws": "^7.4.5",
-    "@types/node": "^12.11.1"
+    "ws": "^7.4.5"
   },
   "devDependencies": {
     "chai": "^4.3.4",

@@ -1,5 +1,6 @@
 import {BehaviorSubject, Subject} from "rxjs";
 import {helpers, log} from "./helper";
+import * as rax from 'retry-axios';
 import axios from "axios";
 import {PlatformData} from "./interfaces/platformData";
 import {takeWhile} from "rxjs/operators";
@@ -7,13 +8,23 @@ import { CUSS2ApiResponse } from "./interfaces/cUSS2ApiResponse";
 import {PlatformResponseError} from "./models/platformResponseError";
 import {ReturnCodes} from "./interfaces/returnCodes";
 
+const axiosClient = axios.create();
+axiosClient.defaults.raxConfig = {
+	instance: axiosClient,
+	retry: 9999,
+	noResponseRetries: 9999,
+	httpMethodsToRetry: ['GET', 'HEAD', 'OPTIONS', 'DELETE', 'PUT', 'POST'],
+};
+rax.attach(axiosClient);
+
 export class Connection {
 	/**
 	 * Retrieve a token from the CUSS Oauth Server using a client id and client secret
 	 */
-	static authorize(url: string, client_id: string, client_secret: string): Promise<string> {
+	static authorize(url: string, client_id: string, client_secret: string, timeout: number = 10000): Promise<string> {
 		log('info', `Authorizing client '${client_id}'`, url);
-		return axios.post(url, {client_id, client_secret}, {timeout: 10000})
+
+		return axiosClient.post(url, {client_id, client_secret}, {timeout})
 			.then(({data: {access_token}}: any) => {
 				log('info', "Token acquired", access_token);
 
@@ -76,7 +87,8 @@ export class Connection {
 		const access_token = await Connection.authorize(
 			this._auth.url,
 			this._auth.client_id,
-			this._auth.client_secret
+			this._auth.client_secret,
+			this.timeout
 		);
 		this._config.headers.Authorization = 'Bearer ' + access_token;
 
@@ -176,8 +188,8 @@ export class Connection {
 			throw e;
 		};
 		const get_or_post = () => type === 'post'?
-			axios.post(this._baseURL + path, data, this._config) :
-			axios.get(this._baseURL + path, this._config);
+			axiosClient.post(this._baseURL + path, data, this._config) :
+			axiosClient.get(this._baseURL + path, this._config);
 
 		const r = await get_or_post().catch(invalidTokenHandler);
 
