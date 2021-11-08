@@ -25,10 +25,11 @@ export class Component {
 	deviceType: DeviceType;
 	pendingCalls: number = 0;
 	enabled: boolean = false;
+	pollingInterval = 3000;
+	_poller: any;
 
-	_ready = false;
 	get ready(): boolean {
-		return this._ready;
+		return this._eventHandlingCode === EventHandlingCodes.READY;
 	}
 	readyStateChanged: Subject<boolean> = new Subject<boolean>();
 
@@ -63,9 +64,22 @@ export class Component {
 			if (msg.eventHandlingCode !== EventHandlingCodes.READY) {
 				this.enabled = false;
 			}
-			this._ready = this._eventHandlingCode === EventHandlingCodes.READY;
-			this.readyStateChanged.next(this._ready)
+			this.readyStateChanged.next(msg.eventHandlingCode === EventHandlingCodes.READY)
 		}
+		if (!this.ready && this.required && !this._poller && this.pollingInterval > 0) {
+			const poll = () => {
+				if (this.ready) return this._poller = undefined;
+
+				this._poller = setTimeout(() => {
+					this.query().catch(Object).finally(poll)
+				}, this.pollingInterval);
+			}
+			poll();
+		}
+		else {
+			this._poller = clearTimeout(this._poller);
+		}
+
 		if (this.status !== msg.statusCode) {
 			this.statusChanged.next(msg.statusCode);
 		}

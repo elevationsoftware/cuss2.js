@@ -371,7 +371,7 @@ export class Cuss2 {
 				}
 			}
 			else {
-				log('verbose', '[checkRequiredComponentsAndSyncState] Required components inactive:', inactiveRequiredComponents.map((c: Component) => c.constructor.name));
+				log('verbose', '[checkRequiredComponentsAndSyncState] Required components UNAVAILABLE:', inactiveRequiredComponents.map((c: Component) => c.constructor.name));
 				this.requestUnavailableState();
 			}
 		}
