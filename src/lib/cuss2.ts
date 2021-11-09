@@ -101,16 +101,6 @@ export class Cuss2 {
 		if (this.state === AppState.SUSPENDED) {
 			throw new Error('Platform has SUSPENDED the application');
 		}
-		// ensure state is INITIALIZE
-		if ([AppState.STOPPED, AppState.UNAVAILABLE, AppState.AVAILABLE, AppState.ACTIVE].includes(this.state)) {
-			log("info", "Platform not in INITIALIZE state");
-			await this.api.staterequest(AppState.RELOAD);
-			log("info", "Getting Environment Information");
-			await this.api.getEnvironment();
-		}
-		if (this.state !== AppState.INITIALIZE) {
-			throw new Error('Platform in abnormal state. HALTING.');
-		}
 		log("info", "Getting Component List");
 		await this.api.getComponents();
 		await this.requestUnavailableState();
