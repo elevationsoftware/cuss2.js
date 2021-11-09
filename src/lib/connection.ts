@@ -34,7 +34,17 @@ export class Connection {
 
 	static async connect(baseURL:string, client_id: string, client_secret: string, tokenURL?: string): Promise<Connection> {
 		const connection = new Connection(baseURL, client_id, client_secret, tokenURL);
-		await connection._connect();
+		let delay = .5;
+		function connect() : Promise<any> {
+			return connection._connect().catch(async (err) => {
+				log('info', 'Websocket connection failed: '+err.message , err);
+				delay *= 2;
+				log('info', `Retrying Websocket connection in ${delay} seconds`);
+				await new Promise((resolve) => setTimeout(resolve, delay* 1000));
+				return connect();
+			});
+		}
+		await connect();
 		return connection;
 	}
 
