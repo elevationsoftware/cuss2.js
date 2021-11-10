@@ -134,7 +134,7 @@ export class Cuss2 {
 				this.language = message.applicationActivation?.languageID;
 				this.activated.next();
 			}
-			else if (prevState === AppState.ACTIVE) {
+			if (prevState === AppState.ACTIVE) {
 				this.deactivated.next(currentState as AppState);
 			}
 		}
