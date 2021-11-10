@@ -66,24 +66,29 @@ export class Component {
 			}
 			this.readyStateChanged.next(msg.eventHandlingCode === EventHandlingCodes.READY)
 		}
+		// Sometimes status is not sent by an unsolicited event so we poll to be sure
 		if (!this.ready && this.required && !this._poller && this.pollingInterval > 0) {
-			const poll = () => {
-				if (this.ready) return this._poller = undefined;
-
-				this._poller = setTimeout(() => {
-					this.query().catch(Object).finally(poll)
-				}, this.pollingInterval);
-			}
-			poll();
-		}
-		else {
-			this._poller = clearTimeout(this._poller);
+			this.pollUntilReady();
 		}
 
 		if (this.status !== msg.statusCode) {
 			this.statusChanged.next(msg.statusCode);
 		}
 	}
+	pollUntilReady(requireOK = false, pollingInterval = this.pollingInterval) {
+		if (this._poller) return;
+		const poll = () => {
+			if (this.ready && (!requireOK || this.status === StatusCodes.OK)) {
+				return this._poller = undefined;
+			}
+
+			this._poller = setTimeout(() => {
+				this.query().catch(Object).finally(poll)
+			}, pollingInterval);
+		}
+		poll();
+	}
+
 
 	_handleMessage(data:any) {
 		this.onmessage.next(data);
@@ -216,10 +221,10 @@ export class Printer extends Component {
 		this.dispenser.printer = this;
 
 		// @ts-ignore cause you're not smart enough
-		this.superReadyStateChanged = this.readyStateChanged;
+		this._superReadyStateChanged = this.readyStateChanged;
 
 		combineLatest(
-			this.superReadyStateChanged,
+			this._superReadyStateChanged,
 			this.feeder.readyStateChanged,
 			this.dispenser.readyStateChanged
 		)
@@ -242,7 +247,13 @@ export class Printer extends Component {
 	feeder: Feeder;
 	dispenser: Dispenser;
 	readyStateChanged: Subject<boolean>;
-	superReadyStateChanged: BehaviorSubject<boolean>;
+	_superReadyStateChanged: BehaviorSubject<boolean>;
+	get mediaPresentChanged() {
+		return this.dispenser.mediaPresentChanged;
+	}
+	get mediaPresent(): boolean {
+		return this.dispenser.mediaPresentChanged.getValue();
+	}
 
 	_combinedReady = false;
 	get ready(): boolean {
@@ -256,12 +267,17 @@ export class Printer extends Component {
 			msg.eventHandlingCode = EventHandlingCodes.READY;
 		}
 		// if now ready, query linked components to get their latest status
-		if (!this._ready && msg.eventHandlingCode === EventHandlingCodes.READY) {
+		if (!this.ready && msg.eventHandlingCode === EventHandlingCodes.READY) {
 			this.feeder.query().catch(console.error);
 			this.dispenser.query().catch(console.error);
 		}
+		else if (msg.statusCode === StatusCodes.MEDIAPRESENT) {
+			this.dispenser.mediaPresentChanged.next(true);
+			// query the dispenser- which will start a poller that will detect when the media has been taken
+			this.dispenser.query().catch(console.error);
+		}
 		const rsc = this.readyStateChanged;
-		this.readyStateChanged = this.superReadyStateChanged;
+		this.readyStateChanged = this._superReadyStateChanged;
 		super.updateState(msg);
 		this.readyStateChanged = rsc;
 	}
@@ -351,8 +367,30 @@ export class Feeder extends Component {
 }
 export class Dispenser extends Component {
 	printer?: Printer;
+	mediaPresentChanged: BehaviorSubject<boolean>;
+	get mediaPresent(): boolean {
+		return this.mediaPresentChanged.getValue();
+	}
+
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.DISPENSER);
+
+		this.mediaPresentChanged = new BehaviorSubject<boolean>(false);
+		this.statusChanged.subscribe((status) => {
+			if (status !== StatusCodes.OK) {
+				this.pollUntilReady(true, 100);
+			}
+			if (status === StatusCodes.MEDIAPRESENT) {
+				if (!this.mediaPresent) {
+					this.mediaPresentChanged.next(true);
+				}
+			}
+			else {
+				if (this.mediaPresent) {
+					this.mediaPresentChanged.next(false);
+				}
+			}
+		})
 	}
 }
 export class Keypad extends Component {
