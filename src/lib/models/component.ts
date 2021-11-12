@@ -217,7 +217,8 @@ export class Printer extends Component {
 		this.feeder = linked.find(c => c instanceof Feeder) || missingLink('Feeder not found for Printer ' + this.id);
 		this.feeder.printer = this;
 
-		this.dispenser = linked.find(c => c instanceof Dispenser) || missingLink('Dispenser not found for Printer ' + this.id);
+		const d = linked.find(c => c instanceof Dispenser) as Dispenser;
+		this.dispenser = d || missingLink('Dispenser not found for Printer ' + this.id);
 		this.dispenser.printer = this;
 
 		// @ts-ignore cause you're not smart enough
@@ -377,10 +378,8 @@ export class Dispenser extends Component {
 
 		this.mediaPresentChanged = new BehaviorSubject<boolean>(false);
 		this.statusChanged.subscribe((status) => {
-			if (status !== StatusCodes.OK) {
-				this.pollUntilReady(true, 100);
-			}
 			if (status === StatusCodes.MEDIAPRESENT) {
+				this.pollUntilReady(true, 100);
 				if (!this.mediaPresent) {
 					this.mediaPresentChanged.next(true);
 				}
