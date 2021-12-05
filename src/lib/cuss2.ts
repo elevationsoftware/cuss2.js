@@ -139,7 +139,7 @@ export class Cuss2 {
 			}
 		}
 
-		if(message.componentID && this.components) {
+		if(typeof message.componentID === 'number' && this.components) {
 			const component = this.components[message.componentID];
 			if (component && component.stateIsDifferent(message)) {
 				component.updateState(message);
