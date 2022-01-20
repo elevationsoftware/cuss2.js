@@ -238,6 +238,23 @@ export class Printer extends Component {
 		});
 		this.readyStateChanged = new Subject<boolean>();
 
+		// @ts-ignore cause you're not smart enough
+		this._superStatusChanged = this.statusChanged;
+
+		combineLatest(
+			this._superStatusChanged,
+			this.feeder.statusChanged,
+			this.dispenser.statusChanged
+		)
+		.subscribe((statuses) => {
+			const status = statuses.find(s => s != StatusCodes.OK) || StatusCodes.OK
+			if (this.status !== status) {
+				this._combinedStatus = status;
+				this.statusChanged.next(status);
+			}
+		});
+		this.statusChanged = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
+
 		cuss2.activated.subscribe(() => {
 			if (this.ready) {
 				this.enable();
@@ -249,6 +266,7 @@ export class Printer extends Component {
 	dispenser: Dispenser;
 	readyStateChanged: Subject<boolean>;
 	_superReadyStateChanged: BehaviorSubject<boolean>;
+	_superStatusChanged: BehaviorSubject<StatusCodes>;
 	get mediaPresentChanged() {
 		return this.dispenser.mediaPresentChanged;
 	}
@@ -261,9 +279,14 @@ export class Printer extends Component {
 		return this._combinedReady;
 	}
 
+	_combinedStatus = StatusCodes.OK;
+	get status(): StatusCodes {
+		return this._combinedStatus;
+	}
+
 	updateState(msg: PlatformData): void {
 		//CUTnHOLD can cause a TIMEOUT response if the tag is not taken in a certain amount of time.
-		// Unfortunately, it briefly consider the Printer to be UNAVAILABLE.
+		// Unfortunately, it briefly considers the Printer to be UNAVAILABLE.
 		if (msg.functionName === 'send' && msg.statusCode === StatusCodes.TIMEOUT && msg.eventHandlingCode === EventHandlingCodes.UNAVAILABLE) {
 			msg.eventHandlingCode = EventHandlingCodes.READY;
 		}
@@ -278,9 +301,12 @@ export class Printer extends Component {
 			this.dispenser.query().catch(console.error);
 		}
 		const rsc = this.readyStateChanged;
+		const sc = this.statusChanged;
 		this.readyStateChanged = this._superReadyStateChanged;
+		this.statusChanged = this._superStatusChanged;
 		super.updateState(msg);
 		this.readyStateChanged = rsc;
+		this.statusChanged = sc
 	}
 
 	async setupAndPrintRaw(rawSetupData: string[], rawData?: string) {
