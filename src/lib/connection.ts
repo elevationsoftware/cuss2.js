@@ -50,6 +50,7 @@ export class Connection {
 
 	private constructor(baseURL:string, client_id: string, client_secret: string, options:any = {}) {
 		this.timeout = options.timeout || 30000;
+		this.pingInterval = options.pingInterval || this.pingInterval
 		const endOfHostname = baseURL.indexOf('?');
 		if (endOfHostname > -1) {
 			baseURL = baseURL.substr(0, endOfHostname);
@@ -75,7 +76,7 @@ export class Connection {
 	_socket?: WebSocket;
 	messages: BehaviorSubject<any> = new BehaviorSubject<any>({});
 	onclose: Subject<void> = new Subject();
-	pingInterval = 90000;
+	pingInterval = 15000;
 	lastPong = 0;
 
 	_config = {
