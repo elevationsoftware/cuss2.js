@@ -78,6 +78,7 @@ export class Connection {
 	onclose: Subject<void> = new Subject();
 	pingInterval = 15000;
 	lastPong = 0;
+	_pinger = 0;
 
 	_config = {
 		headers: {
@@ -164,9 +165,10 @@ export class Connection {
 		const ping = () => {
 			this._socket?.send(`{ "ping": ${Date.now()} }`);
 		};
-		const interval = setInterval(() => {
+		clearInterval(this._pinger);
+		this._pinger = setInterval(() => {
 			if(this.lastPong < Date.now()) {
-				clearInterval(interval);
+				clearInterval(this._pinger);
 				this._socket?.close();
 			}
 			else{
