@@ -78,7 +78,7 @@ export class Connection {
 	onclose: Subject<void> = new Subject();
 	pingInterval = 15000;
 	lastPong = 0;
-	_pinger = 0;
+	_pinger: any = 0;
 
 	_config = {
 		headers: {
