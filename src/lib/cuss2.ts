@@ -41,10 +41,9 @@ const {
 } = ComponentInterrogation;
 
 /**
- * @function
- * Helper to validate if a componentID is a number
- * @param componentID 
- * @throws {Error} - If the componentID is not a number
+ * @function validateComponentId
+ * @param {number} componentID - The componentID to validate
+ * @throws {Error} If the componentID is not a number
  */
 function validateComponentId(componentID:any) {
 	if (typeof componentID !== 'number') {
@@ -53,19 +52,37 @@ function validateComponentId(componentID:any) {
 }
 
 /**
- * Class used to connect to a CUSS 2 platform and to interact with it.
  * @class Cuss2
+ * @property {Connection} connection - The connection to the CUSS2 platform.
+ * @property {EnvironmentLevel} environment - The current environment level.
+ * @property {any | undefined} components List of components that are available to the application.
+ * @property {BehaviorSubject<StateChange>} stateChange Emits the current application state.
+ * @property {BehaviorSubject<Component | null>} componentStateChange Emits component state changes.
+ * @property {Subject<PlatformData>} onmessage Emits messages from the platform to the application.
+ * @property {BagTagPrinter} bagTagPrinter Bag tag printer object containing properties and methods for interacting with the bag tag printer.
+ * @property {BoardingPassPrinter} boardingPassPrinter Boarding pass printer object containing properties and methods for interacting with the boarding pass printer.
+ * @property {DocumentReader} documentReader Document reader object containing properties and methods for interacting with the document reader.
+ * @property {BarcodeReader} barcodeReader Barcode reader object containing properties and methods for interacting with the barcode reader.
+ * @property {Announcement} announcement Announcement object containing properties and methods for interacting with the announcement device.
+ * @property {Keypad} keypad Keypad object containing properties and methods for interacting with the keypad.
+ * @property {CardReader} cardReader Card reader object containing properties and methods for interacting with the card reader.
+ * @property {Subject<undefined>} activated Emits when the application state becomes active.
+ * @property {Subject<AppState>} deactivated Emits when the application state becomes inactive.
+ * @property {AppState} pendingStateChange
+ * @property {boolean} multiTenant Whether the platform supports multiple applications or not.
+ * @property {boolean} accessibleMode Whether accessibility mode is enabled or not.
+ * @property {string} language Language code of the platform.
+ * @property {Object} api An object containing methods for interacting with the platform.
  */
 export class Cuss2 {
 
 	/**
-	 * @static
-	 * @method connect - Connect to a CUSS 2 platform.
+	 * @method connect
 	 * @param {string} url  - The url of the CUSS 2 platform
 	 * @param {string} client_id  - The client_id of the CUSS 2 platform
 	 * @param {string} client_secret  - The client_secret of the CUSS 2 platform
 	 * @param {Object} [options={}] - An object of options passed in for the connection
-	 * @returns {Promise<Cuss2>} - A promise that resolves to a Cuss2 object
+	 * @returns {Promise<Cuss2>} A promise that resolves to a Cuss2 object
 	 */
 	static async connect(url: string, client_id: string, client_secret: string, options: any = {}): Promise<Cuss2> {
 		const connection = await Connection.connect(url, client_id, client_secret,  options);
@@ -73,18 +90,10 @@ export class Cuss2 {
 		await cuss2._initialize();
 		return cuss2;
 	}
-	/**
-	 * @static
-	 * @function {import(./helper).log} - Emit a LogMessage to the logger Subject
-	 */
 	static log = log;
 	static logger: Subject<LogMessage> = logger;
 	static helpers = helpers;
 
-	/**
-	 * Create a Cuss2 object
-	 * @param {Connection} connection - The connection object used to connect to the CUSS 2 platform.
-	 */
 	private constructor(connection: Connection) {
 		this.connection = connection;
 		/**
@@ -99,6 +108,7 @@ export class Cuss2 {
 			await this._initialize();
 		});
 	}
+
 	connection:Connection;
 	environment: EnvironmentLevel = {} as EnvironmentLevel;
 	components: any|undefined = undefined;
@@ -121,7 +131,7 @@ export class Cuss2 {
 	language?: string;
 
 	/**
-	 * @method state - Get the current application state from the CUSS 2 platform
+	 * Get the current application state from the CUSS 2 platform
 	 * @returns {StateChange.current} - The current application state
 	 */
 	get state() {
@@ -195,12 +205,20 @@ export class Cuss2 {
 		//
 		// "GET" calls
 		//
+		/**
+		 * Get the current environment level.
+		 * @returns {Promise<EnvironmentLevel>} - The current environment level
+		 */
 		getEnvironment: async (): Promise<EnvironmentLevel> => {
 			const response = await this.connection.get('/platform/environment');
 			log('verbose', '[getEnvironment()] response', response);
 			this.environment = response.environmentLevel as EnvironmentLevel;
 			return this.environment;
 		},
+		/**
+		 * Get a list of components.
+		 * @returns {Promise<ComponentList>} - The list of components
+		 */
 		getComponents: async (): Promise<ComponentList> => {
 			const response = await this.connection.get('/platform/components');
 			log('verbose', '[getComponents()] response', response);
@@ -242,19 +260,41 @@ export class Cuss2 {
 
 			return componentList;
 		},
+		/**
+		 * Get the status of a given component (device).
+		 * @param {number} componentID - The ID of the desired device 
+		 * @returns {Promise<PlatformData>} - The status of the component
+		 */
 		getStatus: async (componentID:number): Promise<PlatformData> => {
 			const response = await this.connection.get('/peripherals/query/' + componentID);
 			log('verbose', '[queryDevice()] response', response);
 			return response as PlatformData;
 		},
 
+		/**
+		 * Send a command to a given component (device).
+		 * @param {number} componentID - The ID of the desired device
+		 * @param dataExchange
+		 * @returns {Promise} 
+		 */
 		send: async (componentID:number, dataExchange:DataExchange) => {
 			return this.connection.post('/peripherals/send/' + componentID, dataExchange);
 		},
+		/**
+		 * Send setup instructions to a given component (device).
+		 * @param {number} componentID - The ID of the desired device 
+		 * @param dataExchange 
+		 * @returns {Promise}
+		 */
 		setup: async (componentID:number, dataExchange:DataExchange) => {
 			validateComponentId(componentID);
 			return await this.connection.post('/peripherals/setup/' + componentID, dataExchange);
 		},
+		/**
+		 * Sends a cancel command to a given component (device).
+		 * @param {number} componentID - The ID of the desired device 
+		 * @returns {Promise}
+		 */
 		cancel: async (componentID:number) => {
 			validateComponentId(componentID);
 			return await this.connection.post('/peripherals/cancel/' + componentID);
@@ -263,10 +303,20 @@ export class Cuss2 {
 		/*
 		*		/peripherals/userpresent/XXXXX
 		*/
+		/**
+		 * Sends enable command to a given component (device).
+		 * @param {number} componentID - The ID of the desired device
+		 * @returns {Promise}
+		 */
 		enable: async (componentID:number) => {
 			validateComponentId(componentID);
 			return await this.connection.post('/peripherals/userpresent/enable/' + componentID);
 		},
+		/**
+		 * Sends disable command to a given component (device).
+		 * @param {number} componentID - The ID of the desired device
+		 * @returns {Promise}
+		 */
 		disable: async (componentID:number) => {
 			validateComponentId(componentID);
 			return await this.connection.post('/peripherals/userpresent/disable/' + componentID);
@@ -276,6 +326,13 @@ export class Cuss2 {
 			return await this.connection.post('/peripherals/userpresent/offer/' + componentID);
 		},
 
+		/**
+		 * Sends request to the platform for the application to change states.
+		 * @param {AppState} state - The state to change to.
+		 * @param {ChangeReason} reasonCode - The enumerated reasonCode for the state change.
+		 * @param {string} reason - The reason for the state change.
+		 * @returns {Promise<PlatformData|undefined>} Response from the platform.
+		 */
 		staterequest: async (state: AppState, reasonCode = ChangeReason.NOTAPPLICABLE, reason = ''): Promise<PlatformData|undefined> => {
 			if (this.pendingStateChange) {
 				return Promise.resolve(undefined);

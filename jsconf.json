@@ -9,9 +9,18 @@
   },
   "sourceType": "module",
   "tags": {
-    "allowUnknownTags": ["optional"]
-},
+    "allowUnknownTags": true
+  },
   "opts": {
-    "template": "node_modules/better-docs"
+    "template": "node_modules/better-docs",
+    "encoding": "utf8",
+    "destination": "docs/",
+    "readme": "README.md",
+    "recurse": true
+  },
+  "templates": {
+    "cleverLinks": true,
+    "monospaceLinks": false,
+    "search": true
   }
 }
