@@ -1,9 +1,17 @@
 {
-  "plugins": [],
+  "plugins": [
+    "node_modules/better-docs/typescript"
+  ],
   "recurseDepth": 10,
-    "source": {
-      "includePattern": ".+\\.js(doc|x)?$",
-      "excludePattern": "(^|\\/|\\\\)_"
-    },
-    "sourceType": "module"
+  "source": {
+    "includePattern": "\\.(jsx|js|ts|tsx)$",
+    "excludePattern": "(^|\\/|\\\\)_"
+  },
+  "sourceType": "module",
+  "tags": {
+    "allowUnknownTags": ["optional"]
+},
+  "opts": {
+    "template": "node_modules/better-docs"
+  }
 }

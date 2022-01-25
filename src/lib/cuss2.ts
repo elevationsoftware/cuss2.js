@@ -41,7 +41,8 @@ const {
 } = ComponentInterrogation;
 
 /**
- * Helper function to validate if a componentID is a number
+ * @function
+ * Helper to validate if a componentID is a number
  * @param componentID 
  * @throws {Error} - If the componentID is not a number
  */
@@ -52,27 +53,47 @@ function validateComponentId(componentID:any) {
 }
 
 /**
- * Object used to connect to a CUSS 2 platform and to interact with it.
+ * Class used to connect to a CUSS 2 platform and to interact with it.
  * @class Cuss2
  */
 export class Cuss2 {
 
+	/**
+	 * @static
+	 * @method connect - Connect to a CUSS 2 platform.
+	 * @param {string} url  - The url of the CUSS 2 platform
+	 * @param {string} client_id  - The client_id of the CUSS 2 platform
+	 * @param {string} client_secret  - The client_secret of the CUSS 2 platform
+	 * @param {Object} [options={}] - An object of options passed in for the connection
+	 * @returns {Promise<Cuss2>} - A promise that resolves to a Cuss2 object
+	 */
 	static async connect(url: string, client_id: string, client_secret: string, options: any = {}): Promise<Cuss2> {
 		const connection = await Connection.connect(url, client_id, client_secret,  options);
 		const cuss2 = new Cuss2(connection);
 		await cuss2._initialize();
 		return cuss2;
 	}
+	/**
+	 * @static
+	 * @function {import(./helper).log} - Emit a LogMessage to the logger Subject
+	 */
 	static log = log;
 	static logger: Subject<LogMessage> = logger;
 	static helpers = helpers;
 
 	/**
+	 * Create a Cuss2 object
 	 * @param {Connection} connection - The connection object used to connect to the CUSS 2 platform.
 	 */
 	private constructor(connection: Connection) {
 		this.connection = connection;
+		/**
+		 * Subscribe to messages from the CUSS 2 platform
+		 */
 		connection.messages.subscribe(async e => await this._handleWebSocketMessage(e))
+		/**
+		 * Subscribe to the connection being closed and attempt to reconnect
+		 */
 		connection.onclose.subscribe(async () => {
 			await connection._connect();
 			await this._initialize();
@@ -99,6 +120,10 @@ export class Cuss2 {
 	accessibleMode: boolean = false;
 	language?: string;
 
+	/**
+	 * @method state - Get the current application state from the CUSS 2 platform
+	 * @returns {StateChange.current} - The current application state
+	 */
 	get state() {
 		return this.stateChange.getValue().current;
 	}

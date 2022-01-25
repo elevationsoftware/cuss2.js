@@ -10,13 +10,17 @@
  * Do not edit the class manually.
  */
 
-/**
- * @typedef {Object} AgreementTextType
- * @property {string} agreementTextTypeId - Agreement text type identifier.
- * @property {string} agreementTextTypeName - Agreement text type name.
- */
 export interface AgreementTextType { 
+	/**
+	 * Text of the agreement.
+	 */
     agreementText?: string;
+		/**
+		 * Whether the user has to accept the agreement or not.
+		 */
     acceptanceMandatory: boolean;
+		/**
+		 * Name of the agreement.
+		 */
     agreementName?: string;
 }

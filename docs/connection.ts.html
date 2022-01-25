@@ -1,0 +1,355 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> connection.ts</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    API Documentation
+                </a>
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Cuss2.html">Cuss2</a></li><li><a href="Cuss2_Cuss2.html">Cuss2</a></li></ul><h3>Interfaces</h3><ul><li><a href="AgreementTextType.html">AgreementTextType</a></li><li><a href="AlibiType.html">AlibiType</a></li><li><a href="AmountType.html">AmountType</a></li><li><a href="ApplicationActivation.html">ApplicationActivation</a></li><li><a href="ApplicationData.html">ApplicationData</a></li><li><a href="ApplicationID.html">ApplicationID</a></li><li><a href="ApplicationStates.html">ApplicationStates</a></li><li><a href="ApplicationTransfer.html">ApplicationTransfer</a></li><li><a href="AssociationDataItemType.html">AssociationDataItemType</a></li><li><a href="AuthorizationAmounts.html">AuthorizationAmounts</a></li><li><a href="BaggageData.html">BaggageData</a></li><li><a href="BaggageDataBaggageMeasurements.html">BaggageDataBaggageMeasurements</a></li><li><a href="BaggageDataBarcodeTagList.html">BaggageDataBarcodeTagList</a></li><li><a href="BaggageDataRfidTagList.html">BaggageDataRfidTagList</a></li><li><a href="BarcodeTagDataType.html">BarcodeTagDataType</a></li><li><a href="BiometricProviderMessage.html">BiometricProviderMessage</a></li><li><a href="BiometricProviderMessageBiometricRequest.html">BiometricProviderMessageBiometricRequest</a></li><li><a href="BiometricProviderMessageBiometricRequestAgreementsList.html">BiometricProviderMessageBiometricRequestAgreementsList</a></li><li><a href="BiometricProviderMessageBiometricRequestData.html">BiometricProviderMessageBiometricRequestData</a></li><li><a href="BiometricProviderMessageBiometricRequestDataProcessing.html">BiometricProviderMessageBiometricRequestDataProcessing</a></li><li><a href="BiometricProviderMessageBiometricRequestEnvironment.html">BiometricProviderMessageBiometricRequestEnvironment</a></li><li><a href="BiometricProviderMessageBiometricResponse.html">BiometricProviderMessageBiometricResponse</a></li><li><a href="BiometricProviderMessageBiometricResponseFailureReason.html">BiometricProviderMessageBiometricResponseFailureReason</a></li><li><a href="BlinkingRateType.html">BlinkingRateType</a></li><li><a href="CardBrandList.html">CardBrandList</a></li><li><a href="CardTrackType.html">CardTrackType</a></li><li><a href="CommonErrors.html">CommonErrors</a></li><li><a href="CommonUseBiometricMessage.html">CommonUseBiometricMessage</a></li><li><a href="CommonUseBiometricMessageCharacteristics.html">CommonUseBiometricMessageCharacteristics</a></li><li><a href="CommonUsePaymentMessage.html">CommonUsePaymentMessage</a></li><li><a href="CommonUsePaymentMessageCharacteristics.html">CommonUsePaymentMessageCharacteristics</a></li><li><a href="CommonUsePaymentMessageCharacteristicsCharacteristicsResponseEPayment.html">CommonUsePaymentMessageCharacteristicsCharacteristicsResponseEPayment</a></li><li><a href="CommonUsePaymentMessageCharacteristicsCharacteristicsResponseSchemaVersionList.html">CommonUsePaymentMessageCharacteristicsCharacteristicsResponseSchemaVersionList</a></li><li><a href="CommonUsePaymentMessageErrorResponse.html">CommonUsePaymentMessageErrorResponse</a></li><li><a href="ComponentCharacteristicsConveyorSBD.html">ComponentCharacteristicsConveyorSBD</a></li><li><a href="ComponentCharacteristicsDisplayType.html">ComponentCharacteristicsDisplayType</a></li><li><a href="ComponentCharacteristicsDocumentBin.html">ComponentCharacteristicsDocumentBin</a></li><li><a href="ComponentList.html">ComponentList</a></li><li><a href="CurrencyCodeList.html">CurrencyCodeList</a></li><li><a href="CUSS2ApiResponse.html">CUSS2ApiResponse</a></li><li><a href="DataExchange.html">DataExchange</a></li><li><a href="DimensionType.html">DimensionType</a></li><li><a href="EnvironmentLevel.html">EnvironmentLevel</a></li><li><a href="EPaymentMessage.html">EPaymentMessage</a></li><li><a href="EPaymentMessageOperation.html">EPaymentMessageOperation</a></li><li><a href="EPaymentMessageSetup.html">EPaymentMessageSetup</a></li><li><a href="EPaymentMessageTransaction.html">EPaymentMessageTransaction</a></li><li><a href="EPaymentMessageTransactionTransactionAcknowledge.html">EPaymentMessageTransactionTransactionAcknowledge</a></li><li><a href="EPaymentMessageTransactionTransactionRequest.html">EPaymentMessageTransactionTransactionRequest</a></li><li><a href="EPaymentMessageTransactionTransactionRequestAccount.html">EPaymentMessageTransactionTransactionRequestAccount</a></li><li><a href="EPaymentMessageTransactionTransactionRequestAccountManual.html">EPaymentMessageTransactionTransactionRequestAccountManual</a></li><li><a href="EPaymentMessageTransactionTransactionRequestAccountSwipe.html">EPaymentMessageTransactionTransactionRequestAccountSwipe</a></li><li><a href="EPaymentMessageTransactionTransactionRequestEnvironment.html">EPaymentMessageTransactionTransactionRequestEnvironment</a></li><li><a href="EPaymentMessageTransactionTransactionRequestItinerary.html">EPaymentMessageTransactionTransactionRequestItinerary</a></li><li><a href="EPaymentMessageTransactionTransactionRequestPreAuth.html">EPaymentMessageTransactionTransactionRequestPreAuth</a></li><li><a href="EPaymentMessageTransactionTransactionResponse.html">EPaymentMessageTransactionTransactionResponse</a></li><li><a href="EPaymentMessageTransactionTransactionResponseApproval.html">EPaymentMessageTransactionTransactionResponseApproval</a></li><li><a href="EPaymentMessageTransactionTransactionResponseNonApproval.html">EPaymentMessageTransactionTransactionResponseNonApproval</a></li><li><a href="Errors.html">Errors</a></li><li><a href="ExtendedWeightType.html">ExtendedWeightType</a></li><li><a href="Feature.html">Feature</a></li><li><a href="FeatureList.html">FeatureList</a></li><li><a href="GPDataItemType.html">GPDataItemType</a></li><li><a href="GPDataListType.html">GPDataListType</a></li><li><a href="GPParameter.html">GPParameter</a></li><li><a href="GPParameterList.html">GPParameterList</a></li><li><a href="IlluminationData.html">IlluminationData</a></li><li><a href="IlluminationDataLightColor.html">IlluminationDataLightColor</a></li><li><a href="Location.html">Location</a></li><li><a href="MediaTypeList.html">MediaTypeList</a></li><li><a href="ModelError.html">ModelError</a></li><li><a href="MRZTrackType.html">MRZTrackType</a></li><li><a href="PassengerBiometricsType.html">PassengerBiometricsType</a></li><li><a href="PassengerDataType.html">PassengerDataType</a></li><li><a href="PassengerDataTypeAssociationDataList.html">PassengerDataTypeAssociationDataList</a></li><li><a href="PassengerDataTypePassengerBiometricsData.html">PassengerDataTypePassengerBiometricsData</a></li><li><a href="PassengerDataTypePassengerMRZData.html">PassengerDataTypePassengerMRZData</a></li><li><a href="PassengerIDType.html">PassengerIDType</a></li><li><a href="PlatformData.html">PlatformData</a></li><li><a href="PlatformDataEventClassification.html">PlatformDataEventClassification</a></li><li><a href="RFIDElement.html">RFIDElement</a></li><li><a href="RFIDTagDataType.html">RFIDTagDataType</a></li><li><a href="RgbType.html">RgbType</a></li><li><a href="ScreenResolution.html">ScreenResolution</a></li><li><a href="TransactionStatus.html">TransactionStatus</a></li><li><a href="WeightType.html">WeightType</a></li></ul><h3>Global</h3><ul><li><a href="global.html">connect - Connect to a CUSS 2 platform.</a></li><li><a href="global.html#HelpertovalidateifacomponentIDisanumber">Helper to validate if a componentID is a number</a></li><li><a href="global.html#state-GetthecurrentapplicationstatefromtheCUSS2platform">state - Get the current application state from the CUSS 2 platform</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>connection.ts</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {BehaviorSubject, Subject} from "rxjs";
+import {helpers, log} from "./helper";
+import * as rax from 'retry-axios';
+import axios from "axios";
+import {PlatformData} from "./interfaces/platformData";
+import {takeWhile} from "rxjs/operators";
+import { CUSS2ApiResponse } from "./interfaces/cUSS2ApiResponse";
+import {PlatformResponseError} from "./models/platformResponseError";
+import {ReturnCodes} from "./interfaces/returnCodes";
+
+const axiosClient = axios.create();
+axiosClient.defaults.raxConfig = {
+	instance: axiosClient,
+	retry: 9999,
+	noResponseRetries: 9999,
+	httpMethodsToRetry: ['GET', 'HEAD', 'OPTIONS', 'DELETE', 'PUT', 'POST'],
+};
+rax.attach(axiosClient);
+
+export class Connection {
+	/**
+	 * Retrieve a token from the CUSS Oauth Server using a client id and client secret
+	 */
+	static authorize(url: string, client_id: string, client_secret: string, timeout: number = 10000): Promise&lt;string> {
+		log('info', `Authorizing client '${client_id}'`, url);
+
+		return axiosClient.post(url, {client_id, client_secret}, {timeout})
+			.then(({data: {access_token}}: any) => {
+				log('info', "Token acquired", access_token);
+
+				return access_token;
+			})
+	}
+
+	static async connect(baseURL:string, client_id: string, client_secret: string, tokenURL?: string): Promise&lt;Connection> {
+		const connection = new Connection(baseURL, client_id, client_secret, tokenURL);
+		let delay = .5;
+		function connect() : Promise&lt;any> {
+			return connection._connect().catch(async (err) => {
+				log('info', 'Websocket connection failed: '+err.message , err);
+				delay *= 2;
+				log('info', `Retrying Websocket connection in ${delay} seconds`);
+				await new Promise((resolve) => setTimeout(resolve, delay* 1000));
+				return connect();
+			});
+		}
+		await connect();
+		return connection;
+	}
+
+	private constructor(baseURL:string, client_id: string, client_secret: string, options:any = {}) {
+		this.timeout = options.timeout || 30000;
+		const endOfHostname = baseURL.indexOf('?');
+		if (endOfHostname > -1) {
+			baseURL = baseURL.substr(0, endOfHostname);
+		}
+		if(baseURL.endsWith('/')) {
+			baseURL = baseURL.substr(0, baseURL.length-1)
+		}
+		this._baseURL = baseURL;
+
+		let tokenURL = options.tokenURL;
+		if (!tokenURL) {
+			tokenURL = baseURL + '/oauth/token';
+		}
+		this._auth = { url: tokenURL, client_id, client_secret };
+
+		let protocol = /^https/.test(baseURL) ? "wss" : "ws";
+		this._socketURL = protocol + baseURL.replace(/^https?/, '') + '/platform/subscribe';
+	}
+
+	_auth: any;
+	_baseURL: string;
+	_socketURL: string;
+	_socket?: WebSocket;
+	messages: BehaviorSubject&lt;any> = new BehaviorSubject&lt;any>({});
+	onclose: Subject&lt;void> = new Subject();
+	pingInterval = 90000;
+	lastPong = 0;
+
+	_config = {
+		headers: {
+			'Authorization': '',
+			'Content-Type': 'application/json'
+		},
+		timeout: 30000
+	};
+
+	get timeout() : number {
+		return this._config.timeout;
+	}
+	set timeout(t: number) {
+		this._config.timeout = t;
+	}
+
+	async _connect() : Promise&lt;any> {
+		const access_token = await Connection.authorize(
+			this._auth.url,
+			this._auth.client_id,
+			this._auth.client_secret,
+			this.timeout
+		);
+		this._config.headers.Authorization = 'Bearer ' + access_token;
+
+		return new Promise(async (resolve, reject) => {
+			if (this._socket &amp;&amp; this._socket.readyState === 1) {
+				log('error', 'open socket already exists');
+				return resolve(true);
+			}
+			const socket = new WebSocket(this._socketURL);
+
+			function removeListeners() {
+				socket.onopen = null;
+				socket.onclose = null;
+				socket.onerror = null;
+				socket.onmessage = null
+			}
+			socket.onopen = () => {
+				log('info', "Socket opened; Sending Token...", this._socketURL);
+				socket.send(JSON.stringify({access_token}));
+			};
+			socket.onmessage = (event: any) => {
+				log('verbose', "[socket.onmessage]", event.data);
+				const data = JSON.parse(event.data);
+				if (data.description === 'Client already connected') {
+					removeListeners();
+					log('error', data.description, event.data);
+					return reject(new Error('Client already connected'))
+				}
+
+				if (data.description === 'Client authorized' &amp;&amp; data.returnCode === 'RC_OK') {
+					removeListeners();
+					log('info', "Token Confirmed", event.data);
+					this._socket = socket;
+					this.lastPong = Date.now() + (this.pingInterval + 2000);
+					this._startPingPong();
+
+					socket.onmessage = (event) => {
+						const data = JSON.parse(event.data);
+						if (data.pong) {
+							// move the expiration time ahead
+							return this.lastPong = Date.now() + (this.pingInterval + 2000);
+						}
+						this.messages.next(data);
+					};
+					socket.onclose = () => {
+						removeListeners();
+						this.onclose.next();
+					};
+					resolve(true);
+				}
+			};
+			const rejectionHandler = () => {
+				log('error', "Socket closed: Invalid Token");
+				removeListeners();
+				reject(new Error('Invalid Token'))
+			};
+			socket.onclose = rejectionHandler;
+			socket.onerror = rejectionHandler;
+		});
+	}
+	_startPingPong() {
+		const ping = () => {
+			this._socket?.send(`{ "ping": ${Date.now()} }`);
+		};
+		const interval = setInterval(() => {
+			if(this.lastPong &lt; Date.now()) {
+				clearInterval(interval);
+				this._socket?.close();
+			}
+			else{
+				log('info', 'pong OK.', this.lastPong - Date.now());
+				ping();
+			}
+		}, this.pingInterval);
+	}
+
+	async post(path: string, data?: any): Promise&lt;any> {
+		return this._call('post', path, data);
+	}
+
+	async get(path: string): Promise&lt;any> {
+		return this._call('get', path, false);
+	}
+
+	// this consolidates get/post to simplify logging and reply handling
+	async _call(type: string, path: string, data:any): Promise&lt;any> {
+		log("verbose", `[connection.${type}()] ${path}`);
+
+		const invalidTokenHandler = async (e:any) => {
+			if (e.response?.status === 401) {
+				log("verbose",'got a 401 - trying to re-authenticate')
+				await this._connect();
+				log("verbose",'re-trying http request');
+				//try again
+				return get_or_post();
+			}
+			throw e;
+		};
+		const get_or_post = () => type === 'post'?
+			axiosClient.post(this._baseURL + path, data, this._config) :
+			axiosClient.get(this._baseURL + path, this._config);
+
+		const r = await get_or_post().catch(invalidTokenHandler);
+
+		log("verbose",`[connection.${type}()] ${path} response:\n`, r.data);
+
+		const { requestID, returnCode } = r.data as CUSS2ApiResponse;
+		if (returnCode !== ReturnCodes.OK || (path === '/platform/applications/staterequest/UNAVAILABLE' &amp;&amp; returnCode === ReturnCodes.STATE)) {
+			return Promise.reject(new Error('HTTP call failed with: ' + returnCode))
+		}
+		log("verbose",'[connection._call()] waiting for reply with id: ' + requestID);
+
+		return new Promise&lt;PlatformData>((resolve, reject) => {
+			let timedout = false;
+			setTimeout(() => {
+				timedout = true;
+				reject(new Error(`TIMEOUT waiting for requestID ${requestID} of ${path}`))
+			}, this._config.timeout);
+			this.messages.pipe(
+				takeWhile(message => {
+					if (timedout) return false;
+					if (message.toApplication?.requestID === requestID) {
+						const pd = message.toApplication as PlatformData;
+						if (helpers.isNonCritical(pd.statusCode)) {
+							resolve(pd);
+						} else {
+							reject(new PlatformResponseError(pd));
+						}
+						return false;
+					}
+					return true; // continue getting messages
+				})
+			)
+				.subscribe(()=>{})
+		})
+	}
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+
+</body>
+</html>
