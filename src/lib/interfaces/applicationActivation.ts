@@ -12,10 +12,17 @@
 
 /**
  * The platform uses the CUSS 2 Application Activation Structure when activating a CUSS application.
+ * @typedef {Object} ApplicationActivation
+ * @property {string} applicationBrand - The application can use this value to change its look, feel, or behavior.
+ * @property {ExecutionModeEnum} executionMode - Indicates the mode of execution.
+ * @property {boolean} accessibleMode - Indicates whether to operate in ACCESSIBLE mode or not.
+ * @property {string} executionOptions - Any additional options of execution in combination with the executionMode. (comma separated string)
+ * @property {string} languageID - As per RFC3066.- Please refer also to: http://www.lingoes.net/en/translator/langcode.htm
+ * @property {string} transferData - Any data to be exchanged between callers and callees after a transfer call or self-activation.
  */
 export interface ApplicationActivation { 
     /**
-     * The application can use this value to change its look, feel, or behaviour.
+     * The application can use this value to change its look, feel, or behavior.
      */
     applicationBrand?: string;
     /**

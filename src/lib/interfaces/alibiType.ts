@@ -12,6 +12,9 @@
 
 /**
  * Reference or confirmation number for the measurement values, for audit or alibi purposes
+ * @typedef {Object} AlibiType
+ * @property {string} provider - The source or provider of the alibi value.
+ * @property {string} value - The alibi value.
  */
 export interface AlibiType { 
     /**

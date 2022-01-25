@@ -11,7 +11,9 @@
  */
 
 /**
- * to be documented!
+ * @typedef {Object} AgreementTextType
+ * @property {string} agreementTextTypeId - Agreement text type identifier.
+ * @property {string} agreementTextTypeName - Agreement text type name.
  */
 export interface AgreementTextType { 
     agreementText?: string;

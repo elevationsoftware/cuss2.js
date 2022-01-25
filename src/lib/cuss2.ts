@@ -40,12 +40,21 @@ const {
 	isKeypad
 } = ComponentInterrogation;
 
+/**
+ * Helper function to validate if a componentID is a number
+ * @param componentID 
+ * @throws {Error} - If the componentID is not a number
+ */
 function validateComponentId(componentID:any) {
 	if (typeof componentID !== 'number') {
 		throw new TypeError('Invalid componentID: ' + componentID);
 	}
 }
 
+/**
+ * Object used to connect to a CUSS 2 platform and to interact with it.
+ * @class Cuss2
+ */
 export class Cuss2 {
 
 	static async connect(url: string, client_id: string, client_secret: string, options: any = {}): Promise<Cuss2> {
@@ -58,7 +67,9 @@ export class Cuss2 {
 	static logger: Subject<LogMessage> = logger;
 	static helpers = helpers;
 
-
+	/**
+	 * @param {Connection} connection - The connection object used to connect to the CUSS 2 platform.
+	 */
 	private constructor(connection: Connection) {
 		this.connection = connection;
 		connection.messages.subscribe(async e => await this._handleWebSocketMessage(e))

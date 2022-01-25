@@ -1,0 +1,9 @@
+{
+  "plugins": [],
+  "recurseDepth": 10,
+    "source": {
+      "includePattern": ".+\\.js(doc|x)?$",
+      "excludePattern": "(^|\\/|\\\\)_"
+    },
+    "sourceType": "module"
+}

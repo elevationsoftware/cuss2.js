@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: connection.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: connection.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+var __createBinding = (this &amp;&amp; this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this &amp;&amp; this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this &amp;&amp; this.__importStar) || function (mod) {
+    if (mod &amp;&amp; mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" &amp;&amp; Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this &amp;&amp; this.__importDefault) || function (mod) {
+    return (mod &amp;&amp; mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Connection = void 0;
+const rxjs_1 = require("rxjs");
+const helper_1 = require("./helper");
+const rax = __importStar(require("retry-axios"));
+const axios_1 = __importDefault(require("axios"));
+const operators_1 = require("rxjs/operators");
+const platformResponseError_1 = require("./models/platformResponseError");
+const returnCodes_1 = require("./interfaces/returnCodes");
+const axiosClient = axios_1.default.create();
+axiosClient.defaults.raxConfig = {
+    instance: axiosClient,
+    retry: 9999,
+    noResponseRetries: 9999,
+    httpMethodsToRetry: ['GET', 'HEAD', 'OPTIONS', 'DELETE', 'PUT', 'POST'],
+};
+rax.attach(axiosClient);
+class Connection {
+    constructor(baseURL, client_id, client_secret, options = {}) {
+        this.messages = new rxjs_1.BehaviorSubject({});
+        this.onclose = new rxjs_1.Subject();
+        this.pingInterval = 90000;
+        this.lastPong = 0;
+        this._config = {
+            headers: {
+                'Authorization': '',
+                'Content-Type': 'application/json'
+            },
+            timeout: 30000
+        };
+        this.timeout = options.timeout || 30000;
+        const endOfHostname = baseURL.indexOf('?');
+        if (endOfHostname > -1) {
+            baseURL = baseURL.substr(0, endOfHostname);
+        }
+        if (baseURL.endsWith('/')) {
+            baseURL = baseURL.substr(0, baseURL.length - 1);
+        }
+        this._baseURL = baseURL;
+        let tokenURL = options.tokenURL;
+        if (!tokenURL) {
+            tokenURL = baseURL + '/oauth/token';
+        }
+        this._auth = { url: tokenURL, client_id, client_secret };
+        let protocol = /^https/.test(baseURL) ? "wss" : "ws";
+        this._socketURL = protocol + baseURL.replace(/^https?/, '') + '/platform/subscribe';
+    }
+    /**
+     * Retrieve a token from the CUSS Oauth Server using a client id and client secret
+     */
+    static authorize(url, client_id, client_secret, timeout = 10000) {
+        (0, helper_1.log)('info', `Authorizing client '${client_id}'`, url);
+        return axiosClient.post(url, { client_id, client_secret }, { timeout })
+            .then(({ data: { access_token } }) => {
+            (0, helper_1.log)('info', "Token acquired", access_token);
+            return access_token;
+        });
+    }
+    static async connect(baseURL, client_id, client_secret, tokenURL) {
+        const connection = new Connection(baseURL, client_id, client_secret, tokenURL);
+        let delay = .5;
+        function connect() {
+            return connection._connect().catch(async (err) => {
+                (0, helper_1.log)('info', 'Websocket connection failed: ' + err.message, err);
+                delay *= 2;
+                (0, helper_1.log)('info', `Retrying Websocket connection in ${delay} seconds`);
+                await new Promise((resolve) => setTimeout(resolve, delay * 1000));
+                return connect();
+            });
+        }
+        await connect();
+        return connection;
+    }
+    get timeout() {
+        return this._config.timeout;
+    }
+    set timeout(t) {
+        this._config.timeout = t;
+    }
+    async _connect() {
+        const access_token = await Connection.authorize(this._auth.url, this._auth.client_id, this._auth.client_secret, this.timeout);
+        this._config.headers.Authorization = 'Bearer ' + access_token;
+        return new Promise(async (resolve, reject) => {
+            if (this._socket &amp;&amp; this._socket.readyState === 1) {
+                (0, helper_1.log)('error', 'open socket already exists');
+                return resolve(true);
+            }
+            const socket = new WebSocket(this._socketURL);
+            function removeListeners() {
+                socket.onopen = null;
+                socket.onclose = null;
+                socket.onerror = null;
+                socket.onmessage = null;
+            }
+            socket.onopen = () => {
+                (0, helper_1.log)('info', "Socket opened; Sending Token...", this._socketURL);
+                socket.send(JSON.stringify({ access_token }));
+            };
+            socket.onmessage = (event) => {
+                (0, helper_1.log)('verbose', "[socket.onmessage]", event.data);
+                const data = JSON.parse(event.data);
+                if (data.description === 'Client already connected') {
+                    removeListeners();
+                    (0, helper_1.log)('error', data.description, event.data);
+                    return reject(new Error('Client already connected'));
+                }
+                if (data.description === 'Client authorized' &amp;&amp; data.returnCode === 'RC_OK') {
+                    removeListeners();
+                    (0, helper_1.log)('info', "Token Confirmed", event.data);
+                    this._socket = socket;
+                    this.lastPong = Date.now() + (this.pingInterval + 2000);
+                    this._startPingPong();
+                    socket.onmessage = (event) => {
+                        const data = JSON.parse(event.data);
+                        if (data.pong) {
+                            // move the expiration time ahead
+                            return this.lastPong = Date.now() + (this.pingInterval + 2000);
+                        }
+                        this.messages.next(data);
+                    };
+                    socket.onclose = () => {
+                        removeListeners();
+                        this.onclose.next();
+                    };
+                    resolve(true);
+                }
+            };
+            const rejectionHandler = () => {
+                (0, helper_1.log)('error', "Socket closed: Invalid Token");
+                removeListeners();
+                reject(new Error('Invalid Token'));
+            };
+            socket.onclose = rejectionHandler;
+            socket.onerror = rejectionHandler;
+        });
+    }
+    _startPingPong() {
+        const ping = () => {
+            this._socket?.send(`{ "ping": ${Date.now()} }`);
+        };
+        const interval = setInterval(() => {
+            if (this.lastPong &lt; Date.now()) {
+                clearInterval(interval);
+                this._socket?.close();
+            }
+            else {
+                (0, helper_1.log)('info', 'pong OK.', this.lastPong - Date.now());
+                ping();
+            }
+        }, this.pingInterval);
+    }
+    async post(path, data) {
+        return this._call('post', path, data);
+    }
+    async get(path) {
+        return this._call('get', path, false);
+    }
+    // this consolidates get/post to simplify logging and reply handling
+    async _call(type, path, data) {
+        (0, helper_1.log)("verbose", `[connection.${type}()] ${path}`);
+        const invalidTokenHandler = async (e) => {
+            if (e.response?.status === 401) {
+                (0, helper_1.log)("verbose", 'got a 401 - trying to re-authenticate');
+                await this._connect();
+                (0, helper_1.log)("verbose", 're-trying http request');
+                //try again
+                return get_or_post();
+            }
+            throw e;
+        };
+        const get_or_post = () => type === 'post' ?
+            axiosClient.post(this._baseURL + path, data, this._config) :
+            axiosClient.get(this._baseURL + path, this._config);
+        const r = await get_or_post().catch(invalidTokenHandler);
+        (0, helper_1.log)("verbose", `[connection.${type}()] ${path} response:\n`, r.data);
+        const { requestID, returnCode } = r.data;
+        if (returnCode !== returnCodes_1.ReturnCodes.OK || (path === '/platform/applications/staterequest/UNAVAILABLE' &amp;&amp; returnCode === returnCodes_1.ReturnCodes.STATE)) {
+            return Promise.reject(new Error('HTTP call failed with: ' + returnCode));
+        }
+        (0, helper_1.log)("verbose", '[connection._call()] waiting for reply with id: ' + requestID);
+        return new Promise((resolve, reject) => {
+            let timedout = false;
+            setTimeout(() => {
+                timedout = true;
+                reject(new Error(`TIMEOUT waiting for requestID ${requestID} of ${path}`));
+            }, this._config.timeout);
+            this.messages.pipe((0, operators_1.takeWhile)(message => {
+                if (timedout)
+                    return false;
+                if (message.toApplication?.requestID === requestID) {
+                    const pd = message.toApplication;
+                    if (helper_1.helpers.isNonCritical(pd.statusCode)) {
+                        resolve(pd);
+                    }
+                    else {
+                        reject(new platformResponseError_1.PlatformResponseError(pd));
+                    }
+                    return false;
+                }
+                return true; // continue getting messages
+            }))
+                .subscribe(() => { });
+        });
+    }
+}
+exports.Connection = Connection;
+//# sourceMappingURL=connection.js.map</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Cuss2.html">Cuss2</a></li></ul><h3>Global</h3><ul><li><a href="global.html#validateComponentId">validateComponentId</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Tue Jan 25 2022 11:58:02 GMT-0700 (Mountain Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

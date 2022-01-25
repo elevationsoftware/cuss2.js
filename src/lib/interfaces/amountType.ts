@@ -12,6 +12,9 @@
 
 /**
  * Authorized financial elements (mandatory in response, not required in request).
+ * @typedef {Object} AmountType
+ * @property {string} currencyCode - ISO 4217 (3-character alpha) currency code.
+ * @property {number} baseAmount - Requested or authorized amount in units.subunits (arithmetic major units) format.
  */
 export interface AmountType { 
     /**
