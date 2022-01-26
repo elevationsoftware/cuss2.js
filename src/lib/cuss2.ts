@@ -51,7 +51,9 @@ function validateComponentId(componentID:any) {
 	}
 }
 
-
+/**
+ * Class to create a CUSS 2 object, used it interface with a cuss platform.
+ */
 export class Cuss2 {
 
 	/**
@@ -109,8 +111,7 @@ export class Cuss2 {
 	language?: string;
 
 	/**
-	 * Get the current application state from the CUSS 2 platform
-	 * @returns {StateChange.current} The current application state
+	 * @property {StateChange.current} state Get the current application state from the CUSS 2 platform
 	 */
 	get state() {
 		return this.stateChange.getValue().current;
@@ -255,7 +256,7 @@ export class Cuss2 {
 		 * @param dataExchange
 		 * @returns {Promise<PlatformData>} 
 		 */
-		send: async (componentID:number, dataExchange:DataExchange) => {
+		send: async (componentID:number, dataExchange:DataExchange): Promise<PlatformData> => {
 			return this.connection.post('/peripherals/send/' + componentID, dataExchange);
 		},
 		/**
@@ -264,7 +265,7 @@ export class Cuss2 {
 		 * @param dataExchange 
 		 * @returns {Promise<PlatformData>}
 		 */
-		setup: async (componentID:number, dataExchange:DataExchange) => {
+		setup: async (componentID:number, dataExchange:DataExchange): Promise<PlatformData> => {
 			validateComponentId(componentID);
 			return await this.connection.post('/peripherals/setup/' + componentID, dataExchange);
 		},
@@ -273,7 +274,7 @@ export class Cuss2 {
 		 * @param {number} componentID - The ID of the desired device 
 		 * @returns {Promise<PlatformData>}
 		 */
-		cancel: async (componentID:number) => {
+		cancel: async (componentID:number): Promise<PlatformData> => {
 			validateComponentId(componentID);
 			return await this.connection.post('/peripherals/cancel/' + componentID);
 		},
@@ -286,7 +287,7 @@ export class Cuss2 {
 		 * @param {number} componentID - The ID of the desired device
 		 * @returns {Promise<PlatformData>}
 		 */
-		enable: async (componentID:number) => {
+		enable: async (componentID:number): Promise<PlatformData> => {
 			validateComponentId(componentID);
 			return await this.connection.post('/peripherals/userpresent/enable/' + componentID);
 		},
@@ -295,11 +296,11 @@ export class Cuss2 {
 		 * @param {number} componentID - The ID of the desired device
 		 * @returns {Promise<PlatformData>}
 		 */
-		disable: async (componentID:number) => {
+		disable: async (componentID:number): Promise<PlatformData> => {
 			validateComponentId(componentID);
 			return await this.connection.post('/peripherals/userpresent/disable/' + componentID);
 		},
-		offer: async (componentID:number) => {
+		offer: async (componentID:number): Promise<PlatformData> => {
 			validateComponentId(componentID);
 			return await this.connection.post('/peripherals/userpresent/offer/' + componentID);
 		},
@@ -342,7 +343,7 @@ export class Cuss2 {
 		*		/peripherals/announcement/XXXXX
 		*/
 		announcement: {
-			play: async (componentID:number, rawData:string) => {
+			play: async (componentID:number, rawData:string): Promise<PlatformData> => {
 				validateComponentId(componentID);
 				const dataExchange = {
 					toPlatform: {
@@ -351,17 +352,17 @@ export class Cuss2 {
 				} as DataExchange;
 				return await this.connection.post('/peripherals/announcement/play/' + componentID, dataExchange);
 			},
-			pause: async (componentID:number) => {
+			pause: async (componentID:number): Promise<PlatformData> => {
 				validateComponentId(componentID);
 				return await this.connection.post('/peripherals/announcement/pause/' + componentID);
 			},
 
-			resume: async (componentID:number) => {
+			resume: async (componentID:number): Promise<PlatformData> => {
 				validateComponentId(componentID);
 				return await this.connection.post('/peripherals/announcement/resume/' + componentID);
 			},
 
-			stop: async (componentID:number) => {
+			stop: async (componentID:number): Promise<PlatformData> => {
 				validateComponentId(componentID);
 				return await this.connection.post('/peripherals/announcement/stop/' + componentID);
 			}
