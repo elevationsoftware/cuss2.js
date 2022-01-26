@@ -1,6 +1,9 @@
 {
   "entryPoints": [
-    "src/lib/"
+    "src/lib/cuss2.ts",
+    "src/lib/connection.ts",
+    "src/lib/helper.ts",
+    "src/lib/models/component.ts"
   ],
   "out": "typedocs"
 }
