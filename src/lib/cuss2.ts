@@ -51,29 +51,7 @@ function validateComponentId(componentID:any) {
 	}
 }
 
-/**
- * @class Cuss2
- * @property {Connection} connection - The connection to the CUSS2 platform.
- * @property {EnvironmentLevel} environment - The current environment level.
- * @property {any | undefined} components List of components that are available to the application.
- * @property {BehaviorSubject<StateChange>} stateChange Emits the current application state.
- * @property {BehaviorSubject<Component | null>} componentStateChange Emits component state changes.
- * @property {Subject<PlatformData>} onmessage Emits messages from the platform to the application.
- * @property {BagTagPrinter} bagTagPrinter Bag tag printer object containing properties and methods for interacting with the bag tag printer.
- * @property {BoardingPassPrinter} boardingPassPrinter Boarding pass printer object containing properties and methods for interacting with the boarding pass printer.
- * @property {DocumentReader} documentReader Document reader object containing properties and methods for interacting with the document reader.
- * @property {BarcodeReader} barcodeReader Barcode reader object containing properties and methods for interacting with the barcode reader.
- * @property {Announcement} announcement Announcement object containing properties and methods for interacting with the announcement device.
- * @property {Keypad} keypad Keypad object containing properties and methods for interacting with the keypad.
- * @property {CardReader} cardReader Card reader object containing properties and methods for interacting with the card reader.
- * @property {Subject<undefined>} activated Emits when the application state becomes active.
- * @property {Subject<AppState>} deactivated Emits when the application state becomes inactive.
- * @property {AppState} pendingStateChange
- * @property {boolean} multiTenant Whether the platform supports multiple applications or not.
- * @property {boolean} accessibleMode Whether accessibility mode is enabled or not.
- * @property {string} language Language code of the platform.
- * @property {Object} api An object containing methods for interacting with the platform.
- */
+
 export class Cuss2 {
 
 	/**

@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "typedoc": "typedoc",
+    "typedoc": "typedoc --entryPointStrategy expand",
     "doc": "jsdoc -d docs --configure jsconf.json src/lib -r",
     "predoc": "rm -rf docs/"
   },
