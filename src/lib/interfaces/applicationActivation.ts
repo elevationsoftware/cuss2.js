@@ -13,7 +13,6 @@
 /**
  * The platform uses the CUSS 2 Application Activation Structure when activating a CUSS application.
  */
-
 export interface ApplicationActivation { 
     /**
      * The application can use this value to change its look, feel, or behaviour.

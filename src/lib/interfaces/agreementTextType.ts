@@ -10,6 +10,9 @@
  * Do not edit the class manually.
  */
 
+/**
+ * to be documented!
+ */
 export interface AgreementTextType { 
     agreementText?: string;
     acceptanceMandatory: boolean;
