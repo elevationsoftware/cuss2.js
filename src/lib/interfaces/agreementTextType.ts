@@ -11,16 +11,7 @@
  */
 
 export interface AgreementTextType { 
-	/**
-	 * Text of the agreement.
-	 */
     agreementText?: string;
-		/**
-		 * Whether the user has to accept the agreement or not.
-		 */
     acceptanceMandatory: boolean;
-		/**
-		 * Name of the agreement.
-		 */
     agreementName?: string;
 }
