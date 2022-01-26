@@ -7,6 +7,7 @@
   "scripts": {
     "build": "tsc",
     "typedoc": "typedoc --entryPointStrategy expand",
+    "pretypedoc": "rm -rf typedocs",
     "doc": "jsdoc -d docs --configure jsconf.json src/lib -r",
     "predoc": "rm -rf docs/"
   },
