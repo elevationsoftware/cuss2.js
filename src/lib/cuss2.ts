@@ -253,7 +253,7 @@ export class Cuss2 {
 		 * Send a command to a given component (device).
 		 * @param {number} componentID - The ID of the desired device
 		 * @param dataExchange
-		 * @returns {Promise} 
+		 * @returns {Promise<PlatformData>} 
 		 */
 		send: async (componentID:number, dataExchange:DataExchange) => {
 			return this.connection.post('/peripherals/send/' + componentID, dataExchange);
@@ -262,7 +262,7 @@ export class Cuss2 {
 		 * Send setup instructions to a given component (device).
 		 * @param {number} componentID - The ID of the desired device 
 		 * @param dataExchange 
-		 * @returns {Promise}
+		 * @returns {Promise<PlatformData>}
 		 */
 		setup: async (componentID:number, dataExchange:DataExchange) => {
 			validateComponentId(componentID);
@@ -271,7 +271,7 @@ export class Cuss2 {
 		/**
 		 * Sends a cancel command to a given component (device).
 		 * @param {number} componentID - The ID of the desired device 
-		 * @returns {Promise}
+		 * @returns {Promise<PlatformData>}
 		 */
 		cancel: async (componentID:number) => {
 			validateComponentId(componentID);
@@ -284,7 +284,7 @@ export class Cuss2 {
 		/**
 		 * Sends enable command to a given component (device).
 		 * @param {number} componentID - The ID of the desired device
-		 * @returns {Promise}
+		 * @returns {Promise<PlatformData>}
 		 */
 		enable: async (componentID:number) => {
 			validateComponentId(componentID);
@@ -293,7 +293,7 @@ export class Cuss2 {
 		/**
 		 * Sends disable command to a given component (device).
 		 * @param {number} componentID - The ID of the desired device
-		 * @returns {Promise}
+		 * @returns {Promise<PlatformData>}
 		 */
 		disable: async (componentID:number) => {
 			validateComponentId(componentID);
