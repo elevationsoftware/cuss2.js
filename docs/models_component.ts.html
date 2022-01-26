@@ -1,0 +1,600 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> models/component.ts</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    API Documentation
+                </a>
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+                <div class="search-wrapper">
+                    <input id="search" type="text" placeholder="Search docs..." class="input">
+                </div>
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Component.html">Component</a></li><li><a href="Connection.html">Connection</a></li></ul><h3>Interfaces</h3><ul><li><a href="AgreementTextType.html">AgreementTextType</a></li><li><a href="AlibiType.html">AlibiType</a></li><li><a href="AmountType.html">AmountType</a></li><li><a href="ApplicationActivation.html">ApplicationActivation</a></li><li><a href="ApplicationData.html">ApplicationData</a></li><li><a href="ApplicationID.html">ApplicationID</a></li><li><a href="ApplicationStates.html">ApplicationStates</a></li><li><a href="ApplicationTransfer.html">ApplicationTransfer</a></li><li><a href="AssociationDataItemType.html">AssociationDataItemType</a></li><li><a href="AuthorizationAmounts.html">AuthorizationAmounts</a></li><li><a href="BaggageData.html">BaggageData</a></li><li><a href="BaggageDataBaggageMeasurements.html">BaggageDataBaggageMeasurements</a></li><li><a href="BaggageDataBarcodeTagList.html">BaggageDataBarcodeTagList</a></li><li><a href="BaggageDataRfidTagList.html">BaggageDataRfidTagList</a></li><li><a href="BarcodeTagDataType.html">BarcodeTagDataType</a></li><li><a href="BiometricProviderMessage.html">BiometricProviderMessage</a></li><li><a href="BiometricProviderMessageBiometricRequest.html">BiometricProviderMessageBiometricRequest</a></li><li><a href="BiometricProviderMessageBiometricRequestAgreementsList.html">BiometricProviderMessageBiometricRequestAgreementsList</a></li><li><a href="BiometricProviderMessageBiometricRequestData.html">BiometricProviderMessageBiometricRequestData</a></li><li><a href="BiometricProviderMessageBiometricRequestDataProcessing.html">BiometricProviderMessageBiometricRequestDataProcessing</a></li><li><a href="BiometricProviderMessageBiometricRequestEnvironment.html">BiometricProviderMessageBiometricRequestEnvironment</a></li><li><a href="BiometricProviderMessageBiometricResponse.html">BiometricProviderMessageBiometricResponse</a></li><li><a href="BiometricProviderMessageBiometricResponseFailureReason.html">BiometricProviderMessageBiometricResponseFailureReason</a></li><li><a href="BlinkingRateType.html">BlinkingRateType</a></li><li><a href="CardBrandList.html">CardBrandList</a></li><li><a href="CardTrackType.html">CardTrackType</a></li><li><a href="CommonErrors.html">CommonErrors</a></li><li><a href="CommonUseBiometricMessage.html">CommonUseBiometricMessage</a></li><li><a href="CommonUseBiometricMessageCharacteristics.html">CommonUseBiometricMessageCharacteristics</a></li><li><a href="CommonUsePaymentMessage.html">CommonUsePaymentMessage</a></li><li><a href="CommonUsePaymentMessageCharacteristics.html">CommonUsePaymentMessageCharacteristics</a></li><li><a href="CommonUsePaymentMessageCharacteristicsCharacteristicsResponseEPayment.html">CommonUsePaymentMessageCharacteristicsCharacteristicsResponseEPayment</a></li><li><a href="CommonUsePaymentMessageCharacteristicsCharacteristicsResponseSchemaVersionList.html">CommonUsePaymentMessageCharacteristicsCharacteristicsResponseSchemaVersionList</a></li><li><a href="CommonUsePaymentMessageErrorResponse.html">CommonUsePaymentMessageErrorResponse</a></li><li><a href="ComponentCharacteristicsConveyorSBD.html">ComponentCharacteristicsConveyorSBD</a></li><li><a href="ComponentCharacteristicsDisplayType.html">ComponentCharacteristicsDisplayType</a></li><li><a href="ComponentCharacteristicsDocumentBin.html">ComponentCharacteristicsDocumentBin</a></li><li><a href="ComponentList.html">ComponentList</a></li><li><a href="CurrencyCodeList.html">CurrencyCodeList</a></li><li><a href="CUSS2ApiResponse.html">CUSS2ApiResponse</a></li><li><a href="DataExchange.html">DataExchange</a></li><li><a href="DimensionType.html">DimensionType</a></li><li><a href="EnvironmentLevel.html">EnvironmentLevel</a></li><li><a href="EPaymentMessage.html">EPaymentMessage</a></li><li><a href="EPaymentMessageOperation.html">EPaymentMessageOperation</a></li><li><a href="EPaymentMessageSetup.html">EPaymentMessageSetup</a></li><li><a href="EPaymentMessageTransaction.html">EPaymentMessageTransaction</a></li><li><a href="EPaymentMessageTransactionTransactionAcknowledge.html">EPaymentMessageTransactionTransactionAcknowledge</a></li><li><a href="EPaymentMessageTransactionTransactionRequest.html">EPaymentMessageTransactionTransactionRequest</a></li><li><a href="EPaymentMessageTransactionTransactionRequestAccount.html">EPaymentMessageTransactionTransactionRequestAccount</a></li><li><a href="EPaymentMessageTransactionTransactionRequestAccountManual.html">EPaymentMessageTransactionTransactionRequestAccountManual</a></li><li><a href="EPaymentMessageTransactionTransactionRequestAccountSwipe.html">EPaymentMessageTransactionTransactionRequestAccountSwipe</a></li><li><a href="EPaymentMessageTransactionTransactionRequestEnvironment.html">EPaymentMessageTransactionTransactionRequestEnvironment</a></li><li><a href="EPaymentMessageTransactionTransactionRequestItinerary.html">EPaymentMessageTransactionTransactionRequestItinerary</a></li><li><a href="EPaymentMessageTransactionTransactionRequestPreAuth.html">EPaymentMessageTransactionTransactionRequestPreAuth</a></li><li><a href="EPaymentMessageTransactionTransactionResponse.html">EPaymentMessageTransactionTransactionResponse</a></li><li><a href="EPaymentMessageTransactionTransactionResponseApproval.html">EPaymentMessageTransactionTransactionResponseApproval</a></li><li><a href="EPaymentMessageTransactionTransactionResponseNonApproval.html">EPaymentMessageTransactionTransactionResponseNonApproval</a></li><li><a href="Errors.html">Errors</a></li><li><a href="ExtendedWeightType.html">ExtendedWeightType</a></li><li><a href="Feature.html">Feature</a></li><li><a href="FeatureList.html">FeatureList</a></li><li><a href="GPDataItemType.html">GPDataItemType</a></li><li><a href="GPDataListType.html">GPDataListType</a></li><li><a href="GPParameter.html">GPParameter</a></li><li><a href="GPParameterList.html">GPParameterList</a></li><li><a href="IlluminationData.html">IlluminationData</a></li><li><a href="IlluminationDataLightColor.html">IlluminationDataLightColor</a></li><li><a href="Location.html">Location</a></li><li><a href="MediaTypeList.html">MediaTypeList</a></li><li><a href="ModelError.html">ModelError</a></li><li><a href="MRZTrackType.html">MRZTrackType</a></li><li><a href="PassengerBiometricsType.html">PassengerBiometricsType</a></li><li><a href="PassengerDataType.html">PassengerDataType</a></li><li><a href="PassengerDataTypeAssociationDataList.html">PassengerDataTypeAssociationDataList</a></li><li><a href="PassengerDataTypePassengerBiometricsData.html">PassengerDataTypePassengerBiometricsData</a></li><li><a href="PassengerDataTypePassengerMRZData.html">PassengerDataTypePassengerMRZData</a></li><li><a href="PassengerIDType.html">PassengerIDType</a></li><li><a href="PlatformData.html">PlatformData</a></li><li><a href="PlatformDataEventClassification.html">PlatformDataEventClassification</a></li><li><a href="RFIDElement.html">RFIDElement</a></li><li><a href="RFIDTagDataType.html">RFIDTagDataType</a></li><li><a href="RgbType.html">RgbType</a></li><li><a href="ScreenResolution.html">ScreenResolution</a></li><li><a href="TransactionStatus.html">TransactionStatus</a></li><li><a href="WeightType.html">WeightType</a></li></ul><h3>Global</h3><ul><li><a href="global.html#cancel">cancel</a></li><li><a href="global.html#connect">connect</a></li><li><a href="global.html#disable">disable</a></li><li><a href="global.html#enable">enable</a></li><li><a href="global.html#getComponents">getComponents</a></li><li><a href="global.html#getEnvironment">getEnvironment</a></li><li><a href="global.html#getStatus">getStatus</a></li><li><a href="global.html#send">send</a></li><li><a href="global.html#setup">setup</a></li><li><a href="global.html#staterequest">staterequest</a></li><li><a href="global.html#validateComponentId">validateComponentId</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>models/component.ts</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {BehaviorSubject, combineLatest, Subject, Subscription} from "rxjs";
+import {Cuss2} from "../cuss2";
+import {
+	CUSSDataTypes,
+	DataExchange,
+	DataRecord,
+	EnvironmentComponent,
+	EventHandlingCodes,
+	PlatformData,
+	StatusCodes,
+	ApplicationStates, ComponentTypes
+} from "../..";
+import { DeviceType } from '../interfaces/deviceType';
+import {PlatformResponseError} from "./platformResponseError";
+import {take, timeout} from "rxjs/operators";
+
+/**
+ * @class Component
+ * @classdesc General object representing a CUSS component with methods and properties to interact with it.
+ * @param {EnvironmentComponent} component 
+ * @param {Cuss2} cuss2 
+ * @param {DeviceType} _type 
+ */
+export class Component {
+	_component: EnvironmentComponent;
+	id: number;
+	onmessage: Subject&lt;any> = new Subject&lt;any>();
+	api: any;
+	required: boolean = false;
+	statusChanged: BehaviorSubject&lt;StatusCodes> = new BehaviorSubject&lt;StatusCodes>(StatusCodes.OK);
+	_eventHandlingCode: EventHandlingCodes = EventHandlingCodes.UNAVAILABLE;
+	deviceType: DeviceType;
+	pendingCalls: number = 0;
+	enabled: boolean = false;
+	pollingInterval = 3000;
+	_poller: any;
+
+	/**
+	 * @returns {boolean} true if the component is ready
+	 */
+	get ready(): boolean {
+		return this._eventHandlingCode === EventHandlingCodes.READY;
+	}
+	readyStateChanged: Subject&lt;boolean> = new Subject&lt;boolean>();
+
+	get pending(): boolean { return this.pendingCalls > 0; }
+	get status(): StatusCodes { return this.statusChanged.getValue(); }
+
+	constructor(component: EnvironmentComponent, cuss2: Cuss2, _type: DeviceType = DeviceType.UNKNOWN) {
+		this._component = component;
+		this.id = component.componentID as number;
+		this.deviceType = _type;
+		Object.defineProperty(this, 'api', {
+			get: () => cuss2.api,
+			enumerable: false
+		});
+		cuss2.onmessage.subscribe((data:PlatformData) => {
+			if (data?.componentID === this.id) {
+				this._handleMessage(data);
+			}
+		});
+		cuss2.deactivated.subscribe(() => {
+			this.enabled = false;
+		});
+	}
+
+	stateIsDifferent(msg: PlatformData): boolean {
+		return this.status !== msg.statusCode || this._eventHandlingCode !== msg.eventHandlingCode;
+	}
+
+	updateState(msg: PlatformData): void {
+		if (msg.eventHandlingCode !== this._eventHandlingCode) {
+			this._eventHandlingCode = msg.eventHandlingCode;
+			if (msg.eventHandlingCode !== EventHandlingCodes.READY) {
+				this.enabled = false;
+			}
+			this.readyStateChanged.next(msg.eventHandlingCode === EventHandlingCodes.READY)
+		}
+		// Sometimes status is not sent by an unsolicited event so we poll to be sure
+		if (!this.ready &amp;&amp; this.required &amp;&amp; !this._poller &amp;&amp; this.pollingInterval > 0) {
+			this.pollUntilReady();
+		}
+
+		if (this.status !== msg.statusCode) {
+			this.statusChanged.next(msg.statusCode);
+		}
+	}
+	pollUntilReady(requireOK = false, pollingInterval = this.pollingInterval) {
+		if (this._poller) return;
+		const poll = () => {
+			if (this.ready &amp;&amp; (!requireOK || this.status === StatusCodes.OK)) {
+				return this._poller = undefined;
+			}
+
+			this._poller = setTimeout(() => {
+				this.query().catch(Object).finally(poll)
+			}, pollingInterval);
+		}
+		poll();
+	}
+
+
+	_handleMessage(data:any) {
+		this.onmessage.next(data);
+	}
+	async _call(action:Function) {
+		this.pendingCalls++;
+		const decrement = (r:any)=>{
+			this.pendingCalls--;
+			return r;
+		};
+		return action().then(decrement).catch((e:any) => Promise.reject(decrement(e)))
+	}
+
+	enable() {
+		return this._call(() => this.api.enable(this.id))
+			.then((r:any) => {
+				this.enabled = true;
+				return r;
+			})
+	}
+	disable() {
+		return this._call(() => this.api.disable(this.id))
+			.then((r:any) => {
+				this.enabled = false;
+				return r;
+			})
+			.catch((e:PlatformResponseError) => {
+				if (e.statusCode === StatusCodes.OUTOFSEQUENCE) {
+					this.enabled = false;
+					return e;
+				}
+				return Promise.reject(e);
+			});
+	}
+	cancel() {
+		return this._call(() => this.api.cancel(this.id));
+	}
+	query() {
+		return this._call(() => this.api.getStatus(this.id));
+	}
+
+	async sendRaw(raw: string, dsTypes: Array&lt;CUSSDataTypes> = [ CUSSDataTypes.ITPS ] ) {
+		const dataExchange = {
+			toPlatform: {
+				dataRecords: [{	data: (raw || '') as any, dsTypes: dsTypes }]
+			},
+		} as DataExchange;
+
+		return this.api.send(this.id, dataExchange);
+	}
+	async setupRaw(raw: string|string[], dsTypes: Array&lt;CUSSDataTypes> = [ CUSSDataTypes.ITPS ]) {
+		const isArray = Array.isArray(raw);
+		if (!raw || (isArray &amp;&amp; !raw[0])) {
+			return Promise.resolve(isArray? [] : undefined);
+		}
+		const rawArray:string[] = isArray? raw as string[] : [raw as string];
+
+		const dx = (r:string) => ({
+			toPlatform: {
+				dataRecords: [ { data: (r || '') as any, dsTypes: dsTypes } ]
+			},
+		} as DataExchange);
+
+		return await Promise.all(rawArray.map(r => this.api.setup(this.id, dx(r))))
+			.then(results => isArray? results : results[0])
+	}
+}
+export class DataReaderComponent extends Component {
+	data = new Subject&lt;string[]>();
+	previousData: string[] = [];
+
+	_handleMessage(data:PlatformData) {
+		this.onmessage.next(data);
+		if (data.statusCode === StatusCodes.DATAPRESENT &amp;&amp; data.dataRecords?.length) {
+			this.previousData = data.dataRecords?.map((dr:DataRecord) => dr.data);
+			this.data.next(this.previousData)
+		}
+	}
+
+	async read(ms:number=30000) {
+		return new Promise(async(resolve,reject)=>{
+				await this.enable();
+
+				const subscription = this.data
+					.pipe(take(1))
+					.pipe(timeout(ms))
+					.subscribe(resolve,reject);
+
+			})
+			.finally(() => this.disable());
+	}
+}
+export class BarcodeReader extends DataReaderComponent {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.BARCODE_READER);
+	}
+}
+export class DocumentReader extends DataReaderComponent {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.PASSPORT_READER);
+	}
+}
+export class CardReader extends DataReaderComponent {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.MSR_READER);
+	}
+
+	async enablePayment(yes:boolean) {
+		this.setupRaw('', [ yes? 'DS_TYPES_PAYMENT_ISO' as CUSSDataTypes : CUSSDataTypes.FOIDISO ]);
+	}
+
+	async readPayment(ms:number=30000) {
+		await this.enablePayment(true);
+		await this.read(ms);
+		await this.enablePayment(false);
+	}
+}
+
+export class Printer extends Component {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2, _type: DeviceType) {
+		super(component, cuss2, _type);
+
+		const missingLink = (msg:string) => { throw new Error(msg); };
+		const linked = component.linkedComponentIDs?.map(id => cuss2.components[id] as Component) || [];
+
+		this.feeder = linked.find(c => c instanceof Feeder) || missingLink('Feeder not found for Printer ' + this.id);
+		this.feeder.printer = this;
+
+		const d = linked.find(c => c instanceof Dispenser) as Dispenser;
+		this.dispenser = d || missingLink('Dispenser not found for Printer ' + this.id);
+		this.dispenser.printer = this;
+
+		// @ts-ignore cause you're not smart enough
+		this._superReadyStateChanged = this.readyStateChanged;
+
+		combineLatest(
+			this._superReadyStateChanged,
+			this.feeder.readyStateChanged,
+			this.dispenser.readyStateChanged
+		)
+		.subscribe(([printerReady,feederReady,dispenserReady]) => {
+			const ready = printerReady &amp;&amp; feederReady &amp;&amp; dispenserReady;
+			if (this.ready !== ready) {
+				this._combinedReady = ready;
+				this.readyStateChanged.next(ready);
+			}
+		});
+		this.readyStateChanged = new Subject&lt;boolean>();
+
+		// @ts-ignore cause you're not smart enough
+		this._superStatusChanged = this.statusChanged;
+
+		combineLatest(
+			this._superStatusChanged,
+			this.feeder.statusChanged,
+			this.dispenser.statusChanged
+		)
+		.subscribe((statuses) => {
+			const status = statuses.find(s => s != StatusCodes.OK) || StatusCodes.OK
+			if (this.status !== status) {
+				this._combinedStatus = status;
+				this.statusChanged.next(status);
+			}
+		});
+		this.statusChanged = new BehaviorSubject&lt;StatusCodes>(StatusCodes.OK);
+
+		cuss2.activated.subscribe(() => {
+			if (this.ready) {
+				this.enable();
+			}
+		});
+	}
+
+	feeder: Feeder;
+	dispenser: Dispenser;
+	readyStateChanged: Subject&lt;boolean>;
+	_superReadyStateChanged: BehaviorSubject&lt;boolean>;
+	_superStatusChanged: BehaviorSubject&lt;StatusCodes>;
+	get mediaPresentChanged() {
+		return this.dispenser.mediaPresentChanged;
+	}
+	get mediaPresent(): boolean {
+		return this.dispenser.mediaPresentChanged.getValue();
+	}
+
+	_combinedReady = false;
+	get ready(): boolean {
+		return this._combinedReady;
+	}
+
+	_combinedStatus = StatusCodes.OK;
+	get status(): StatusCodes {
+		return this._combinedStatus;
+	}
+
+	updateState(msg: PlatformData): void {
+		//CUTnHOLD can cause a TIMEOUT response if the tag is not taken in a certain amount of time.
+		// Unfortunately, it briefly considers the Printer to be UNAVAILABLE.
+		if (msg.functionName === 'send' &amp;&amp; msg.statusCode === StatusCodes.TIMEOUT &amp;&amp; msg.eventHandlingCode === EventHandlingCodes.UNAVAILABLE) {
+			msg.eventHandlingCode = EventHandlingCodes.READY;
+		}
+		// if now ready, query linked components to get their latest status
+		if (!this.ready &amp;&amp; msg.eventHandlingCode === EventHandlingCodes.READY) {
+			this.feeder.query().catch(console.error);
+			this.dispenser.query().catch(console.error);
+		}
+		else if (msg.statusCode === StatusCodes.MEDIAPRESENT) {
+			this.dispenser.mediaPresentChanged.next(true);
+			// query the dispenser- which will start a poller that will detect when the media has been taken
+			this.dispenser.query().catch(console.error);
+		}
+		const rsc = this.readyStateChanged;
+		const sc = this.statusChanged;
+		this.readyStateChanged = this._superReadyStateChanged;
+		this.statusChanged = this._superStatusChanged;
+		super.updateState(msg);
+		this.readyStateChanged = rsc;
+		this.statusChanged = sc
+	}
+
+	async setupAndPrintRaw(rawSetupData: string[], rawData?: string) {
+		if (typeof rawData !== 'string') {
+			throw new TypeError('Invalid argument: rawData');
+		}
+
+		await this.setupRaw(rawSetupData);
+		return this.printRaw(rawData);
+	}
+	async printRaw(rawData: string) {
+		return this.sendRaw(rawData)
+			.catch((e:PlatformResponseError) => {
+				return this.cancel().then(() => { throw e })
+			});
+	}
+	async aeaCommand(cmd:string) {
+		const response = await this.setupRaw(cmd);
+		return (response.dataRecords||[]).map((r:any)=>r.data||'')
+	}
+	async getEnvironment() {
+		return Cuss2.helpers.deserializeDictionary((await this.aeaCommand('ES'))[0]);
+	}
+	async _getPairedResponse(cmd:string, n:number=2) {
+		const response = (await this.aeaCommand(cmd))[0];
+		return Cuss2.helpers.split_every(response.substr(response.indexOf('OK')+2), n) || [];
+	}
+
+	logos:any = {
+		clear: async (id='') => {
+			const response = await this.aeaCommand('LC'+id);
+			return response[0] &amp;&amp; response[0].indexOf('OK') > -1;
+		},
+		query: async (id='') => {
+			return this._getPairedResponse('LS')
+		},
+	};
+	pectabs:any = {
+		clear: async (id='') => {
+			const response = await this.aeaCommand('PC'+id);
+			return response[0] &amp;&amp; response[0].indexOf('OK') > -1;
+		},
+		query: async () => {
+			return this._getPairedResponse('PS')
+		},
+	};
+
+}
+export class BagTagPrinter extends Printer {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.BAG_TAG_PRINTER);
+	}
+
+	pectabs:any = {
+		clear: async (id='') => {
+			const response = await this.aeaCommand('PC'+id);
+			return response[0] &amp;&amp; response[0].indexOf('OK') > -1;
+		},
+		query: async () => {
+			return this._getPairedResponse('PS', 4)
+		},
+	};
+}
+export class BoardingPassPrinter extends Printer {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.BOARDING_PASS_PRINTER);
+	}
+
+	templates:any = {
+		clear: async (id='') => {
+			const response = await this.aeaCommand('TC'+id);
+			return response[0] &amp;&amp; response[0].indexOf('OK') > -1;
+		},
+		query: async (id='') => {
+			return this._getPairedResponse('TA')
+		},
+	};
+}
+
+export class Feeder extends Component {
+	printer?: Printer;
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.FEEDER);
+	}
+}
+export class Dispenser extends Component {
+	printer?: Printer;
+	mediaPresentChanged: BehaviorSubject&lt;boolean>;
+	get mediaPresent(): boolean {
+		return this.mediaPresentChanged.getValue();
+	}
+
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.DISPENSER);
+
+		this.mediaPresentChanged = new BehaviorSubject&lt;boolean>(false);
+		this.statusChanged.subscribe((status) => {
+			if (status === StatusCodes.MEDIAPRESENT) {
+				this.pollUntilReady(true, 100);
+				if (!this.mediaPresent) {
+					this.mediaPresentChanged.next(true);
+				}
+			}
+			else {
+				if (this.mediaPresent) {
+					this.mediaPresentChanged.next(false);
+				}
+			}
+		})
+	}
+}
+export class Keypad extends Component {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.KEY_PAD);
+	}
+
+	_handleMessage(message:PlatformData) {
+		super._handleMessage(message);
+		if (message.componentID !== this.id) return;
+
+		const dataRecords = message.dataRecords;
+		if (dataRecords?.length) {
+			const data = dataRecords.map(dr => dr.data);
+			this.data.next({
+				UP: data.includes('NAVUP'),
+				DOWN: data.includes('NAVDOWN'),
+				PREVIOUS: data.includes('NAVPREVIOUS'),
+				NEXT: data.includes('NAVNEXT'),
+				ENTER: data.includes('NAVENTER'),
+				HOME: data.includes('NAVHOME'),
+				END: data.includes('NAVEND'),
+				HELP: data.includes('NAVHELP'),
+				VOLUMEUP: data.includes('VOLUMEUP'),
+				VOLUMEDOWN: data.includes('VOLUMEDOWN'),
+			});
+		}
+	}
+	data: Subject&lt;any> = new Subject&lt;any>();
+}
+export class Announcement extends Component {
+	say(text:string, lang:string='en-US') {
+		const xml = `&lt;?xml version="1.0" encoding="UTF-8"?>&lt;speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${lang}">${text}&lt;/speak>`;
+		return this.play(xml);
+	}
+	play(xml:string) {
+		return this.api.announcement.play(this.id, xml);
+	}
+	stop() {
+		return this.api.announcement.stop(this.id);
+	}
+	pause() {
+		return this.api.announcement.pause(this.id);
+	}
+	resume() {
+		return this.api.announcement.resume(this.id);
+	}
+}
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+<script src="scripts/search.js"> </script>
+
+
+</body>
+</html>
