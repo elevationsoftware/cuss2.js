@@ -5,7 +5,10 @@
   "recurseDepth": 10,
   "source": {
     "includePattern": "\\.(jsx|js|ts|tsx)$",
-    "excludePattern": "(^|\\/|\\\\)_"
+    "excludePattern": "(^|\\/|\\\\)_",
+    "exclude": [
+      "src/lib/interfaces"
+    ]
   },
   "sourceType": "module",
   "tags": {
