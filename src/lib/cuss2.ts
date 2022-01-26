@@ -51,7 +51,9 @@ function validateComponentId(componentID:any) {
 	}
 }
 
-
+/**
+ * Class to create a CUSS 2 object, used it interface with a cuss platform.
+ */
 export class Cuss2 {
 
 	/**
@@ -109,8 +111,7 @@ export class Cuss2 {
 	language?: string;
 
 	/**
-	 * Get the current application state from the CUSS 2 platform
-	 * @returns {StateChange.current} The current application state
+	 * @property {StateChange.current} state Get the current application state from the CUSS 2 platform
 	 */
 	get state() {
 		return this.stateChange.getValue().current;
