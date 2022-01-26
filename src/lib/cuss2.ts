@@ -132,7 +132,7 @@ export class Cuss2 {
 
 	/**
 	 * Get the current application state from the CUSS 2 platform
-	 * @returns {StateChange.current} - The current application state
+	 * @returns {StateChange.current} The current application state
 	 */
 	get state() {
 		return this.stateChange.getValue().current;
@@ -393,6 +393,10 @@ export class Cuss2 {
 	//
 	// State requests. Only offer the ones that are valid to request.
 	//
+	/**
+	 * Request the platform to change the application state to Available state.
+	 * @returns {Promise<PlatformData|undefined>} Response from the platform.
+	 */
 	async requestAvailableState(): Promise<PlatformData|undefined> {
 		// allow hoping directly to AVAILABLE from INITIALIZE
 		if (this.state === AppState.INITIALIZE) {
@@ -401,17 +405,33 @@ export class Cuss2 {
 		const okToChange = this.state === AppState.UNAVAILABLE || this.state === AppState.ACTIVE;
 		return okToChange ? this.api.staterequest(AppState.AVAILABLE) : Promise.resolve(undefined);
 	}
+	/**
+	 * Request the platform to change the application state to Unavailable state.
+	 * @returns {Promise<PlatformData|undefined>} Response from the platform.
+	 */
 	requestUnavailableState(): Promise<PlatformData|undefined> {
 		const okToChange = this.state === AppState.INITIALIZE || this.state === AppState.AVAILABLE || this.state === AppState.ACTIVE;
 		return okToChange ? this.api.staterequest(AppState.UNAVAILABLE) : Promise.resolve(undefined);
 	}
+	/**
+	 * Request the platform to change the application state to Stopped state.
+	 * @returns {Promise<PlatformData|undefined>} Response from the platform.
+	 */
 	requestStoppedState(): Promise<PlatformData|undefined> {
 		return this.api.staterequest(AppState.STOPPED);
 	}
+	/**
+	 * Request the platform to change the application state to Active state.
+	 * @returns {Promise<PlatformData|undefined>} Response from the platform.
+	 */
 	requestActiveState(): Promise<PlatformData|undefined> {
 		const okToChange = this.state === AppState.AVAILABLE || this.state === AppState.ACTIVE;
 		return okToChange ? this.api.staterequest(AppState.ACTIVE) : Promise.resolve(undefined);
 	}
+	/**
+	 * Request the platform to reload the application.
+	 * @returns {Promise<boolean>} Response from the platform whether it can reload or not.
+	 */
 	async requestReload(): Promise<boolean> {
 		const okToChange = !this.state || this.state === AppState.UNAVAILABLE || this.state === AppState.AVAILABLE || this.state === AppState.ACTIVE;
 		if (!okToChange) {
@@ -423,6 +443,10 @@ export class Cuss2 {
 		return true;
 	}
 
+	/**
+	 * Query each component for its current state.
+	 * @returns {Promise<boolean>} Response from the platform, whether the query was able to be sent or not.
+	 */
 	async queryComponents(): Promise<boolean> {
 		if (!this.components) {
 			return false;
@@ -435,14 +459,23 @@ export class Cuss2 {
 		return true;
 	}
 
+	/**
+	 * @returns {Component[]} List of unavailable components.
+	 */
 	get unavailableComponents(): Component[] {
 		const components = Object.values(this.components) as Component[];
 		return components.filter((c:Component) => !c.ready);
 	}
+	/**
+	 * @returns {Component[]} List of unavailable components that have been marked required.
+	 */
 	get unavailableRequiredComponents(): Component[] {
 		return this.unavailableComponents.filter((c:Component) => c.required)
 	}
 
+	/**
+	 * Check if all required components are available and move application to the appropriate state based on their status.
+	 */
 	checkRequiredComponentsAndSyncState(): void {
 		if (this.pendingStateChange) return;
 		if (this._online) {
