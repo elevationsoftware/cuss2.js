@@ -40,14 +40,28 @@ const {
 	isKeypad
 } = ComponentInterrogation;
 
+/**
+ * @function validateComponentId
+ * @param {number} componentID - The componentID to validate
+ * @throws {Error} If the componentID is not a number
+ */
 function validateComponentId(componentID:any) {
 	if (typeof componentID !== 'number') {
 		throw new TypeError('Invalid componentID: ' + componentID);
 	}
 }
 
+
 export class Cuss2 {
 
+	/**
+	 * @method connect
+	 * @param {string} url  - The url of the CUSS 2 platform
+	 * @param {string} client_id  - The client_id of the CUSS 2 platform
+	 * @param {string} client_secret  - The client_secret of the CUSS 2 platform
+	 * @param {Object} [options={}] - An object of options passed in for the connection
+	 * @returns {Promise<Cuss2>} A promise that resolves to a Cuss2 object
+	 */
 	static async connect(url: string, client_id: string, client_secret: string, options: any = {}): Promise<Cuss2> {
 		const connection = await Connection.connect(url, client_id, client_secret,  options);
 		const cuss2 = new Cuss2(connection);
@@ -58,15 +72,21 @@ export class Cuss2 {
 	static logger: Subject<LogMessage> = logger;
 	static helpers = helpers;
 
-
 	private constructor(connection: Connection) {
 		this.connection = connection;
+		/**
+		 * Subscribe to messages from the CUSS 2 platform
+		 */
 		connection.messages.subscribe(async e => await this._handleWebSocketMessage(e))
+		/**
+		 * Subscribe to the connection being closed and attempt to reconnect
+		 */
 		connection.onclose.subscribe(async () => {
 			await connection._connect();
 			await this._initialize();
 		});
 	}
+
 	connection:Connection;
 	environment: EnvironmentLevel = {} as EnvironmentLevel;
 	components: any|undefined = undefined;
@@ -88,6 +108,10 @@ export class Cuss2 {
 	accessibleMode: boolean = false;
 	language?: string;
 
+	/**
+	 * Get the current application state from the CUSS 2 platform
+	 * @returns {StateChange.current} The current application state
+	 */
 	get state() {
 		return this.stateChange.getValue().current;
 	}
@@ -159,12 +183,20 @@ export class Cuss2 {
 		//
 		// "GET" calls
 		//
+		/**
+		 * Get the current environment level.
+		 * @returns {Promise<EnvironmentLevel>} - The current environment level
+		 */
 		getEnvironment: async (): Promise<EnvironmentLevel> => {
 			const response = await this.connection.get('/platform/environment');
 			log('verbose', '[getEnvironment()] response', response);
 			this.environment = response.environmentLevel as EnvironmentLevel;
 			return this.environment;
 		},
+		/**
+		 * Get a list of components.
+		 * @returns {Promise<ComponentList>} - The list of components
+		 */
 		getComponents: async (): Promise<ComponentList> => {
 			const response = await this.connection.get('/platform/components');
 			log('verbose', '[getComponents()] response', response);
@@ -206,19 +238,41 @@ export class Cuss2 {
 
 			return componentList;
 		},
+		/**
+		 * Get the status of a given component (device).
+		 * @param {number} componentID - The ID of the desired device 
+		 * @returns {Promise<PlatformData>} - The status of the component
+		 */
 		getStatus: async (componentID:number): Promise<PlatformData> => {
 			const response = await this.connection.get('/peripherals/query/' + componentID);
 			log('verbose', '[queryDevice()] response', response);
 			return response as PlatformData;
 		},
 
+		/**
+		 * Send a command to a given component (device).
+		 * @param {number} componentID - The ID of the desired device
+		 * @param dataExchange
+		 * @returns {Promise<PlatformData>} 
+		 */
 		send: async (componentID:number, dataExchange:DataExchange) => {
 			return this.connection.post('/peripherals/send/' + componentID, dataExchange);
 		},
+		/**
+		 * Send setup instructions to a given component (device).
+		 * @param {number} componentID - The ID of the desired device 
+		 * @param dataExchange 
+		 * @returns {Promise<PlatformData>}
+		 */
 		setup: async (componentID:number, dataExchange:DataExchange) => {
 			validateComponentId(componentID);
 			return await this.connection.post('/peripherals/setup/' + componentID, dataExchange);
 		},
+		/**
+		 * Sends a cancel command to a given component (device).
+		 * @param {number} componentID - The ID of the desired device 
+		 * @returns {Promise<PlatformData>}
+		 */
 		cancel: async (componentID:number) => {
 			validateComponentId(componentID);
 			return await this.connection.post('/peripherals/cancel/' + componentID);
@@ -227,10 +281,20 @@ export class Cuss2 {
 		/*
 		*		/peripherals/userpresent/XXXXX
 		*/
+		/**
+		 * Sends enable command to a given component (device).
+		 * @param {number} componentID - The ID of the desired device
+		 * @returns {Promise<PlatformData>}
+		 */
 		enable: async (componentID:number) => {
 			validateComponentId(componentID);
 			return await this.connection.post('/peripherals/userpresent/enable/' + componentID);
 		},
+		/**
+		 * Sends disable command to a given component (device).
+		 * @param {number} componentID - The ID of the desired device
+		 * @returns {Promise<PlatformData>}
+		 */
 		disable: async (componentID:number) => {
 			validateComponentId(componentID);
 			return await this.connection.post('/peripherals/userpresent/disable/' + componentID);
@@ -240,6 +304,13 @@ export class Cuss2 {
 			return await this.connection.post('/peripherals/userpresent/offer/' + componentID);
 		},
 
+		/**
+		 * Sends request to the platform for the application to change states.
+		 * @param {AppState} state - The state to change to.
+		 * @param {ChangeReason} reasonCode - The enumerated reasonCode for the state change.
+		 * @param {string} reason - The reason for the state change.
+		 * @returns {Promise<PlatformData|undefined>} Response from the platform.
+		 */
 		staterequest: async (state: AppState, reasonCode = ChangeReason.NOTAPPLICABLE, reason = ''): Promise<PlatformData|undefined> => {
 			if (this.pendingStateChange) {
 				return Promise.resolve(undefined);
@@ -300,6 +371,10 @@ export class Cuss2 {
 	//
 	// State requests. Only offer the ones that are valid to request.
 	//
+	/**
+	 * Request the platform to change the application state to Available state.
+	 * @returns {Promise<PlatformData|undefined>} Response from the platform.
+	 */
 	async requestAvailableState(): Promise<PlatformData|undefined> {
 		// allow hoping directly to AVAILABLE from INITIALIZE
 		if (this.state === AppState.INITIALIZE) {
@@ -308,17 +383,33 @@ export class Cuss2 {
 		const okToChange = this.state === AppState.UNAVAILABLE || this.state === AppState.ACTIVE;
 		return okToChange ? this.api.staterequest(AppState.AVAILABLE) : Promise.resolve(undefined);
 	}
+	/**
+	 * Request the platform to change the application state to Unavailable state.
+	 * @returns {Promise<PlatformData|undefined>} Response from the platform.
+	 */
 	requestUnavailableState(): Promise<PlatformData|undefined> {
 		const okToChange = this.state === AppState.INITIALIZE || this.state === AppState.AVAILABLE || this.state === AppState.ACTIVE;
 		return okToChange ? this.api.staterequest(AppState.UNAVAILABLE) : Promise.resolve(undefined);
 	}
+	/**
+	 * Request the platform to change the application state to Stopped state.
+	 * @returns {Promise<PlatformData|undefined>} Response from the platform.
+	 */
 	requestStoppedState(): Promise<PlatformData|undefined> {
 		return this.api.staterequest(AppState.STOPPED);
 	}
+	/**
+	 * Request the platform to change the application state to Active state.
+	 * @returns {Promise<PlatformData|undefined>} Response from the platform.
+	 */
 	requestActiveState(): Promise<PlatformData|undefined> {
 		const okToChange = this.state === AppState.AVAILABLE || this.state === AppState.ACTIVE;
 		return okToChange ? this.api.staterequest(AppState.ACTIVE) : Promise.resolve(undefined);
 	}
+	/**
+	 * Request the platform to reload the application.
+	 * @returns {Promise<boolean>} Response from the platform whether it can reload or not.
+	 */
 	async requestReload(): Promise<boolean> {
 		const okToChange = !this.state || this.state === AppState.UNAVAILABLE || this.state === AppState.AVAILABLE || this.state === AppState.ACTIVE;
 		if (!okToChange) {
@@ -330,6 +421,10 @@ export class Cuss2 {
 		return true;
 	}
 
+	/**
+	 * Query each component for its current state.
+	 * @returns {Promise<boolean>} Response from the platform, whether the query was able to be sent or not.
+	 */
 	async queryComponents(): Promise<boolean> {
 		if (!this.components) {
 			return false;
@@ -342,14 +437,23 @@ export class Cuss2 {
 		return true;
 	}
 
+	/**
+	 * @returns {Component[]} List of unavailable components.
+	 */
 	get unavailableComponents(): Component[] {
 		const components = Object.values(this.components) as Component[];
 		return components.filter((c:Component) => !c.ready);
 	}
+	/**
+	 * @returns {Component[]} List of unavailable components that have been marked required.
+	 */
 	get unavailableRequiredComponents(): Component[] {
 		return this.unavailableComponents.filter((c:Component) => c.required)
 	}
 
+	/**
+	 * Check if all required components are available and move application to the appropriate state based on their status.
+	 */
 	checkRequiredComponentsAndSyncState(): void {
 		if (this.pendingStateChange) return;
 		if (this._online) {

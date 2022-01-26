@@ -14,6 +14,13 @@ import { DeviceType } from '../interfaces/deviceType';
 import {PlatformResponseError} from "./platformResponseError";
 import {take, timeout} from "rxjs/operators";
 
+/**
+ * @class Component
+ * @classdesc General object representing a CUSS component with methods and properties to interact with it.
+ * @param {EnvironmentComponent} component 
+ * @param {Cuss2} cuss2 
+ * @param {DeviceType} _type 
+ */
 export class Component {
 	_component: EnvironmentComponent;
 	id: number;
@@ -28,6 +35,9 @@ export class Component {
 	pollingInterval = 3000;
 	_poller: any;
 
+	/**
+	 * @returns {boolean} true if the component is ready
+	 */
 	get ready(): boolean {
 		return this._eventHandlingCode === EventHandlingCodes.READY;
 	}

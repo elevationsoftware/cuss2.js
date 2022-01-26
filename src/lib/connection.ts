@@ -17,6 +17,9 @@ axiosClient.defaults.raxConfig = {
 };
 rax.attach(axiosClient);
 
+/**
+ * @class Connection
+ */
 export class Connection {
 	/**
 	 * Retrieve a token from the CUSS Oauth Server using a client id and client secret
@@ -32,6 +35,9 @@ export class Connection {
 			})
 	}
 
+	/**
+	 * Connects to a CUSS Platform at the provided URL
+	 */
 	static async connect(baseURL:string, client_id: string, client_secret: string, tokenURL?: string): Promise<Connection> {
 		const connection = new Connection(baseURL, client_id, client_secret, tokenURL);
 		let delay = .5;
