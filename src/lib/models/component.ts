@@ -1,4 +1,4 @@
-import {BehaviorSubject, combineLatest, Subject, Subscription} from "rxjs";
+import {BehaviorSubject, combineLatest, merge, PartialObserver, queueScheduler, scheduled, Subject, Subscription} from "rxjs";
 import {Cuss2} from "../cuss2";
 import {
 	CUSSDataTypes,
@@ -12,7 +12,7 @@ import {
 } from "../..";
 import { DeviceType } from '../interfaces/deviceType';
 import {PlatformResponseError} from "./platformResponseError";
-import {take, timeout} from "rxjs/operators";
+import {mergeAll, take, timeout} from "rxjs/operators";
 
 /**
  * @class Component
@@ -234,13 +234,13 @@ export class Printer extends Component {
 		// @ts-ignore cause you're not smart enough
 		this._superReadyStateChanged = this.readyStateChanged;
 
-		combineLatest(
+		scheduled([
 			this._superReadyStateChanged,
 			this.feeder.readyStateChanged,
 			this.dispenser.readyStateChanged
-		)
-		.subscribe(([printerReady,feederReady,dispenserReady]) => {
-			const ready = printerReady && feederReady && dispenserReady;
+		], queueScheduler).pipe(mergeAll())
+		.subscribe((ready) => {
+			if (ready === undefined) { return; }
 			if (this.ready !== ready) {
 				this._combinedReady = ready;
 				this.readyStateChanged.next(ready);
@@ -251,13 +251,13 @@ export class Printer extends Component {
 		// @ts-ignore cause you're not smart enough
 		this._superStatusChanged = this.statusChanged;
 
-		combineLatest(
+		scheduled([
 			this._superStatusChanged,
 			this.feeder.statusChanged,
 			this.dispenser.statusChanged
-		)
-		.subscribe((statuses) => {
-			const status = statuses.find(s => s != StatusCodes.OK) || StatusCodes.OK
+		], queueScheduler).pipe(mergeAll())
+		.subscribe((status: StatusCodes): void => {
+			if (!status) { return; }
 			if (this.status !== status) {
 				this._combinedStatus = status;
 				this.statusChanged.next(status);
