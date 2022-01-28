@@ -6,6 +6,7 @@
     "esModuleInterop": true,
     "removeComments": false,
     "sourceMap": true,
+    "inlineSources": true,
     "lib": ["es2020", "dom"],
     "rootDir": "src",
     "moduleResolution": "node",
