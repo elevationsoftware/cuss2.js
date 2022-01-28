@@ -239,7 +239,7 @@ export class Printer extends Component {
 			this.feeder.readyStateChanged,
 			this.dispenser.readyStateChanged
 		], queueScheduler).pipe(mergeAll())
-		.subscribe((ready) => {
+		.subscribe((ready: boolean): void => {
 			if (ready === undefined) { return; }
 			if (this.ready !== ready) {
 				this._combinedReady = ready;
