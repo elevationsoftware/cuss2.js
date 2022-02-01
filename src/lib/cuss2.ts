@@ -157,7 +157,7 @@ export class Cuss2 {
 				this.multiTenant = message.applicationActivation?.executionMode === ExecutionModeEnum.MAM;
 				this.accessibleMode = message.applicationActivation?.accessibleMode || false;
 				this.language = message.applicationActivation?.languageID;
-				this.activated.next();
+				this.activated.next(undefined);
 			}
 			if (prevState === AppState.ACTIVE) {
 				this.deactivated.next(currentState as AppState);
