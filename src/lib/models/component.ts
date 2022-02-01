@@ -1,4 +1,4 @@
-import {BehaviorSubject, queueScheduler, scheduled, Subject} from "rxjs";
+import { BehaviorSubject, combineLatest, Subject } from "rxjs";
 import {Cuss2} from "../cuss2";
 import {
 	CUSSDataTypes,
@@ -7,12 +7,11 @@ import {
 	EnvironmentComponent,
 	EventHandlingCodes,
 	PlatformData,
-	StatusCodes,
-	ApplicationStates, ComponentTypes
+	StatusCodes
 } from "../..";
 import { DeviceType } from '../interfaces/deviceType';
 import {PlatformResponseError} from "./platformResponseError";
-import {mergeAll, take, timeout} from "rxjs/operators";
+import { take, timeout } from "rxjs/operators";
 
 /**
  * @class Component
@@ -234,13 +233,13 @@ export class Printer extends Component {
 		// @ts-ignore cause you're not smart enough
 		this._superReadyStateChanged = this.readyStateChanged;
 
-		scheduled([
+		combineLatest([
 			this._superReadyStateChanged,
 			this.feeder.readyStateChanged,
 			this.dispenser.readyStateChanged
-		], queueScheduler).pipe(mergeAll())
-		.subscribe((ready: boolean): void => {
-			if (ready === undefined) { return; }
+		])
+		.subscribe(([printerReady,feederReady,dispenserReady]: boolean[]) => {
+			const ready = printerReady && feederReady && dispenserReady;
 			if (this.ready !== ready) {
 				this._combinedReady = ready;
 				this.readyStateChanged.next(ready);
@@ -251,20 +250,20 @@ export class Printer extends Component {
 		// @ts-ignore cause you're not smart enough
 		this._superStatusChanged = this.statusChanged;
 
-		scheduled([
+		combineLatest([
 			this._superStatusChanged,
 			this.feeder.statusChanged,
 			this.dispenser.statusChanged
-		], queueScheduler).pipe(mergeAll())
-		.subscribe((status: StatusCodes): void => {
-			if (!status) { return; }
+		])
+		.subscribe((statuses: StatusCodes[]) => {
+			const status = statuses.find(s => s != StatusCodes.OK) || StatusCodes.OK
 			if (this.status !== status) {
 				this._combinedStatus = status;
 				this.statusChanged.next(status);
 			}
 		});
 		this.statusChanged = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
-
+		
 		cuss2.activated.subscribe(() => {
 			if (this.ready) {
 				this.enable();
@@ -310,13 +309,10 @@ export class Printer extends Component {
 			// query the dispenser- which will start a poller that will detect when the media has been taken
 			this.dispenser.query().catch(console.error);
 		}
-		const rsc = this.readyStateChanged;
-		const sc = this.statusChanged;
-		this.readyStateChanged = this._superReadyStateChanged;
-		this.statusChanged = this._superStatusChanged;
-		super.updateState(msg);
-		this.readyStateChanged = rsc;
-		this.statusChanged = sc
+		if (this.status !== msg.statusCode && (msg.functionName === 'query' || msg.functionName === '') 
+			&& (this.feeder.status === msg.statusCode || this.dispenser.status === msg.statusCode)) {
+			this.statusChanged.next(msg.statusCode);
+		}
 	}
 
 	async setupAndPrintRaw(rawSetupData: string[], rawData?: string) {
