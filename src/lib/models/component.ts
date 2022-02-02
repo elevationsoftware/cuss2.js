@@ -256,7 +256,7 @@ export class Printer extends Component {
 			this.dispenser.statusChanged
 		])
 		.subscribe((statuses: StatusCodes[]) => {
-			const status = statuses.find(s => s != StatusCodes.OK) || StatusCodes.OK
+			const status = statuses.find(s => s != StatusCodes.OK) || StatusCodes.OK;
 			if (this.status !== status) {
 				this._combinedStatus = status;
 				this.statusChanged.next(status);
