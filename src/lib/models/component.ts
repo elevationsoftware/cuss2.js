@@ -309,7 +309,12 @@ export class Printer extends Component {
 			// query the dispenser- which will start a poller that will detect when the media has been taken
 			this.dispenser.query().catch(console.error);
 		}
-		if (this.status !== msg.statusCode && (msg.functionName === 'query' || msg.functionName === '') 
+		const rsc = this.readyStateChanged;
+		this.readyStateChanged = this._superReadyStateChanged;
+		super.updateState(msg);
+		this.readyStateChanged = rsc;
+
+		if (this.status !== msg.statusCode && (msg.functionName === 'query' || msg.functionName === '')
 			&& (this.feeder.status === msg.statusCode || this.dispenser.status === msg.statusCode)) {
 			this.statusChanged.next(msg.statusCode);
 		}
