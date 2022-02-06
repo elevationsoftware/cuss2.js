@@ -17,12 +17,10 @@ import {
 	DocumentReader, Feeder,
 	Keypad,
 	CardReader,
-	Printer,
 	BagTagPrinter,
-	BoardingPassPrinter
+	BoardingPassPrinter, Illumination, Headset
 } from "./models/component";
 import { CUSSDataTypes } from "./interfaces/cUSSDataTypes";
-import {EventHandlingCodes} from "./interfaces/eventHandlingCodes";
 import {StateChange} from "./models/stateChange";
 import {ComponentInterrogation} from "./componentInterrogation";
 import {ApplicationActivation} from "./interfaces/applicationActivation";
@@ -37,7 +35,7 @@ const {
 	isDocumentReader,
 	isBarcodeReader,
 	isCardReader,
-	isKeypad
+	isKeypad, isIllumination, isHeadset
 } = ComponentInterrogation;
 
 /**
@@ -219,9 +217,6 @@ export class Cuss2 {
 			});
 
 			componentList.forEach((component) => {
-				if (isFeeder(component)) return;
-				if (isDispenser(component)) return;
-
 				const id = String(component.componentID);
 				let instance;
 
@@ -232,6 +227,11 @@ export class Cuss2 {
 				else if (isBarcodeReader(component)) instance = this.barcodeReader = new BarcodeReader(component, this);
 				else if (isCardReader(component)) instance = this.cardReader = new CardReader(component, this);
 				else if (isKeypad(component)) instance = this.keypad = new Keypad(component, this);
+				// subcomponents
+				else if (isFeeder(component))  return; // instance = new Feeder(component, this);
+				else if (isDispenser(component))  return; // instance = new Dispenser(component, this);
+				else if (isIllumination(component)) instance = new Illumination(component, this);
+				else if (isHeadset(component)) instance = new Headset(component, this);
 				else instance = new Component(component, this);
 
 				return components[id] = instance;
