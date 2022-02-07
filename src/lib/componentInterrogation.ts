@@ -3,6 +3,7 @@ import {MediaTypes} from "./interfaces/mediaTypes";
 import {ComponentTypes} from "./interfaces/componentTypes";
 import {ComponentCharacteristics} from "./interfaces/componentCharacteristics";
 import {EnvironmentComponent} from "./interfaces/environmentComponent";
+import {DeviceTypes} from "./interfaces/deviceTypes";
 
 const dsTypesHas = (charac0:ComponentCharacteristics, type: CUSSDataTypes) => {
 	return charac0?.dsTypesList?.find((d) => d === type);
@@ -28,14 +29,14 @@ export class ComponentInterrogation {
 		const charac0 = component.componentCharacteristics?.[0];
 		if (!charac0) return;
 		const mediaTypes = charac0.mediaTypesList;
-		return mediaTypesHas(mediaTypes, MediaTypes.BAGGAGETAG);
+		return charac0.deviceTypesList?.[0] === DeviceTypes.PRINT && mediaTypesHas(mediaTypes, MediaTypes.BAGGAGETAG);
 	}
 
 	static isBoardingPassPrinter = (component:EnvironmentComponent) => {
 		const charac0 = component.componentCharacteristics?.[0];
 		if (!charac0) return;
 		const mediaTypes = charac0.mediaTypesList;
-		return mediaTypesHas(mediaTypes, MediaTypes.BOARDINGPASS);
+		return charac0.deviceTypesList?.[0] === DeviceTypes.PRINT && mediaTypesHas(mediaTypes, MediaTypes.BOARDINGPASS);
 	}
 
 	static isDocumentReader = (component:EnvironmentComponent) => {
@@ -62,6 +63,19 @@ export class ComponentInterrogation {
 		const charac0 = component.componentCharacteristics?.[0];
 		if (!charac0) return;
 		return dsTypesHas(charac0, CUSSDataTypes.KEY) && dsTypesHas(charac0, CUSSDataTypes.KEYUP) && dsTypesHas(charac0, CUSSDataTypes.KEYDOWN);
+	}
+
+	static isIllumination = (component:EnvironmentComponent) => {
+		const charac0 = component.componentCharacteristics?.[0];
+		if (!charac0) return;
+		return charac0.deviceTypesList?.[0] === DeviceTypes.ILLUMINATION;
+	}
+
+	static isHeadset = (component:EnvironmentComponent) => {
+		const charac0 = component.componentCharacteristics?.[0];
+		if (!charac0) return;
+		const mediaTypes = charac0.mediaTypesList;
+		return charac0.deviceTypesList?.[0] === DeviceTypes.ASSISTIVE && mediaTypesHas(mediaTypes, MediaTypes.AUDIO);
 	}
 
 }

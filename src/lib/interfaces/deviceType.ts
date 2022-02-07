@@ -17,5 +17,7 @@ export const DeviceType = {
 	KEY_PAD: 'KEY_PAD' as DeviceType,
 	ANNOUNCEMENT: 'ANNOUNCEMENT' as DeviceType,
 	FEEDER: 'FEEDER' as DeviceType,
-	DISPENSER: 'DISPENSER' as DeviceType
+	DISPENSER: 'DISPENSER' as DeviceType,
+	ILLUMINATION: 'ILLUMINATION' as DeviceType,
+	HEADSET: 'HEADSET' as DeviceType
 };
