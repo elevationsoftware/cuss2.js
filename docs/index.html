@@ -70,7 +70,7 @@
             
             <nav>
                 
-                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Component.html">Component</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Cuss2.html">Cuss2</a></li></ul><h3>Global</h3><ul><li><a href="global.html#cancel">cancel</a></li><li><a href="global.html#connect">connect</a></li><li><a href="global.html#disable">disable</a></li><li><a href="global.html#enable">enable</a></li><li><a href="global.html#getComponents">getComponents</a></li><li><a href="global.html#getEnvironment">getEnvironment</a></li><li><a href="global.html#getStatus">getStatus</a></li><li><a href="global.html#send">send</a></li><li><a href="global.html#setup">setup</a></li><li><a href="global.html#staterequest">staterequest</a></li><li><a href="global.html#validateComponentId">validateComponentId</a></li></ul></div>
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Component.html">Component</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Cuss2.html">Cuss2</a></li></ul><h3>Global</h3><ul><li><a href="global.html#validateComponentId">validateComponentId</a></li></ul></div>
                 
             </nav>
         </div>
@@ -105,58 +105,80 @@
 
     <section>
         <article><h1>@elevated-libs/cuss2</h1>
-<h2>Publishing changes</h2>
-<ul>
-<li>Clone repo</li>
-<li>Install dependecies</li>
-<li>run <code>npm publish</code></li>
-</ul>
-<h1>Elevated CUSS Library</h1>
+<h2>About Elevated CUSS Library</h2>
 <p>Interact with a CUSS 2.0 Restful API using a simple interface leveraging the asyncronicity of event driven architectures. By using the Elevated CUSS library you will get:</p>
 <ul>
 <li>Simple device interfaces</li>
 <li>Subscribable events for all CUSS states and device status</li>
-<li>Typescript libs for Angular and React</li>
 </ul>
-<pre class="prettyprint source lang-js"><code>// ** if running with Node.js, we need WebSocket **
-// global.WebSocket = (await import('ws')).default;
-
-
-import { Cuss2, ApplicationStates } from &quot;@elevated-libs/cuss2&quot;;
-
-const kiosk = await Cuss2.connect('https://&lt;cuss2_server>', '&lt;client_id>', '&lt;client_secret>');
-
-console.log(kiosk.environment)
-console.log(kiosk.components)
+<p>CUSS <a href="https://en.wikipedia.org/wiki/Common-use_self-service">(Common Use Self-Service)</a> is a modern Typescript library facilitating application development of Self-Service check-in apps, self-tagging apps and self bag-drop apps.</p>
+<p>You can have CUSS 2.0 NOW and run a modern browser entirely without plugins or Java. Finally, your Information Security department will be able to sign off on your CUSS applications.</p>
+<p>We have also created typescript angular and react libs facilitating rapid development of CUSS applications.</p>
+<p>The library and corresponding app platform also ensure backwards compatibility to legacy 1.X versions of CUSS.</p>
+<ul>
+<li>Typescript libs for <a href="https://github.com/elevationsoftware/cuss2-angular">Angular</a> and <a href="https://github.com/elevationsoftware/cuss2-react">React</a></li>
+</ul>
+<h2>The Sandbox</h2>
+<p>While you are developing your application, you can use the Elevated CUSS Sandbox against real platform responses. Watch your application respond correctly to CUSS Events like a paper jam or a required device unavailable.</p>
+<h2>Getting Started</h2>
+<ol>
+<li>
+<p>Request an access token from the Elevation Software Team.</p>
+</li>
+<li>
+<p>Generate an <code>.npmrc</code> file and add the token to this file.</p>
+</li>
+</ol>
+<p>To install the lib run:</p>
+<pre class="prettyprint source lang-sh"><code>npm install @elevated-libs/cuss2
 </code></pre>
-<h1>State Management</h1>
-<pre class="prettyprint source lang-js"><code>kiosk.stateChange.subscribe(async (state) => {
-  try {
-    switch (state) {
-      case ApplicationStates.INITIALIZE:
-        await kiosk.bagTagPrinter.enable();
-        console.log(await kiosk.bagTagPrinter.query())
-        await kiosk.requestUnavailableState();
-        break;
-      case ApplicationStates.UNAVAILABLE:
-        await kiosk.requestAvailableState();
-        break;
-      case ApplicationStates.AVAILABLE:
-        await kiosk.requestActiveState();
-        break;
-      case ApplicationStates.ACTIVE:
-        await kiosk.bagTagPrinter.setupAndPrintRaw([
-          'HDCTL000#1234567890'
-        ],
-        'HDCPECTAB#00000000');
-        break;
-    }
-  }
-  catch (e) {
-    console.error(e);
-  }
-});
-</code></pre></article>
+<h2>Usage and Examples</h2>
+<h3>Usage</h3>
+<hr>
+<p>Import the related device service from the lib</p>
+<p>Services available for use:</p>
+<ul>
+<li>BagTagPrinterService</li>
+<li>BoardingPassPrinterService</li>
+<li>CardReaderService</li>
+<li>DocumentReaderService</li>
+<li>BarcodeReaderService</li>
+<li>KeypadService</li>
+<li>AnnouncementService</li>
+</ul>
+<p>Each device service provides an onReady behavior subject that emits the instance of the device object that has methods to interact with the device. Below are the required methods for basic device interactions.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>deviceName.</td>
+<td></td>
+</tr>
+<tr>
+<td>deviceName.</td>
+<td></td>
+</tr>
+<tr>
+<td>deviceName.</td>
+<td></td>
+</tr>
+<tr>
+<td>deviceName.</td>
+<td></td>
+</tr>
+<tr>
+<td>deviceName.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3>Examples</h3>
+<hr></article>
     </section>
 
 

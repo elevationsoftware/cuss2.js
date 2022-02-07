@@ -72,7 +72,7 @@
             
             <nav>
                 
-                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Component.html">Component</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Cuss2.html">Cuss2</a></li></ul><h3>Global</h3><ul><li><a href="global.html#cancel">cancel</a></li><li><a href="global.html#connect">connect</a></li><li><a href="global.html#disable">disable</a></li><li><a href="global.html#enable">enable</a></li><li><a href="global.html#getComponents">getComponents</a></li><li><a href="global.html#getEnvironment">getEnvironment</a></li><li><a href="global.html#getStatus">getStatus</a></li><li><a href="global.html#send">send</a></li><li><a href="global.html#setup">setup</a></li><li><a href="global.html#staterequest">staterequest</a></li><li><a href="global.html#validateComponentId">validateComponentId</a></li></ul></div>
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Component.html">Component</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Cuss2.html">Cuss2</a></li></ul><h3>Global</h3><ul><li><a href="global.html#validateComponentId">validateComponentId</a></li></ul></div>
                 
             </nav>
         </div>
@@ -89,7 +89,7 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import {BehaviorSubject, combineLatest, Subject, Subscription} from "rxjs";
+            <pre class="prettyprint source linenums"><code>import { BehaviorSubject, combineLatest, Subject } from "rxjs";
 import {Cuss2} from "../cuss2";
 import {
 	CUSSDataTypes,
@@ -98,12 +98,11 @@ import {
 	EnvironmentComponent,
 	EventHandlingCodes,
 	PlatformData,
-	StatusCodes,
-	ApplicationStates, ComponentTypes
+	StatusCodes
 } from "../..";
 import { DeviceType } from '../interfaces/deviceType';
 import {PlatformResponseError} from "./platformResponseError";
-import {take, timeout} from "rxjs/operators";
+import { take, timeout } from "rxjs/operators";
 
 /**
  * @class Component
@@ -128,6 +127,8 @@ export class Component {
 
 	/**
 	 * @returns {boolean} true if the component is ready
+	 * @example
+	 * sss
 	 */
 	get ready(): boolean {
 		return this._eventHandlingCode === EventHandlingCodes.READY;
@@ -325,12 +326,12 @@ export class Printer extends Component {
 		// @ts-ignore cause you're not smart enough
 		this._superReadyStateChanged = this.readyStateChanged;
 
-		combineLatest(
+		combineLatest([
 			this._superReadyStateChanged,
 			this.feeder.readyStateChanged,
 			this.dispenser.readyStateChanged
-		)
-		.subscribe(([printerReady,feederReady,dispenserReady]) => {
+		])
+		.subscribe(([printerReady,feederReady,dispenserReady]: boolean[]) => {
 			const ready = printerReady &amp;&amp; feederReady &amp;&amp; dispenserReady;
 			if (this.ready !== ready) {
 				this._combinedReady = ready;
@@ -342,20 +343,20 @@ export class Printer extends Component {
 		// @ts-ignore cause you're not smart enough
 		this._superStatusChanged = this.statusChanged;
 
-		combineLatest(
+		combineLatest([
 			this._superStatusChanged,
 			this.feeder.statusChanged,
 			this.dispenser.statusChanged
-		)
-		.subscribe((statuses) => {
-			const status = statuses.find(s => s != StatusCodes.OK) || StatusCodes.OK
+		])
+		.subscribe((statuses: StatusCodes[]) => {
+			const status = statuses.find(s => s != StatusCodes.OK) || StatusCodes.OK;
 			if (this.status !== status) {
 				this._combinedStatus = status;
 				this.statusChanged.next(status);
 			}
 		});
 		this.statusChanged = new BehaviorSubject&lt;StatusCodes>(StatusCodes.OK);
-
+		
 		cuss2.activated.subscribe(() => {
 			if (this.ready) {
 				this.enable();
@@ -402,12 +403,14 @@ export class Printer extends Component {
 			this.dispenser.query().catch(console.error);
 		}
 		const rsc = this.readyStateChanged;
-		const sc = this.statusChanged;
 		this.readyStateChanged = this._superReadyStateChanged;
-		this.statusChanged = this._superStatusChanged;
 		super.updateState(msg);
 		this.readyStateChanged = rsc;
-		this.statusChanged = sc
+
+		if (this.status !== msg.statusCode &amp;&amp; (msg.functionName === 'query' || msg.functionName === '')
+			&amp;&amp; (this.feeder.status === msg.statusCode || this.dispenser.status === msg.statusCode)) {
+			this.statusChanged.next(msg.statusCode);
+		}
 	}
 
 	async setupAndPrintRaw(rawSetupData: string[], rawData?: string) {

@@ -70,7 +70,7 @@
             
             <nav>
                 
-                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Component.html">Component</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Cuss2.html">Cuss2</a></li></ul><h3>Global</h3><ul><li><a href="global.html#cancel">cancel</a></li><li><a href="global.html#connect">connect</a></li><li><a href="global.html#disable">disable</a></li><li><a href="global.html#enable">enable</a></li><li><a href="global.html#getComponents">getComponents</a></li><li><a href="global.html#getEnvironment">getEnvironment</a></li><li><a href="global.html#getStatus">getStatus</a></li><li><a href="global.html#send">send</a></li><li><a href="global.html#setup">setup</a></li><li><a href="global.html#staterequest">staterequest</a></li><li><a href="global.html#validateComponentId">validateComponentId</a></li></ul></div>
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Component.html">Component</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Cuss2.html">Cuss2</a></li></ul><h3>Global</h3><ul><li><a href="global.html#validateComponentId">validateComponentId</a></li></ul></div>
                 
             </nav>
         </div>
@@ -298,7 +298,7 @@
 
   
 
-  <td class="description last"></td>
+  <td class="description last">The url of the CUSS 2 platform</td>
 </tr>
 
 
@@ -323,7 +323,7 @@
 
   
 
-  <td class="description last"></td>
+  <td class="description last">The client_id of the CUSS 2 platform</td>
 </tr>
 
 
@@ -348,7 +348,7 @@
 
   
 
-  <td class="description last"></td>
+  <td class="description last">The client_secret of the CUSS 2 platform</td>
 </tr>
 
 
@@ -373,7 +373,7 @@
 
   
 
-  <td class="description last"></td>
+  <td class="description last">The timeout for the request</td>
 </tr>
 
 
@@ -421,7 +421,7 @@
         <p class="tag-source">
             <a href="connection.ts.html" class="button">View Source</a>
             <span>
-                <a href="connection.ts.html">connection.ts</a>, <a href="connection.ts.html#line241">line 241</a>
+                <a href="connection.ts.html">connection.ts</a>, <a href="connection.ts.html#line260">line 260</a>
             </span>
         </p>
     
@@ -452,6 +452,8 @@
 
 <div class="columns">
     
+    <div class='param-desc column is-7'>- The token</div>
+    
     
     <div class='column is-5 has-text-left'>
         <label>Type: </label>
@@ -468,6 +470,14 @@
     </div>
 
 
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>/// Retrieve a token from the CUSS Oauth Server using a client id and client secret
+const token = await Connection.authorize('url', 'my-client-id', 'my-client-secret', 'timeout');</code></pre>
+    
 
 
 </div>
@@ -487,7 +497,7 @@
         
         <span class="code-name">
             
-                connect<span class="signature">(baseURL, client_id, client_secret, tokenURL<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="Connection.html">Connection</a>>}</span>
+                connect<span class="signature">(baseURL, client_id, client_secret, tokenURL)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="Connection.html">Connection</a>>}</span>
             
         </span>
     </h4>
@@ -521,8 +531,6 @@
             <th>Type</th>
 
             
-            <th>Attributes</th>
-            
 
             
 
@@ -549,18 +557,10 @@
   </td>
 
   
-      <td class="attributes">
-      
-
-      
-
-      
-      </td>
-  
 
   
 
-  <td class="description last"></td>
+  <td class="description last">url of the CUSS Platform</td>
 </tr>
 
 
@@ -582,18 +582,10 @@
   </td>
 
   
-      <td class="attributes">
-      
-
-      
-
-      
-      </td>
-  
 
   
 
-  <td class="description last"></td>
+  <td class="description last">The client_id of the CUSS 2 platform</td>
 </tr>
 
 
@@ -615,18 +607,10 @@
   </td>
 
   
-      <td class="attributes">
-      
-
-      
-
-      
-      </td>
-  
 
   
 
-  <td class="description last"></td>
+  <td class="description last">The client_secret of the CUSS 2 platform</td>
 </tr>
 
 
@@ -648,20 +632,10 @@
   </td>
 
   
-      <td class="attributes">
-      
-          &lt;optional><br>
-      
-
-      
-
-      
-      </td>
-  
 
   
 
-  <td class="description last"></td>
+  <td class="description last">The url of the CUSS Oauth Server</td>
 </tr>
 
 
@@ -709,7 +683,7 @@
         <p class="tag-source">
             <a href="connection.ts.html" class="button">View Source</a>
             <span>
-                <a href="connection.ts.html">connection.ts</a>, <a href="connection.ts.html#line252">line 252</a>
+                <a href="connection.ts.html">connection.ts</a>, <a href="connection.ts.html#line274">line 274</a>
             </span>
         </p>
     
@@ -740,6 +714,8 @@
 
 <div class="columns">
     
+    <div class='param-desc column is-7'>- The connection object</div>
+    
     
     <div class='column is-5 has-text-left'>
         <label>Type: </label>
@@ -756,6 +732,14 @@
     </div>
 
 
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>/// Connects to a CUSS Platform at the provided URL
+const connection = await Connection.connect('url', 'my-client-id', 'my-client-secret', 'token-url');</code></pre>
+    
 
 
 </div>
