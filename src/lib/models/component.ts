@@ -22,14 +22,32 @@ import { take, timeout } from "rxjs/operators";
  */
 export class Component {
 	_component: EnvironmentComponent;
+	/**
+	 * @property {number} id - Numeric ID assigned to the component; used for identification of a specific component.
+	 */
 	id: number;
-	onmessage: Subject<any> = new Subject<any>();
+	/**
+	 * @property {Subject<PlatformData>} onmessage - Observable that emits when a message is received from the component.
+	 */
+	onmessage: Subject<PlatformData> = new Subject<PlatformData>();
 	api: any;
+	/**
+	 * @property {boolean} required - 
+	 */
 	required: boolean = false;
+	/**
+	 * @property {BehaviorSubject<StatusCodes} statusChanged - Observable that emits the status of the component on changes.
+	 */
 	statusChanged: BehaviorSubject<StatusCodes> = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
 	_eventHandlingCode: EventHandlingCodes = EventHandlingCodes.UNAVAILABLE;
+	/**
+	 * @property {DeviceType} deviceType - The type of device the component is, *See IATA documentation for more details.
+	 */
 	deviceType: DeviceType;
 	pendingCalls: number = 0;
+	/**
+	 * @property {boolean} enabled - Whether the component is enabled or not.
+	 */
 	enabled: boolean = false;
 	pollingInterval = 3000;
 	_poller: any;
@@ -40,7 +58,10 @@ export class Component {
 	get ready(): boolean {
 		return this._eventHandlingCode === EventHandlingCodes.READY;
 	}
-	readyStateChanged: Subject<boolean> = new Subject<boolean>();
+	/**
+	 * @property {BehaviorSubject<boolean>} readyStateChanged - emits true when the component is ready
+	 */
+	readyStateChanged: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
 	get pending(): boolean { return this.pendingCalls > 0; }
 	get status(): StatusCodes { return this.statusChanged.getValue(); }
@@ -230,39 +251,39 @@ export class Printer extends Component {
 		this.dispenser = d || missingLink('Dispenser not found for Printer ' + this.id);
 		this.dispenser.printer = this;
 
-		// @ts-ignore cause you're not smart enough
-		this._superReadyStateChanged = this.readyStateChanged;
+		// // @ts-ignore cause you're not smart enough
+		// this._superReadyStateChanged = this.readyStateChanged;
 
 		combineLatest([
-			this._superReadyStateChanged,
+			super.readyStateChanged,
 			this.feeder.readyStateChanged,
 			this.dispenser.readyStateChanged
 		])
 		.subscribe(([printerReady,feederReady,dispenserReady]: boolean[]) => {
 			const ready = printerReady && feederReady && dispenserReady;
-			if (this.ready !== ready) {
+			if (this.combinedReady !== ready) {
 				this._combinedReady = ready;
-				this.readyStateChanged.next(ready);
+				this.combinedReadyStateChanged.next(ready);
 			}
 		});
-		this.readyStateChanged = new Subject<boolean>();
+		this.combinedReadyStateChanged = new BehaviorSubject<boolean>(false);
 
 		// @ts-ignore cause you're not smart enough
-		this._superStatusChanged = this.statusChanged;
+		// this._superStatusChanged = this.statusChanged;
 
 		combineLatest([
-			this._superStatusChanged,
+			super.statusChanged,
 			this.feeder.statusChanged,
 			this.dispenser.statusChanged
 		])
 		.subscribe((statuses: StatusCodes[]) => {
 			const status = statuses.find(s => s != StatusCodes.OK) || StatusCodes.OK;
-			if (this.status !== status) {
+			if (this.combinedStatus !== status) {
 				this._combinedStatus = status;
-				this.statusChanged.next(status);
+				this.combinedStatusChanged.next(status);
 			}
 		});
-		this.statusChanged = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
+		this.combinedStatusChanged = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
 		
 		cuss2.activated.subscribe(() => {
 			if (this.ready) {
@@ -271,11 +292,22 @@ export class Printer extends Component {
 		});
 	}
 
+	/**
+	 * @property The feeder component linked this printer.
+	 */
 	feeder: Feeder;
+	/**
+	 * @property The dispenser component linked this printer.
+	 */
 	dispenser: Dispenser;
-	readyStateChanged: Subject<boolean>;
-	_superReadyStateChanged: BehaviorSubject<boolean>;
-	_superStatusChanged: BehaviorSubject<StatusCodes>;
+	/**
+	 * @property The combined ready state of this printer, feeder, and dispenser; emits true when ready.
+	 */
+	combinedReadyStateChanged: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+	/**
+	 * @property The combined status of this printer, feeder, and dispenser; emits on status code changes.
+	 */
+	combinedStatusChanged: BehaviorSubject<StatusCodes> = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
 	get mediaPresentChanged() {
 		return this.dispenser.mediaPresentChanged;
 	}
@@ -284,12 +316,18 @@ export class Printer extends Component {
 	}
 
 	_combinedReady = false;
-	get ready(): boolean {
+	/**
+	 * The combined ready state of the printer, feeder, and dispenser
+	 */
+	get combinedReady(): boolean {
 		return this._combinedReady;
 	}
 
 	_combinedStatus = StatusCodes.OK;
-	get status(): StatusCodes {
+	/**
+	 * The combined status of the printer, feeder, and dispenser.
+	 */
+	get combinedStatus(): StatusCodes {
 		return this._combinedStatus;
 	}
 
@@ -309,15 +347,28 @@ export class Printer extends Component {
 			// query the dispenser- which will start a poller that will detect when the media has been taken
 			this.dispenser.query().catch(console.error);
 		}
-		const rsc = this.readyStateChanged;
-		this.readyStateChanged = this._superReadyStateChanged;
-		super.updateState(msg);
-		this.readyStateChanged = rsc;
 
-		if (this.status !== msg.statusCode && (msg.functionName === 'query' || msg.functionName === '')
-			&& (this.feeder.status === msg.statusCode || this.dispenser.status === msg.statusCode)) {
-			this.statusChanged.next(msg.statusCode);
+		if (this.combinedReady !== (msg.eventHandlingCode === EventHandlingCodes.READY)) {
+			this._combinedReady = !this._combinedReady;
+			this.combinedReadyStateChanged.next(!this.combinedReady);
 		}
+
+		if (this.combinedStatus !== msg.statusCode && (msg.functionName === 'query' || msg.functionName === '')) {
+			this._combinedStatus = msg.statusCode;
+			this.combinedStatusChanged.next(msg.statusCode);
+		}
+
+		super.updateState(msg);
+		// if ((this.ready !== (msg.eventHandlingCode === EventHandlingCodes.READY)) 
+		// 	&& ((this.feeder.ready && this.dispenser.ready) !== (msg.eventHandlingCode === EventHandlingCodes.READY))) {
+		// 	this._combinedReady = msg.eventHandlingCode === EventHandlingCodes.READY;
+		// 	this.readyStateChanged.next(!this.ready);
+		// }
+
+		// if (this.status !== msg.statusCode && (msg.functionName === 'query' || msg.functionName === '')
+		// 	&& (this.feeder.status === msg.statusCode || this.dispenser.status === msg.statusCode)) {
+		// 	this.statusChanged.next(msg.statusCode);
+		// }
 	}
 
 	async setupAndPrintRaw(rawSetupData: string[], rawData?: string) {
