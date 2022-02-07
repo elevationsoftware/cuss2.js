@@ -70,7 +70,6 @@ export class Component {
 			const name = this.constructor.name[0].toLowerCase() + this.constructor.name.substr(1)
 			const parentId = Math.min(this.id, ...component.linkedComponentIDs)
 			if(parentId != this.id) {
-				console.log(name, parentId)
 				this.parent = cuss2.components[parentId]
 				// feeder and dispenser are created in the printer component
 				if (this.parent && !this.parent[name]) {
