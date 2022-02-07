@@ -1,17 +1,19 @@
-import { BehaviorSubject, combineLatest, Subject } from "rxjs";
+import {BehaviorSubject, combineLatest, Subject} from "rxjs";
 import {Cuss2} from "../cuss2";
 import {
+	ApplicationData,
 	CUSSDataTypes,
 	DataExchange,
 	DataRecord,
 	EnvironmentComponent,
 	EventHandlingCodes,
+	IlluminationDataLightColor,
 	PlatformData,
 	StatusCodes
 } from "../..";
-import { DeviceType } from '../interfaces/deviceType';
+import {DeviceType} from '../interfaces/deviceType';
 import {PlatformResponseError} from "./platformResponseError";
-import { take, timeout } from "rxjs/operators";
+import {take, timeout} from "rxjs/operators";
 
 /**
  * @class Component
@@ -33,6 +35,8 @@ export class Component {
 	enabled: boolean = false;
 	pollingInterval = 3000;
 	_poller: any;
+	parent: any;
+	subcomponents: Component[] = []
 
 	/**
 	 * @returns {boolean} true if the component is ready
@@ -63,6 +67,19 @@ export class Component {
 		cuss2.deactivated.subscribe(() => {
 			this.enabled = false;
 		});
+
+		if (component.linkedComponentIDs?.length) {
+			const name = this.constructor.name[0].toLowerCase() + this.constructor.name.substr(1)
+			const parentId = Math.min(this.id, ...component.linkedComponentIDs)
+			if(parentId != this.id) {
+				this.parent = cuss2.components[parentId]
+				// feeder and dispenser are created in the printer component
+				if (this.parent && !this.parent[name]) {
+					this.parent.subcomponents.push(this)
+					this.parent[name] = this
+				}
+			}
+		}
 	}
 
 	stateIsDifferent(msg: PlatformData): boolean {
@@ -113,7 +130,7 @@ export class Component {
 		return action().then(decrement).catch((e:any) => Promise.reject(decrement(e)))
 	}
 
-	enable() {
+	enable(...args: any[]) {
 		return this._call(() => this.api.enable(this.id))
 			.then((r:any) => {
 				this.enabled = true;
@@ -141,30 +158,17 @@ export class Component {
 		return this._call(() => this.api.getStatus(this.id));
 	}
 
-	async sendRaw(raw: string, dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.ITPS ] ) {
-		const dataExchange = {
-			toPlatform: {
-				dataRecords: [{	data: (raw || '') as any, dsTypes: dsTypes }]
-			},
-		} as DataExchange;
-
-		return this.api.send(this.id, dataExchange);
-	}
-	async setupRaw(raw: string|string[], dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.ITPS ]) {
-		const isArray = Array.isArray(raw);
-		if (!raw || (isArray && !raw[0])) {
-			return Promise.resolve(isArray? [] : undefined);
-		}
-		const rawArray:string[] = isArray? raw as string[] : [raw as string];
-
-		const dx = (r:string) => ({
-			toPlatform: {
-				dataRecords: [ { data: (r || '') as any, dsTypes: dsTypes } ]
-			},
+	async setup(applicationData: ApplicationData) {
+		// {dataRecords: object[]|null = null, illuminationData: object|null = null}
+		return await this.api.setup(this.id, {
+			toPlatform: applicationData // { dataRecords, illuminationData }
 		} as DataExchange);
-
-		return await Promise.all(rawArray.map(r => this.api.setup(this.id, dx(r))))
-			.then(results => isArray? results : results[0])
+	}
+	async send(applicationData: ApplicationData) {
+		// {dataRecords: object[]|null = null, illuminationData: object|null = null}
+		return await this.api.send(this.id, {
+			toPlatform: applicationData // { dataRecords, illuminationData }
+		} as DataExchange);
 	}
 }
 export class DataReaderComponent extends Component {
@@ -208,7 +212,10 @@ export class CardReader extends DataReaderComponent {
 	}
 
 	async enablePayment(yes:boolean) {
-		this.setupRaw('', [ yes? 'DS_TYPES_PAYMENT_ISO' as CUSSDataTypes : CUSSDataTypes.FOIDISO ]);
+		await this.setup({dataRecords: [{
+			data: '',
+			dsTypes: [yes? 'DS_TYPES_PAYMENT_ISO' as CUSSDataTypes : CUSSDataTypes.FOIDISO]
+		}]});
 	}
 
 	async readPayment(ms:number=30000) {
@@ -226,11 +233,11 @@ export class Printer extends Component {
 		const linked = component.linkedComponentIDs?.map(id => cuss2.components[id] as Component) || [];
 
 		this.feeder = linked.find(c => c instanceof Feeder) || missingLink('Feeder not found for Printer ' + this.id);
-		this.feeder.printer = this;
+		this.subcomponents.push(this.feeder)
 
 		const d = linked.find(c => c instanceof Dispenser) as Dispenser;
 		this.dispenser = d || missingLink('Dispenser not found for Printer ' + this.id);
-		this.dispenser.printer = this;
+		this.subcomponents.push(this.dispenser)
 
 		// @ts-ignore cause you're not smart enough
 		this._superReadyStateChanged = this.readyStateChanged;
@@ -335,6 +342,31 @@ export class Printer extends Component {
 			.catch((e:PlatformResponseError) => {
 				return this.cancel().then(() => { throw e })
 			});
+	}
+	async setupRaw(raw: string|string[], dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.ITPS ]) {
+		const isArray = Array.isArray(raw);
+		if (!raw || (isArray && !raw[0])) {
+			return Promise.resolve(isArray? [] : undefined);
+		}
+		const rawArray:string[] = isArray? raw as string[] : [raw as string];
+
+		const dx = (r:string) => ({
+			toPlatform: {
+				dataRecords: [ { data: (r || '') as any, dsTypes: dsTypes } ]
+			},
+		} as DataExchange);
+
+		return await Promise.all(rawArray.map(r => this.api.setup(this.id, dx(r))))
+			.then(results => isArray? results : results[0])
+	}
+	async sendRaw(raw: string, dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.ITPS ] ) {
+		const dataExchange = {
+			toPlatform: {
+				dataRecords: [{	data: (raw || '') as any, dsTypes: dsTypes }]
+			},
+		} as DataExchange;
+
+		return this.api.send(this.id, dataExchange);
 	}
 	async aeaCommand(cmd:string) {
 		const response = await this.setupRaw(cmd);
@@ -478,3 +510,24 @@ export class Announcement extends Component {
 	}
 }
 
+export class Illumination extends Component {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.ILLUMINATION);
+	}
+	async enable(duration: number, color?: String|number[], blink?: number[]) {
+		// @ts-ignore
+		let name = (typeof color === 'string')? (IlluminationDataLightColor.NameEnum)[color] : undefined;
+		let rgb = (Array.isArray(color) && color.length === 3)? {red:color[0], green:color[1], blue:color[2]} : undefined;
+		let blinkRate = (Array.isArray(blink) && blink.length === 2)? {durationOn:blink[0], durationOff:blink[1]} : undefined;
+
+		if(this.enabled)
+			await this.disable();
+		await super.enable();
+		return await this.send({illuminationData: {duration, lightColor: {name, rgb}, blinkRate}});
+	}
+}
+export class Headset extends Component {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.HEADSET);
+	}
+}
