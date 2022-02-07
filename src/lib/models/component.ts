@@ -36,6 +36,8 @@ export class Component {
 
 	/**
 	 * @returns {boolean} true if the component is ready
+	 * @example
+	 * sss
 	 */
 	get ready(): boolean {
 		return this._eventHandlingCode === EventHandlingCodes.READY;

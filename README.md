@@ -1,59 +1,65 @@
 # @elevated-libs/cuss2
 
-## Publishing changes
-- Clone repo
-- Install dependecies
-- run `npm publish`
-
-# Elevated CUSS Library
+## About Elevated CUSS Library
 
 Interact with a CUSS 2.0 Restful API using a simple interface leveraging the asyncronicity of event driven architectures. By using the Elevated CUSS library you will get:
 
   - Simple device interfaces
   - Subscribable events for all CUSS states and device status
-  - Typescript libs for Angular and React
+  
+
+CUSS [(Common Use Self-Service)](https://en.wikipedia.org/wiki/Common-use_self-service) is a modern Typescript library facilitating application development of Self-Service check-in apps, self-tagging apps and self bag-drop apps.
+
+You can have CUSS 2.0 NOW and run a modern browser entirely without plugins or Java. Finally, your Information Security department will be able to sign off on your CUSS applications.  
+
+We have also created typescript angular and react libs facilitating rapid development of CUSS applications.  
+
+The library and corresponding app platform also ensure backwards compatibility to legacy 1.X versions of CUSS.
+
+- Typescript libs for [Angular](https://github.com/elevationsoftware/cuss2-angular) and [React](https://github.com/elevationsoftware/cuss2-react)
 
 
-```js
-// ** if running with Node.js, we need WebSocket **
-// global.WebSocket = (await import('ws')).default;
+## The Sandbox
+
+While you are developing your application, you can use the Elevated CUSS Sandbox against real platform responses. Watch your application respond correctly to CUSS Events like a paper jam or a required device unavailable.
+## Getting Started
+
+1. Request an access token from the Elevation Software Team.  
+  
+2. Generate an `.npmrc` file and add the token to this file.
 
 
-import { Cuss2, ApplicationStates } from "@elevated-libs/cuss2";
+To install the lib run:
 
-const kiosk = await Cuss2.connect('https://<cuss2_server>', '<client_id>', '<client_secret>');
-
-console.log(kiosk.environment)
-console.log(kiosk.components)
+```sh
+npm install @elevated-libs/cuss2
 ```
+## Usage and Examples
+### Usage
+___
+Import the related device service from the lib
 
-# State Management
+Services available for use:
 
-```js
-kiosk.stateChange.subscribe(async (state) => {
-  try {
-    switch (state) {
-      case ApplicationStates.INITIALIZE:
-        await kiosk.bagTagPrinter.enable();
-        console.log(await kiosk.bagTagPrinter.query())
-        await kiosk.requestUnavailableState();
-        break;
-      case ApplicationStates.UNAVAILABLE:
-        await kiosk.requestAvailableState();
-        break;
-      case ApplicationStates.AVAILABLE:
-        await kiosk.requestActiveState();
-        break;
-      case ApplicationStates.ACTIVE:
-        await kiosk.bagTagPrinter.setupAndPrintRaw([
-          'HDCTL000#1234567890'
-        ],
-        'HDCPECTAB#00000000');
-        break;
-    }
-  }
-  catch (e) {
-    console.error(e);
-  }
-});
-```
+- BagTagPrinterService
+- BoardingPassPrinterService
+- CardReaderService
+- DocumentReaderService
+- BarcodeReaderService
+- KeypadService
+- AnnouncementService
+
+Each device service provides an onReady behavior subject that emits the instance of the device object that has methods to interact with the device. Below are the required methods for basic device interactions.
+
+| Method                       | Description                                                                                                 |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| deviceName.| |                     
+| deviceName.| |                     
+| deviceName.| |               
+| deviceName.| |      
+| deviceName.| |
+
+
+### Examples
+___
+
