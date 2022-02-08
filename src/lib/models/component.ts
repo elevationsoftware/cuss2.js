@@ -367,29 +367,6 @@ export class Printer extends Component {
 		this.combinedReadyStateChanged = this._superReadyStateChanged;
 		super.updateState(msg);
 		this.combinedReadyStateChanged = rsc;
-
-		// if ((this.ready && this.feeder.ready && this.dispenser.ready) !== (msg.eventHandlingCode === EventHandlingCodes.READY)) {
-		// 	this._combinedReady = !this._combinedReady;
-		// 	this.combinedReadyStateChanged.next(!this.combinedReady);
-		// }
-/*
-		if (this.combinedStatus !== msg.statusCode && (msg.functionName === 'query' || msg.functionName === '')) {
-			this._combinedStatus = msg.statusCode;
-			this.combinedStatusChanged.next(msg.statusCode);
-		} */
-
-		// super.updateState(msg);
-/* 		if ((this.ready !== (msg.eventHandlingCode === EventHandlingCodes.READY)) 
-			&& ((this.feeder.ready && this.dispenser.ready) !== (msg.eventHandlingCode === EventHandlingCodes.READY))) {
-			this._combinedReady = msg.eventHandlingCode === EventHandlingCodes.READY;
-			this.combinedReadyStateChanged.next(!this.combinedReady);
-		} */
-/*
-		if (this.status !== msg.statusCode && (msg.functionName === 'query' || msg.functionName === '')
-			&& (this.feeder.status === msg.statusCode || this.dispenser.status === msg.statusCode)) {
-			this._combinedStatus = msg.statusCode;
-			this.combinedStatusChanged.next(this.combinedStatus);
-		} */
 	}
 
 	async setupAndPrintRaw(rawSetupData: string[], rawData?: string) {
