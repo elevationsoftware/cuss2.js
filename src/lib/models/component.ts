@@ -24,14 +24,32 @@ import {take, timeout} from "rxjs/operators";
  */
 export class Component {
 	_component: EnvironmentComponent;
+	/**
+	 * @property {number} id - Numeric ID assigned to the component; used for identification of a specific component.
+	 */
 	id: number;
-	onmessage: Subject<any> = new Subject<any>();
+	/**
+	 * @property {Subject<PlatformData>} onmessage - Observable that emits when a message is received from the component.
+	 */
+	onmessage: Subject<PlatformData> = new Subject<PlatformData>();
 	api: any;
+	/**
+	 * @property {boolean} required - 
+	 */
 	required: boolean = false;
+	/**
+	 * @property {BehaviorSubject<StatusCodes} statusChanged - Observable that emits the status of the component on changes.
+	 */
 	statusChanged: BehaviorSubject<StatusCodes> = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
 	_eventHandlingCode: EventHandlingCodes = EventHandlingCodes.UNAVAILABLE;
+	/**
+	 * @property {DeviceType} deviceType - The type of device the component is, *See IATA documentation for more details.
+	 */
 	deviceType: DeviceType;
 	pendingCalls: number = 0;
+	/**
+	 * @property {boolean} enabled - Whether the component is enabled or not.
+	 */
 	enabled: boolean = false;
 	pollingInterval = 3000;
 	_poller: any;
@@ -46,6 +64,9 @@ export class Component {
 	get ready(): boolean {
 		return this._eventHandlingCode === EventHandlingCodes.READY;
 	}
+	/**
+	 * @property {BehaviorSubject<boolean>} readyStateChanged - emits true when the component is ready
+	 */
 	readyStateChanged: Subject<boolean> = new Subject<boolean>();
 
 	get pending(): boolean { return this.pendingCalls > 0; }
@@ -239,7 +260,7 @@ export class Printer extends Component {
 		this.dispenser = d || missingLink('Dispenser not found for Printer ' + this.id);
 		this.subcomponents.push(this.dispenser)
 
-		// @ts-ignore cause you're not smart enough
+		// // @ts-ignore cause you're not smart enough
 		this._superReadyStateChanged = this.readyStateChanged;
 
 		combineLatest([
@@ -249,12 +270,12 @@ export class Printer extends Component {
 		])
 		.subscribe(([printerReady,feederReady,dispenserReady]: boolean[]) => {
 			const ready = printerReady && feederReady && dispenserReady;
-			if (this.ready !== ready) {
+			if (this.combinedReady !== ready) {
 				this._combinedReady = ready;
-				this.readyStateChanged.next(ready);
+				this.combinedReadyStateChanged.next(ready);
 			}
 		});
-		this.readyStateChanged = new Subject<boolean>();
+		this.combinedReadyStateChanged = new BehaviorSubject<boolean>(false);
 
 		// @ts-ignore cause you're not smart enough
 		this._superStatusChanged = this.statusChanged;
@@ -266,12 +287,12 @@ export class Printer extends Component {
 		])
 		.subscribe((statuses: StatusCodes[]) => {
 			const status = statuses.find(s => s != StatusCodes.OK) || StatusCodes.OK;
-			if (this.status !== status) {
+			if (this.combinedStatus !== status) {
 				this._combinedStatus = status;
-				this.statusChanged.next(status);
+				this.combinedStatusChanged.next(status);
 			}
 		});
-		this.statusChanged = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
+		this.combinedStatusChanged = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
 		
 		cuss2.activated.subscribe(() => {
 			if (this.ready) {
@@ -280,11 +301,26 @@ export class Printer extends Component {
 		});
 	}
 
+	/**
+	 * @property The feeder component linked this printer.
+	 */
 	feeder: Feeder;
+	/**
+	 * @property The dispenser component linked this printer.
+	 */
 	dispenser: Dispenser;
-	readyStateChanged: Subject<boolean>;
-	_superReadyStateChanged: BehaviorSubject<boolean>;
+	/**
+	 * @property The combined ready state of this printer, feeder, and dispenser; emits true when ready.
+	 */
+	combinedReadyStateChanged: Subject<boolean> = new Subject<boolean>();
+	/**
+	 * @property The combined status of this printer, feeder, and dispenser; emits on status code changes.
+	 */
+	combinedStatusChanged: BehaviorSubject<StatusCodes> = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
+
 	_superStatusChanged: BehaviorSubject<StatusCodes>;
+	_superReadyStateChanged: Subject<boolean>;
+
 	get mediaPresentChanged() {
 		return this.dispenser.mediaPresentChanged;
 	}
@@ -293,12 +329,18 @@ export class Printer extends Component {
 	}
 
 	_combinedReady = false;
-	get ready(): boolean {
+	/**
+	 * The combined ready state of the printer, feeder, and dispenser
+	 */
+	get combinedReady(): boolean {
 		return this._combinedReady;
 	}
 
 	_combinedStatus = StatusCodes.OK;
-	get status(): StatusCodes {
+	/**
+	 * The combined status of the printer, feeder, and dispenser.
+	 */
+	get combinedStatus(): StatusCodes {
 		return this._combinedStatus;
 	}
 
@@ -318,15 +360,14 @@ export class Printer extends Component {
 			// query the dispenser- which will start a poller that will detect when the media has been taken
 			this.dispenser.query().catch(console.error);
 		}
-		const rsc = this.readyStateChanged;
-		this.readyStateChanged = this._superReadyStateChanged;
-		super.updateState(msg);
-		this.readyStateChanged = rsc;
 
-		if (this.status !== msg.statusCode && (msg.functionName === 'query' || msg.functionName === '')
-			&& (this.feeder.status === msg.statusCode || this.dispenser.status === msg.statusCode)) {
+		if (this.status !== msg.statusCode) {
 			this.statusChanged.next(msg.statusCode);
 		}
+		const rsc = this.combinedReadyStateChanged;
+		this.combinedReadyStateChanged = this._superReadyStateChanged;
+		super.updateState(msg);
+		this.combinedReadyStateChanged = rsc;
 	}
 
 	async setupAndPrintRaw(rawSetupData: string[], rawData?: string) {
