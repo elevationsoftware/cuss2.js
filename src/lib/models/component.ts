@@ -14,6 +14,7 @@ import {
 import {DeviceType} from '../interfaces/deviceType';
 import {PlatformResponseError} from "./platformResponseError";
 import {take, timeout} from "rxjs/operators";
+import { debug } from "console";
 
 /**
  * @class Component
@@ -65,7 +66,7 @@ export class Component {
 	/**
 	 * @property {BehaviorSubject<boolean>} readyStateChanged - emits true when the component is ready
 	 */
-	readyStateChanged: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+	readyStateChanged: Subject<boolean> = new Subject<boolean>();
 
 	get pending(): boolean { return this.pendingCalls > 0; }
 	get status(): StatusCodes { return this.statusChanged.getValue(); }
@@ -259,10 +260,10 @@ export class Printer extends Component {
 		this.subcomponents.push(this.dispenser)
 
 		// // @ts-ignore cause you're not smart enough
-		// this._superReadyStateChanged = this.readyStateChanged;
+		this._superReadyStateChanged = this.readyStateChanged;
 
 		combineLatest([
-			super.readyStateChanged,
+			this._superReadyStateChanged,
 			this.feeder.readyStateChanged,
 			this.dispenser.readyStateChanged
 		])
@@ -276,10 +277,10 @@ export class Printer extends Component {
 		this.combinedReadyStateChanged = new BehaviorSubject<boolean>(false);
 
 		// @ts-ignore cause you're not smart enough
-		// this._superStatusChanged = this.statusChanged;
+		this._superStatusChanged = this.statusChanged;
 
 		combineLatest([
-			super.statusChanged,
+			this._superStatusChanged,
 			this.feeder.statusChanged,
 			this.dispenser.statusChanged
 		])
@@ -310,11 +311,15 @@ export class Printer extends Component {
 	/**
 	 * @property The combined ready state of this printer, feeder, and dispenser; emits true when ready.
 	 */
-	combinedReadyStateChanged: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+	combinedReadyStateChanged: Subject<boolean> = new Subject<boolean>();
 	/**
 	 * @property The combined status of this printer, feeder, and dispenser; emits on status code changes.
 	 */
 	combinedStatusChanged: BehaviorSubject<StatusCodes> = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
+
+	_superStatusChanged: BehaviorSubject<StatusCodes>;
+	_superReadyStateChanged: Subject<boolean>;
+
 	get mediaPresentChanged() {
 		return this.dispenser.mediaPresentChanged;
 	}
@@ -355,27 +360,36 @@ export class Printer extends Component {
 			this.dispenser.query().catch(console.error);
 		}
 
-		if (this.combinedReady !== (msg.eventHandlingCode === EventHandlingCodes.READY)) {
-			this._combinedReady = !this._combinedReady;
-			this.combinedReadyStateChanged.next(!this.combinedReady);
+		if (this.status !== msg.statusCode) {
+			this.statusChanged.next(msg.statusCode);
 		}
+		const rsc = this.combinedReadyStateChanged;
+		this.combinedReadyStateChanged = this._superReadyStateChanged;
+		super.updateState(msg);
+		this.combinedReadyStateChanged = rsc;
 
+		// if ((this.ready && this.feeder.ready && this.dispenser.ready) !== (msg.eventHandlingCode === EventHandlingCodes.READY)) {
+		// 	this._combinedReady = !this._combinedReady;
+		// 	this.combinedReadyStateChanged.next(!this.combinedReady);
+		// }
+/*
 		if (this.combinedStatus !== msg.statusCode && (msg.functionName === 'query' || msg.functionName === '')) {
 			this._combinedStatus = msg.statusCode;
 			this.combinedStatusChanged.next(msg.statusCode);
-		}
+		} */
 
-		super.updateState(msg);
-		// if ((this.ready !== (msg.eventHandlingCode === EventHandlingCodes.READY)) 
-		// 	&& ((this.feeder.ready && this.dispenser.ready) !== (msg.eventHandlingCode === EventHandlingCodes.READY))) {
-		// 	this._combinedReady = msg.eventHandlingCode === EventHandlingCodes.READY;
-		// 	this.readyStateChanged.next(!this.ready);
-		// }
-
-		// if (this.status !== msg.statusCode && (msg.functionName === 'query' || msg.functionName === '')
-		// 	&& (this.feeder.status === msg.statusCode || this.dispenser.status === msg.statusCode)) {
-		// 	this.statusChanged.next(msg.statusCode);
-		// }
+		// super.updateState(msg);
+/* 		if ((this.ready !== (msg.eventHandlingCode === EventHandlingCodes.READY)) 
+			&& ((this.feeder.ready && this.dispenser.ready) !== (msg.eventHandlingCode === EventHandlingCodes.READY))) {
+			this._combinedReady = msg.eventHandlingCode === EventHandlingCodes.READY;
+			this.combinedReadyStateChanged.next(!this.combinedReady);
+		} */
+/*
+		if (this.status !== msg.statusCode && (msg.functionName === 'query' || msg.functionName === '')
+			&& (this.feeder.status === msg.statusCode || this.dispenser.status === msg.statusCode)) {
+			this._combinedStatus = msg.statusCode;
+			this.combinedStatusChanged.next(this.combinedStatus);
+		} */
 	}
 
 	async setupAndPrintRaw(rawSetupData: string[], rawData?: string) {

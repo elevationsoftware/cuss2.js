@@ -185,11 +185,11 @@ export class Connection {
 	}
 
 	async post(path: string, data?: any): Promise<any> {
-		return this._call('post', path, data);
+		return this._call('post', path, data).catch(e => e);
 	}
 
 	async get(path: string): Promise<any> {
-		return this._call('get', path, false);
+		return this._call('get', path, false).catch(e => e);
 	}
 
 	// this consolidates get/post to simplify logging and reply handling
