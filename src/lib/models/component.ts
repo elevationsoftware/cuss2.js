@@ -14,7 +14,6 @@ import {
 import {DeviceType} from '../interfaces/deviceType';
 import {PlatformResponseError} from "./platformResponseError";
 import {take, timeout} from "rxjs/operators";
-import { debug } from "console";
 
 /**
  * @class Component
