@@ -66,7 +66,7 @@ function validateComponentId(componentID:any) {
  * @property {Keypad} keypad - The keypad component class to interact with the device.
  * @property {CardReader} cardReader - The card reader component class to interact with the device.
  * @property {Subject<undefined>} activated - The activated subject will emit when the application moves to the active state.
- * @property {Subject<AppState>} deactivated - The deactivated subject emits when the application is moved from the active state. *Note* see IATA docs for more details.
+ * @property {Subject<AppState>} deactivated - The deactivated subject emits when the application is moved from the active state. *Note* see IATA docs for more details. AppState is an alias for ApplicationStates.ApplicationStateCodeEnum.
  * @property {AppState} pendingStateChange - The  application pending state change. *Note* see IATA docs for more details.
  * @property {boolean} multiTenant - The multi tenant flag.
  * @property {boolean} accessibleMode - The accessible mode flag.
@@ -151,7 +151,7 @@ export class Cuss2 {
 
 	/**
 	 * @memberof Cuss2
-	 * @method connect
+	 * @method connect - Connect to the cuss platform.
 	 * @param {string} url  - The url of the CUSS 2 platform
 	 * @param {string} client_id  - The client_id of the CUSS 2 platform
 	 * @param {string} client_secret  - The client_secret of the CUSS 2 platform
@@ -488,13 +488,13 @@ export class Cuss2 {
 		 * @property {method} play - Play the announcement.
 		 * @example
 		 * const play = await cuss2.announcement.play(componentID, rawData);
-		 * @property {method} pause - Stop the announcement.
+		 * @property {method} pause - Pause the announcement.
 		 * @example
 		 * const stop = await cuss2.announcement.stop(componentID);
-		 * @property {method} resume - Pause the announcement.
+		 * @property {method} resume - Resume the announcement.
 		 * @example
 		 * const resume = await cuss2.announcement.resume(componentID);
-		 * @property {method} stop - Resume the announcement.
+		 * @property {method} stop - Stop the announcement.
 		 * @example
 		 * const stop = await cuss2.announcement.stop(componentID);
 		 */
@@ -614,7 +614,7 @@ export class Cuss2 {
 	/**
 	 * Query each component for its current state.
 	 * @memberof Cuss2
-	 * @method gueryComponents
+	 * @method queryComponents
 	 * @returns {Promise<boolean>} Response from the platform, whether the query was able to be sent or not.
 	 * @example
    * const queryComponents = await cuss2.queryComponents();

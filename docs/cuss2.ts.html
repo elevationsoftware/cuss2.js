@@ -109,12 +109,10 @@ import {
 	DocumentReader, Feeder,
 	Keypad,
 	CardReader,
-	Printer,
 	BagTagPrinter,
-	BoardingPassPrinter
+	BoardingPassPrinter, Illumination, Headset
 } from "./models/component";
 import { CUSSDataTypes } from "./interfaces/cUSSDataTypes";
-import {EventHandlingCodes} from "./interfaces/eventHandlingCodes";
 import {StateChange} from "./models/stateChange";
 import {ComponentInterrogation} from "./componentInterrogation";
 import {ApplicationActivation} from "./interfaces/applicationActivation";
@@ -129,7 +127,7 @@ const {
 	isDocumentReader,
 	isBarcodeReader,
 	isCardReader,
-	isKeypad
+	isKeypad, isIllumination, isHeadset
 } = ComponentInterrogation;
 
 /**
@@ -244,7 +242,7 @@ export class Cuss2 {
 
 	/**
 	 * @memberof Cuss2
-	 * @method connect
+	 * @method connect - Connect to the cuss platform.
 	 * @param {string} url  - The url of the CUSS 2 platform
 	 * @param {string} client_id  - The client_id of the CUSS 2 platform
 	 * @param {string} client_secret  - The client_secret of the CUSS 2 platform
@@ -416,9 +414,6 @@ export class Cuss2 {
 			});
 
 			componentList.forEach((component) => {
-				if (isFeeder(component)) return;
-				if (isDispenser(component)) return;
-
 				const id = String(component.componentID);
 				let instance;
 
@@ -429,6 +424,11 @@ export class Cuss2 {
 				else if (isBarcodeReader(component)) instance = this.barcodeReader = new BarcodeReader(component, this);
 				else if (isCardReader(component)) instance = this.cardReader = new CardReader(component, this);
 				else if (isKeypad(component)) instance = this.keypad = new Keypad(component, this);
+				// subcomponents
+				else if (isFeeder(component))  return; // instance = new Feeder(component, this);
+				else if (isDispenser(component))  return; // instance = new Dispenser(component, this);
+				else if (isIllumination(component)) instance = new Illumination(component, this);
+				else if (isHeadset(component)) instance = new Headset(component, this);
 				else instance = new Component(component, this);
 
 				return components[id] = instance;
@@ -579,13 +579,13 @@ export class Cuss2 {
 		 * @property {method} play - Play the announcement.
 		 * @example
 		 * const play = await cuss2.announcement.play(componentID, rawData);
-		 * @property {method} pause - Stop the announcement.
+		 * @property {method} pause - Pause the announcement.
 		 * @example
 		 * const stop = await cuss2.announcement.stop(componentID);
-		 * @property {method} resume - Pause the announcement.
+		 * @property {method} resume - Resume the announcement.
 		 * @example
 		 * const resume = await cuss2.announcement.resume(componentID);
-		 * @property {method} stop - Resume the announcement.
+		 * @property {method} stop - Stop the announcement.
 		 * @example
 		 * const stop = await cuss2.announcement.stop(componentID);
 		 */
@@ -705,7 +705,7 @@ export class Cuss2 {
 	/**
 	 * Query each component for its current state.
 	 * @memberof Cuss2
-	 * @method gueryComponents
+	 * @method queryComponents
 	 * @returns {Promise&lt;boolean>} Response from the platform, whether the query was able to be sent or not.
 	 * @example
    * const queryComponents = await cuss2.queryComponents();

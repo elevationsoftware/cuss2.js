@@ -156,24 +156,60 @@
 </thead>
 <tbody>
 <tr>
-<td>deviceName.</td>
-<td></td>
+<td>announcement(componentID, rawData)</td>
+<td><table>  <thead>  <tr><th> Method</th> <th> Description</th>  </tr>  </thead>  <tbody>  <tr>  <td>play(componentID, rawData)</td>  <td>Play the announcement</td>  </tr>  <tr>  <td>pause(componentID)</td>  <td>Pause the announcement</td>  </tr>  <tr>  <td>resume(componentID)</td>  <td>Resume the announcement</td>  </tr>  <tr>  <td>stop(componentID)</td>  <td>Stop the announcement</td>  </tr>  </tbody>  </table></td>
 </tr>
 <tr>
-<td>deviceName.</td>
-<td></td>
+<td>cancel(componentID)</td>
+<td>Sends a cancel command to a given component (device).</td>
 </tr>
 <tr>
-<td>deviceName.</td>
-<td></td>
+<td>checkRequiredComponentsAndSyncState()</td>
+<td>Check if all required components are available and move application to the appropriate state based on their status.</td>
 </tr>
 <tr>
-<td>deviceName.</td>
-<td></td>
+<td>connect(url, client_id, client_secret, options opt)</td>
+<td>Connect to the cuss platform.</td>
 </tr>
 <tr>
-<td>deviceName.</td>
-<td></td>
+<td>disable(componentID)</td>
+<td>Sends disable command to a given component (device).</td>
+</tr>
+<tr>
+<td>enable(componentID)</td>
+<td>Sends enable command to a given component (device).</td>
+</tr>
+<tr>
+<td>getComponents()</td>
+<td>Get a list of components.</td>
+</tr>
+<tr>
+<td>getEnvironment()</td>
+<td>Get the current environment level.</td>
+</tr>
+<tr>
+<td>getStatus(componentID)</td>
+<td>Get the status of a given component (device).</td>
+</tr>
+<tr>
+<td>queryComponents()</td>
+<td>Query each component for its current state.</td>
+</tr>
+<tr>
+<td>requestActiveState()</td>
+<td>Request the platform to change the application state to Active state.</td>
+</tr>
+<tr>
+<td>requestReload()</td>
+<td>Request the platform to reload the application.</td>
+</tr>
+<tr>
+<td>setup(componentID, dataExchange)</td>
+<td>Send setup instructions to a given component (device).</td>
+</tr>
+<tr>
+<td>staterequest(state, reasonCode, reason)</td>
+<td>Sends request to the platform for the application to change states.</td>
 </tr>
 </tbody>
 </table>

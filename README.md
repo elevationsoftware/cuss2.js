@@ -19,9 +19,11 @@ The library and corresponding app platform also ensure backwards compatibility t
 - Typescript libs for [Angular](https://github.com/elevationsoftware/cuss2-angular) and [React](https://github.com/elevationsoftware/cuss2-react)
 
 
-## The Sandbox
+## The Sandbox - Coming Soon
 
 While you are developing your application, you can use the Elevated CUSS Sandbox against real platform responses. Watch your application respond correctly to CUSS Events like a paper jam or a required device unavailable.
+- [CUSS Sandbox]() - Coming Soon
+
 ## Getting Started
 
 1. Request an access token from the Elevation Software Team.  
@@ -51,13 +53,24 @@ Services available for use:
 
 Each device service provides an onReady behavior subject that emits the instance of the device object that has methods to interact with the device. Below are the required methods for basic device interactions.
 
-| Method                       | Description                                                                                                 |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| deviceName.| |                     
-| deviceName.| |                     
-| deviceName.| |               
-| deviceName.| |      
-| deviceName.| |
+| Method                                              | Description                                                                                                         |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| announcement(componentID, rawData)         | <table>  <thead>  <tr><th> Method</th> <th> Description</th>  </tr>  </thead>  <tbody>  <tr>  <td>play(componentID, rawData)</td>  <td>Play the announcement</td>  </tr>  <tr>  <td>pause(componentID)</td>  <td>Pause the announcement</td>  </tr>  <tr>  <td>resume(componentID)</td>  <td>Resume the announcement</td>  </tr>  <tr>  <td>stop(componentID)</td>  <td>Stop the announcement</td>  </tr>  </tbody>  </table>          |                     
+| cancel(componentID)                                 | Sends a cancel command to a given component (device).                                                               |                              
+| checkRequiredComponentsAndSyncState()               | Check if all required components are available and move application to the appropriate state based on their status. |                        
+| connect(url, client_id, client_secret, options opt) | Connect to the cuss platform.                                                                                       |               
+| disable(componentID)                                | Sends disable command to a given component (device).                                                                |         
+| enable(componentID)                                 | Sends enable command to a given component (device).                                                                 |         
+| getComponents()                                     | Get a list of components.                                                                                           |         
+| getEnvironment()                                    | Get the current environment level.                                                                                  |         
+| getStatus(componentID)                              | Get the status of a given component (device).                                                                       |         
+| queryComponents()                                   | Query each component for its current state.                                                                         |         
+| requestActiveState()                                | Request the platform to change the application state to Active state.                                               |         
+| requestReload()                                     | Request the platform to reload the application.                                                                     |         
+| setup(componentID, dataExchange)                    | Send setup instructions to a given component (device).                                                              |
+| staterequest(state, reasonCode, reason)             | Sends request to the platform for the application to change states.                                                 |
+| authorize(url, client_id, client_secret, timeout)   | Retrieve a token from the CUSS Oauth Server using a client id and client secret.                                    |
+| connect(baseURL, client_id, client_secret, tokenURL)| Connects to a CUSS Platform at the provided URL.                                                                    |
 
 
 ### Examples
