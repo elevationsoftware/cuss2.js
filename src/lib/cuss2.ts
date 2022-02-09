@@ -51,7 +51,7 @@ function validateComponentId(componentID:any) {
 }
 
 /**
- * @class CUSS2 - Class to create a CUSS 2 object, used it interface with a cuss platform.
+ * @class Class to create a CUSS 2 object, used it interface with a cuss platform.
  * @property {connection} connection - The connection object used to communicate with the cuss platform.
  * @property {EnvironmentLevel} environmentLevel - The environment level of the cuss platform. *Note* see IATA docs for more details.
  * @property {any | undefined} components - The components of the cuss platform.

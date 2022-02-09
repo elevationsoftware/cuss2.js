@@ -5,7 +5,7 @@
   
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title> Component</title>
+  <title> Dispenser</title>
 
   <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -78,7 +78,7 @@
             <div class="content">
                 <header class="page-title">
                     <p>Class</p>
-                    <h1>Component</h1>
+                    <h1>Dispenser</h1>
                 </header>
                 
 
@@ -89,9 +89,9 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>Component<span class="signature">(component, cuss2, _type)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>Dispenser<span class="signature">(component, cuss2)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">General object representing a CUSS component with methods and properties to interact with it.</div>
+            <div class="class-description">A part of a printer that dispenses printed media.</div>
         
     
 </header>
@@ -110,12 +110,12 @@
 
 
     
-    <h4 class="name" id="Component">
-        <a class="href-link" href="#Component">#</a>
+    <h4 class="name" id="Dispenser">
+        <a class="href-link" href="#Dispenser">#</a>
         
         <span class="code-name">
             
-                new Component<span class="signature">(component, cuss2, _type)</span><span class="type-signature"></span>
+                new Dispenser<span class="signature">(component, cuss2)</span><span class="type-signature"></span>
             
         </span>
     </h4>
@@ -204,31 +204,6 @@
 
 
         
-
-            
-<tr class="deep-level-0">
-  
-      <td class="name"><code>_type</code></td>
-  
-
-  <td class="type">
-  
-      
-<code class="param-type">DeviceType</code>
-
-
-  
-  </td>
-
-  
-
-  
-
-  <td class="description last"></td>
-</tr>
-
-
-        
         </tbody>
     </table>
 </div>
@@ -263,13 +238,13 @@
             
 <tr class="deep-level-0">
     
-        <td class="name"><code>id</code></td>
+        <td class="name"><code>printer</code></td>
     
 
     <td class="type">
     
         
-<code class="param-type">number</code>
+<code class="param-type"><a href="Printer.html">Printer</a></code>
 
 
     
@@ -279,221 +254,14 @@
 
     
 
-    <td class="description last">Numeric ID assigned to the component; used for identification of a specific component.</td>
+    <td class="description last">The printer that this dispenser is attached to.</td>
 </tr>
 
         
             
 <tr class="deep-level-0">
     
-        <td class="name"><code>onmessage</code></td>
-    
-
-    <td class="type">
-    
-        
-<code class="param-type">Subject.&lt;PlatformData></code>
-
-
-    
-    </td>
-
-    
-
-    
-
-    <td class="description last">Observable that emits when a message is received from the component.</td>
-</tr>
-
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>required</code></td>
-    
-
-    <td class="type">
-    
-        
-<code class="param-type">boolean</code>
-
-
-    
-    </td>
-
-    
-
-    
-
-    <td class="description last">Whether the component is required to be connected to the CUSS Platform.</td>
-</tr>
-
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>statusChanged</code></td>
-    
-
-    <td class="type">
-    
-        
-<code class="param-type">BehaviorSubject.&lt;StatusCodes></code>
-
-
-    
-    </td>
-
-    
-
-    
-
-    <td class="description last">Observable that emits the status of the component on changes.</td>
-</tr>
-
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>deviceType</code></td>
-    
-
-    <td class="type">
-    
-        
-<code class="param-type">DeviceType</code>
-
-
-    
-    </td>
-
-    
-
-    
-
-    <td class="description last">The type of device the component is, *See IATA documentation for more details.</td>
-</tr>
-
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>pendingCalls</code></td>
-    
-
-    <td class="type">
-    
-        
-<code class="param-type">number</code>
-
-
-    
-    </td>
-
-    
-
-    
-
-    <td class="description last">The number of pending calls to the component.</td>
-</tr>
-
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>enabled</code></td>
-    
-
-    <td class="type">
-    
-        
-<code class="param-type">boolean</code>
-
-
-    
-    </td>
-
-    
-
-    
-
-    <td class="description last">Whether the component is enabled or not.</td>
-</tr>
-
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>pollingInterval</code></td>
-    
-
-    <td class="type">
-    
-        
-<code class="param-type">number</code>
-
-
-    
-    </td>
-
-    
-
-    
-
-    <td class="description last">The interval in milliseconds to poll the component for data.</td>
-</tr>
-
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>parent</code></td>
-    
-
-    <td class="type">
-    
-        
-<code class="param-type">any</code>
-
-
-    
-    </td>
-
-    
-
-    
-
-    <td class="description last">The parent of the component.</td>
-</tr>
-
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>subcomponents</code></td>
-    
-
-    <td class="type">
-    
-        
-<code class="param-type">Array.&lt;<a href="Component.html">Component</a>></code>
-
-
-    
-    </td>
-
-    
-
-    
-
-    <td class="description last">The subcomponents of the component.</td>
-</tr>
-
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>readyStateChanged</code></td>
+        <td class="name"><code>mediaPresentChanged</code></td>
     
 
     <td class="type">
@@ -509,7 +277,7 @@
 
     
 
-    <td class="description last">emits true when the component is ready</td>
+    <td class="description last">Will emit when the media present state changes.</td>
 </tr>
 
         
@@ -554,7 +322,7 @@
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line63">line 63</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line661">line 661</a>
             </span>
         </p>
     
@@ -583,63 +351,18 @@
     <h5>Examples</h5>
     
     
-        <pre class="prettyprint"><code>// id is the numeric ID assigned to the component
-this.id = id;</code></pre>
+        <pre class="prettyprint"><code>//get the printer that this dispenser is attached to
+Dispenser.printer</code></pre>
     
 
     
-        <pre class="prettyprint"><code>// onmessage is an observable that emits when a message is received from the component
-this.onmessage.subscribe(data => {
-	console.log(data);
-});</code></pre>
-    
-
-    
-        <pre class="prettyprint"><code>// required is whether the component is required to be connected to the CUSS Platform
-this.required = true;</code></pre>
-    
-
-    
-        <pre class="prettyprint"><code>// statusChanged is an observable that emits the status of the component on changes
-this.statusChanged.subscribe(status => {
-	console.log(status);
-});</code></pre>
-    
-
-    
-        <pre class="prettyprint"><code>// deviceType is the type of device the component is, *See IATA documentation for more details.
-this.deviceType = DeviceType;</code></pre>
-    
-
-    
-        <pre class="prettyprint"><code>// pendingCalls is the number of pending calls to the component
-this.pendingCalls = 0;</code></pre>
-    
-
-    
-        <pre class="prettyprint"><code>// enabled is whether the component is enabled or not
-this.enabled</code></pre>
-    
-
-    
-        <pre class="prettyprint"><code>// pollingInterval is the interval in milliseconds to poll the component
-this.pollingInterval = 1000;</code></pre>
-    
-
-    
-        <pre class="prettyprint"><code>// parent is the parent of the component
-this.parent = parent;</code></pre>
-    
-
-    
-        <pre class="prettyprint"><code>// subcomponents are an array subcomponents to the component
-this.subcomponents = subcomponents;</code></pre>
-    
-
-    
-        <pre class="prettyprint"><code>// readyStateChanged is an observable that emits true when the component is ready
-this.readyStateChanged.subscribe(ready => {
-	console.log(ready);
+        <pre class="prettyprint"><code>// subscribe to media present state
+Dispenser.mediaPresentChanged.subscribe(present => {
+	if (present) {
+		console.log('media is present');
+	} else {
+		console.log('media is not present');
+	}
 });</code></pre>
     
 
@@ -653,6 +376,17 @@ this.readyStateChanged.subscribe(ready => {
     </div>
     
     
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li><a href="Component.html">Component</a></li>
+    </ul>
+
+
+    
 
     
 
@@ -660,7 +394,7 @@ this.readyStateChanged.subscribe(ready => {
         <h3 class="subsection-title">Classes</h3>
 
         <dl>
-            <dt><a href="Component.html">Component</a></dt>
+            <dt><a href="Dispenser.html">Dispenser</a></dt>
             <dd></dd>
         </dl>
     
@@ -675,6 +409,71 @@ this.readyStateChanged.subscribe(ready => {
         <div class='vertical-section'>
             <h1>Members</h1>
             <div class="members">
+            
+                <div class="member">
+
+<h4 class="name" id="mediaPresent">
+    <a class="href-link" href="#mediaPresent">#</a>
+    
+    <span class="code-name">
+        mediaPresent
+    </span>
+    
+</h4>
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="models_component.ts.html" class="button">View Source</a>
+            <span>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line668">line 668</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+</div>
             
                 <div class="member">
 
@@ -702,6 +501,11 @@ this.readyStateChanged.subscribe(ready => {
 
     
 
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="Component.html#pending">Component#pending</a>
+    </li></ul></dd>
     
 
     
@@ -768,6 +572,11 @@ this.readyStateChanged.subscribe(ready => {
     
 
     
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="Component.html#ready">Component#ready</a>
+    </li></ul></dd>
+    
 
     
 
@@ -832,6 +641,11 @@ this.readyStateChanged.subscribe(ready => {
 
     
 
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="Component.html#status">Component#status</a>
+    </li></ul></dd>
     
 
     
@@ -923,6 +737,11 @@ this.readyStateChanged.subscribe(ready => {
     
 
     
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="Component.html#cancel">Component#cancel</a>
+    </li></ul></dd>
+    
 
     
 
@@ -949,7 +768,7 @@ this.readyStateChanged.subscribe(ready => {
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line871">line 871</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line212">line 212</a>
             </span>
         </p>
     
@@ -1053,6 +872,11 @@ Component.cancel();</code></pre>
     
 
     
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="Component.html#disable">Component#disable</a>
+    </li></ul></dd>
+    
 
     
 
@@ -1079,7 +903,7 @@ Component.cancel();</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line862">line 862</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line191">line 191</a>
             </span>
         </p>
     
@@ -1149,7 +973,7 @@ Component.disable();</code></pre>
         
         <span class="code-name">
             
-                enable<span class="signature">(args)</span><span class="type-signature"> &rarr; {Promise.&lt;PlatformData>}</span>
+                enable<span class="signature">(&hellip;args)</span><span class="type-signature"> &rarr; {Promise.&lt;PlatformData>}</span>
             
         </span>
     </h4>
@@ -1183,6 +1007,8 @@ Component.disable();</code></pre>
             <th>Type</th>
 
             
+            <th>Attributes</th>
+            
 
             
 
@@ -1209,6 +1035,16 @@ Component.disable();</code></pre>
   </td>
 
   
+      <td class="attributes">
+      
+
+      
+
+      
+          &lt;repeatable><br>
+      
+      </td>
+  
 
   
 
@@ -1233,6 +1069,11 @@ Component.disable();</code></pre>
 
     
 
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="Component.html#enable">Component#enable</a>
+    </li></ul></dd>
     
 
     
@@ -1260,7 +1101,7 @@ Component.disable();</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line853">line 853</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line177">line 177</a>
             </span>
         </p>
     
@@ -1325,12 +1166,12 @@ Component.enable();</code></pre>
 
 
     
-    <h4 class="name" id="pending">
-        <a class="href-link" href="#pending">#</a>
+    <h4 class="name" id="mediaPresent">
+        <a class="href-link" href="#mediaPresent">#</a>
         
         <span class="code-name">
             
-                pending<span class="signature">()</span><span class="type-signature"> &rarr; {boolean}</span>
+                mediaPresent<span class="signature">()</span><span class="type-signature"> &rarr; {boolean}</span>
             
         </span>
     </h4>
@@ -1386,7 +1227,7 @@ Component.enable();</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line836">line 836</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line1016">line 1016</a>
             </span>
         </p>
     
@@ -1417,7 +1258,7 @@ Component.enable();</code></pre>
 
 <div class="columns">
     
-    <div class='param-desc column is-7'>true if there are pending calls to the component</div>
+    <div class='param-desc column is-7'>- Whether or not media is present in the dispenser.</div>
     
     
     <div class='column is-5 has-text-left'>
@@ -1482,6 +1323,11 @@ Component.enable();</code></pre>
     
 
     
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="Component.html#query">Component#query</a>
+    </li></ul></dd>
+    
 
     
 
@@ -1508,7 +1354,7 @@ Component.enable();</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line880">line 880</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line222">line 222</a>
             </span>
         </p>
     
@@ -1565,124 +1411,6 @@ Component.enable();</code></pre>
         <pre class="prettyprint"><code>// Get the status of the component
 Component.query();</code></pre>
     
-
-
-</div>
-            
-                <div class="member">
-
-
-    
-    <h4 class="name" id="ready">
-        <a class="href-link" href="#ready">#</a>
-        
-        <span class="code-name">
-            
-                ready<span class="signature">()</span><span class="type-signature"> &rarr; {boolean}</span>
-            
-        </span>
-    </h4>
-    
-
-    
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="models_component.ts.html" class="button">View Source</a>
-            <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line830">line 830</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <div class='columns method-parameter'>
-        <div class="column is-2"><label>Returns:</label></div>
-        <div class="column is-10">
-            
-                    
-
-<div class="columns">
-    
-    <div class='param-desc column is-7'>true if the component is ready</div>
-    
-    
-    <div class='column is-5 has-text-left'>
-        <label>Type: </label>
-        
-<code class="param-type">boolean</code>
-
-
-    </div>
-    
-</div>
-
-                
-        </div>
-    </div>
-
-
 
 
 </div>
@@ -1785,6 +1513,11 @@ Component.query();</code></pre>
     
 
     
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="Component.html#send">Component#send</a>
+    </li></ul></dd>
+    
 
     
 
@@ -1811,7 +1544,7 @@ Component.query();</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line902">line 902</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line247">line 247</a>
             </span>
         </p>
     
@@ -1970,6 +1703,11 @@ Component.send(applicationData);</code></pre>
     
 
     
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="Component.html#setup">Component#setup</a>
+    </li></ul></dd>
+    
 
     
 
@@ -1996,7 +1734,7 @@ Component.send(applicationData);</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line891">line 891</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line233">line 233</a>
             </span>
         </p>
     
@@ -2053,124 +1791,6 @@ Component.send(applicationData);</code></pre>
         <pre class="prettyprint"><code>// Send set up data to the component
 Component.setup(applicationData);</code></pre>
     
-
-
-</div>
-            
-                <div class="member">
-
-
-    
-    <h4 class="name" id="status">
-        <a class="href-link" href="#status">#</a>
-        
-        <span class="code-name">
-            
-                status<span class="signature">()</span><span class="type-signature"> &rarr; {StatusCodes}</span>
-            
-        </span>
-    </h4>
-    
-
-    
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="models_component.ts.html" class="button">View Source</a>
-            <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line842">line 842</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <div class='columns method-parameter'>
-        <div class="column is-2"><label>Returns:</label></div>
-        <div class="column is-10">
-            
-                    
-
-<div class="columns">
-    
-    <div class='param-desc column is-7'>the status of the component</div>
-    
-    
-    <div class='column is-5 has-text-left'>
-        <label>Type: </label>
-        
-<code class="param-type">StatusCodes</code>
-
-
-    </div>
-    
-</div>
-
-                
-        </div>
-    </div>
-
-
 
 
 </div>

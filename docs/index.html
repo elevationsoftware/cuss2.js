@@ -70,7 +70,7 @@
             
             <nav>
                 
-                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Component.html">Component</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Cuss2.html">Cuss2</a></li></ul><h3>Global</h3><ul><li><a href="global.html#validateComponentId">validateComponentId</a></li></ul></div>
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Announcement.html">Announcement</a></li><li><a href="BagTagPrinter.html">BagTagPrinter</a></li><li><a href="BarcodeReader.html">BarcodeReader</a></li><li><a href="BoardingPassPrinter.html">BoardingPassPrinter</a></li><li><a href="CardReader.html">CardReader</a></li><li><a href="Component.html">Component</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Cuss2.html">Cuss2</a></li><li><a href="DataReaderComponent.html">DataReaderComponent</a></li><li><a href="Dispenser.html">Dispenser</a></li><li><a href="DocumentReader.html">DocumentReader</a></li><li><a href="Feeder.html">Feeder</a></li><li><a href="Headset.html">Headset</a></li><li><a href="Illumination.html">Illumination</a></li><li><a href="Keypad.html">Keypad</a></li><li><a href="Printer.html">Printer</a></li></ul><h3>Global</h3><ul><li><a href="global.html#validateComponentId">validateComponentId</a></li></ul></div>
                 
             </nav>
         </div>
@@ -118,8 +118,11 @@
 <ul>
 <li>Typescript libs for <a href="https://github.com/elevationsoftware/cuss2-angular">Angular</a> and <a href="https://github.com/elevationsoftware/cuss2-react">React</a></li>
 </ul>
-<h2>The Sandbox</h2>
+<h2>The Sandbox - Coming Soon</h2>
 <p>While you are developing your application, you can use the Elevated CUSS Sandbox against real platform responses. Watch your application respond correctly to CUSS Events like a paper jam or a required device unavailable.</p>
+<ul>
+<li><a href="">CUSS Sandbox</a> - Coming Soon</li>
+</ul>
 <h2>Getting Started</h2>
 <ol>
 <li>
@@ -132,21 +135,29 @@
 <p>To install the lib run:</p>
 <pre class="prettyprint source lang-sh"><code>npm install @elevated-libs/cuss2
 </code></pre>
-<h2>Usage and Examples</h2>
-<h3>Usage</h3>
+<p>To begin using the library, you will need to import the library into your project and set up a connection.</p>
+<pre class="prettyprint source lang-ts"><code>import { Cuss2 } from &quot;@elevated-libs/cuss2&quot;;
+
+const serviceState: { ref: Cuss2 | any} = { ref: null };
+const connect = async (cuss2URL: string, clientId: string, clientSecret: string): Promise&lt;Cuss2 | null> => {
+    // Avoid multiple subscriptions
+    if (serviceState.ref) {
+        return serviceState.ref;
+    }
+    const ref = await Cuss2.connect(cuss2URL, clientId, clientSecret);
+    serviceState.ref = ref;
+    return ref;
+};
+
+// Connect to cuss2 Platform
+const { clientId, clientSecret, platformURL } = platformConfig;
+connect(platformURL, clientId, clientSecret)
+  .then(checkDevices)
+  .catch(connectionFailure);
+</code></pre>
+<h3>Methods and Components</h3>
+<p>Below are the methods you can use to interact with the CUSS 2.0 API and a list of components.</p>
 <hr>
-<p>Import the related device service from the lib</p>
-<p>Services available for use:</p>
-<ul>
-<li>BagTagPrinterService</li>
-<li>BoardingPassPrinterService</li>
-<li>CardReaderService</li>
-<li>DocumentReaderService</li>
-<li>BarcodeReaderService</li>
-<li>KeypadService</li>
-<li>AnnouncementService</li>
-</ul>
-<p>Each device service provides an onReady behavior subject that emits the instance of the device object that has methods to interact with the device. Below are the required methods for basic device interactions.</p>
 <table>
 <thead>
 <tr>
@@ -157,7 +168,7 @@
 <tbody>
 <tr>
 <td>announcement(componentID, rawData)</td>
-<td><table>  <thead>  <tr><th> Method</th> <th> Description</th>  </tr>  </thead>  <tbody>  <tr>  <td>play(componentID, rawData)</td>  <td>Play the announcement</td>  </tr>  <tr>  <td>pause(componentID)</td>  <td>Pause the announcement</td>  </tr>  <tr>  <td>resume(componentID)</td>  <td>Resume the announcement</td>  </tr>  <tr>  <td>stop(componentID)</td>  <td>Stop the announcement</td>  </tr>  </tbody>  </table></td>
+<td><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody><tr><td>play(componentID, rawData)</td><td>Play the announcement</td></tr><tr><td>pause(componentID)</td><td>Pause the announcement</td></tr><tr><td>resume(componentID)</td><td>Resume the announcement</td></tr><tr><td>stop(componentID)</td><td>Stop the announcement</td></tr></tbody></table></td>
 </tr>
 <tr>
 <td>cancel(componentID)</td>
@@ -165,7 +176,7 @@
 </tr>
 <tr>
 <td>checkRequiredComponentsAndSyncState()</td>
-<td>Check if all required components are available and move application to the appropriate state based on their status.</td>
+<td>Check if all required components are available and move application to the appropriate state based on status.</td>
 </tr>
 <tr>
 <td>connect(url, client_id, client_secret, options opt)</td>
@@ -211,10 +222,71 @@
 <td>staterequest(state, reasonCode, reason)</td>
 <td>Sends request to the platform for the application to change states.</td>
 </tr>
+<tr>
+<td>authorize(url, client_id, client_secret, timeout)</td>
+<td>Retrieve a token from the CUSS Oauth Server using a client id and client secret.</td>
+</tr>
+<tr>
+<td>connect(baseURL, client_id, client_secret, tokenURL)</td>
+<td>Connects to a CUSS Platform at the provided URL.</td>
+</tr>
 </tbody>
 </table>
-<h3>Examples</h3>
-<hr></article>
+<hr>
+<table>
+<thead>
+<tr>
+<th>Components</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Announcement</td>
+<td>A component that announces messages.</td>
+</tr>
+<tr>
+<td>BagTagPrinter</td>
+<td>A component that prints bag tags.</td>
+</tr>
+<tr>
+<td>BarcodeReader</td>
+<td>A component that reads barcodes.</td>
+</tr>
+<tr>
+<td>BoardingPassPrinter</td>
+<td>A component that prints boarding passes.</td>
+</tr>
+<tr>
+<td>CardReader</td>
+<td>A component that reads cards.</td>
+</tr>
+<tr>
+<td>Dispenser</td>
+<td>A part of a printer that dispenses printed media.</td>
+</tr>
+<tr>
+<td>DocumentReader</td>
+<td>A component that reads documents.</td>
+</tr>
+<tr>
+<td>Feeder</td>
+<td>A part of a printer that feeds paper.</td>
+</tr>
+<tr>
+<td>Headset</td>
+<td>A component that provides audio feedback.</td>
+</tr>
+<tr>
+<td>Illumination</td>
+<td>A component that controls illumination.</td>
+</tr>
+<tr>
+<td>Keypad</td>
+<td>A component that provides keypad input.</td>
+</tr>
+</tbody>
+</table></article>
     </section>
 
 
