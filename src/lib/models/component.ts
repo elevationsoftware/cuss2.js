@@ -127,14 +127,15 @@ export class Component {
 		});
 
 		if (component.linkedComponentIDs?.length) {
-			const name = this.constructor.name[0].toLowerCase() + this.constructor.name.substr(1)
-			const parentId = Math.min(this.id, ...component.linkedComponentIDs)
+			// this.constructor.name[0].toLowerCase() + this.constructor.name.substr(1) in tagging this is not working currently
+			const name = this.deviceType;
+			const parentId = Math.min(this.id, ...component.linkedComponentIDs);
 			if(parentId != this.id) {
 				this.parent = cuss2.components[parentId]
 				// feeder and dispenser are created in the printer component
 				if (this.parent && !this.parent[name]) {
-					this.parent.subcomponents.push(this)
-					this.parent[name] = this
+					this.parent.subcomponents.push(this);
+					this.parent[name] = this;
 				}
 			}
 		}
