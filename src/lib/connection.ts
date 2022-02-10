@@ -24,14 +24,14 @@ export class Connection {
 	/**
 	 * Retrieve a token from the CUSS Oauth Server using a client id and client secret
 	 */
-	static authorize(url: string, client_id: string, client_secret: string, timeout: number = 10000): Promise<string> {
+	static authorize(url: string, client_id: string, client_secret: string, timeout: number = 10000): Promise<any> {
 		log('info', `Authorizing client '${client_id}'`, url);
 
 		return axiosClient.post(url, {client_id, client_secret}, {timeout})
-			.then(({data: {access_token}}: any) => {
-				log('info', "Token acquired", access_token);
+			.then(({data}: any) => {
+				log('info', "Token acquired", data);
 
-				return access_token;
+				return data;
 			})
 	}
 
@@ -102,13 +102,27 @@ export class Connection {
 	}
 
 	async _connect() : Promise<any> {
-		const access_token = await Connection.authorize(
-			this._auth.url,
-			this._auth.client_id,
-			this._auth.client_secret,
-			this.timeout
-		);
-		this._config.headers.Authorization = 'Bearer ' + access_token;
+		let access_token: string, expires: number = 0, refresher: any = 0;
+		const _authenticate = async () => {
+			log('info','Getting access_token')
+			if(refresher)
+				clearTimeout(refresher);
+
+			const access_data = await Connection.authorize(
+				this._auth.url,
+				this._auth.client_id,
+				this._auth.client_secret,
+				this.timeout
+			);
+			access_token = access_data["access_token"];
+			expires = Math.max(0, access_data["expires_in"]);
+			this._config.headers.Authorization = 'Bearer ' + access_token;
+			if (expires) {
+				log('info', `access_token expires in ${expires} seconds`)
+				refresher = setTimeout(_authenticate, (expires-1)*1000);
+			}
+		}
+		await _authenticate();
 
 		return new Promise(async (resolve, reject) => {
 			if (this._socket && this._socket.readyState === 1) {
