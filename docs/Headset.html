@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,7 +5,7 @@
   
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title> helper.ts</title>
+  <title> Headset</title>
 
   <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -79,108 +77,239 @@
         <div class="core" id="main-content-wrapper">
             <div class="content">
                 <header class="page-title">
-                    <p>Source</p>
-                    <h1>helper.ts</h1>
+                    <p>Class</p>
+                    <h1>Headset</h1>
                 </header>
                 
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import {Subject} from "rxjs";
-import {StatusCodes} from "./interfaces/statusCodes";
+        <h2><span class="attribs"><span class="type-signature"></span></span>Headset<span class="signature">(component, cuss2)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description">A component that provides audio feedback.</div>
+        
+    
+</header>
 
-export class LogMessage {
-	action: string;
-	data: any;
-	level: string;
+<article>
+    <div class="container-overview">
+    
+        
+            <div class='vertical-section'>
+                <div class="members">
+                    <div class="member">
+                        <div class=name>
+                            <span class="tag">Constructor</span>
+                        </div>
+                        
 
-	constructor(level:string, action:string, data:any) {
-		this.action = action;
-		this.level = level;
-		this.data = data;
-	}
-}
-export class Logger extends Subject&lt;LogMessage> {}
 
-export const logger = new Logger();
-export const log = (level:string, action:string, data?:any) => {
-	logger.next(new LogMessage(level, action, data));
-};
+    
+    <h4 class="name" id="Headset">
+        <a class="href-link" href="#Headset">#</a>
+        
+        <span class="code-name">
+            
+                new Headset<span class="signature">(component, cuss2)</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
 
-export const helpers = {
-	splitAndFilter: (text:string, delimiter1='#') : string[] => {
-		return text.split(delimiter1).filter(p => !!p);
-	},
-	split_every: (text:string, n:number):string[] => {
-		return text.match(new RegExp('.{1,'+n+'}','g')) as string[];
-	},
-	deserializeDictionary: (text:string, delimiter1='#', delimiter2='=') : object => {
-		const out:any = {};
-		helpers.splitAndFilter(text, delimiter1).forEach(p => {
-			const [ k,v ] = p.split(delimiter2);
-			if (v) out[k] = v;
-		});
-		return out;
-	},
-	/**
-	 * Uses criticalErrors list to determine if an error is critical or not.
-	 */
-	isNonCritical: (status:StatusCodes) => {
-		return !criticalErrors.some(s => s == status)
-	}
-};
+    
+    
 
-// @ts-ignore
-window.isNonCritical = helpers.isNonCritical;
 
-const criticalErrors = [
-	StatusCodes.CANCELLED,
-	StatusCodes.WRONGSTATE,
-	StatusCodes.OUTOFSEQUENCE,
-	StatusCodes.TIMEOUT,
-	StatusCodes.SESSIONTIMEOUT,
-	StatusCodes.KILLTIMEOUT,
-	StatusCodes.SOFTWAREERROR,
-	StatusCodes.CRITICALSOFTWAREERROR,
-	StatusCodes.CONFIGURATIONERROR,
-	StatusCodes.FORMATERROR,
-	StatusCodes.LENGTHERROR,
-	StatusCodes.DATAMISSING,
-	StatusCodes.THRESHOLDERROR,
-	StatusCodes.THRESHOLDUSAGE,
-	StatusCodes.HARDWAREERROR,
-	StatusCodes.NOTREACHABLE,
-	StatusCodes.NOTRESPONDING,
-	StatusCodes.BAGGAGEFULL,
-	StatusCodes.BAGGAGEUNDETECTED,
-	StatusCodes.BAGGAGEOVERSIZED,
-	StatusCodes.BAGGAGETOOMANYBAGS,
-	StatusCodes.BAGGAGEUNEXPECTEDBAG,
-	StatusCodes.BAGGAGETOOHIGH,
-	StatusCodes.BAGGAGETOOLONG,
-	StatusCodes.BAGGAGETOOFLAT,
-	StatusCodes.BAGGAGETOOSHORT,
-	StatusCodes.BAGGAGEINVALIDDATA,
-	StatusCodes.BAGGAGEWEIGHTOUTOFRANGE,
-	StatusCodes.BAGGAGEJAMMED,
-	StatusCodes.BAGGAGEEMERGENCYSTOP,
-	StatusCodes.BAGGAGERESTLESS,
-	StatusCodes.BAGGAGETRANSPORTBUSY,
-	StatusCodes.BAGGAGEMISTRACKED,
-	StatusCodes.BAGGAGEUNEXPECTEDCHANGE,
-	StatusCodes.BAGGAGEINTERFERENCEUSER,
-	StatusCodes.BAGGAGEINTRUSIONSAFETY,
-	StatusCodes.BAGGAGENOTCONVEYABLE,
-	StatusCodes.BAGGAGEIRREGULARBAG,
-	StatusCodes.BAGGAGEVOLUMENOTDETERMINABLE,
-	StatusCodes.BAGGAGEOVERFLOWTUB
-]
-</code></pre>
-        </article>
-    </section>
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>component</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">EnvironmentComponent</code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"></td>
+</tr>
+
+
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>cuss2</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type"><a href="Cuss2.html">Cuss2</a></code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="models_component.ts.html" class="button">View Source</a>
+            <span>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line812">line 812</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    </div>
+                </div>
+            </div>
+        
+    
+    </div>
+    
+    
+
+    
+
+    
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="Headset.html">Headset</a></dt>
+            <dd></dd>
+        </dl>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

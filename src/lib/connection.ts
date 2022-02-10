@@ -23,6 +23,14 @@ rax.attach(axiosClient);
 export class Connection {
 	/**
 	 * Retrieve a token from the CUSS Oauth Server using a client id and client secret
+	 * @param {string} url - The url of the CUSS 2 platform
+	 * @param {string} client_id - The client_id of the CUSS 2 platform
+	 * @param {string} client_secret - The client_secret of the CUSS 2 platform
+	 * @param {number} timeout - The timeout for the request
+	 * @returns {Promise<string>} - The token
+	 * @example
+	 * /// Retrieve a token from the CUSS Oauth Server using a client id and client secret
+	 * const token = await Connection.authorize('url', 'my-client-id', 'my-client-secret', 'timeout');
 	 */
 	static authorize(url: string, client_id: string, client_secret: string, timeout: number = 10000): Promise<any> {
 		log('info', `Authorizing client '${client_id}'`, url);
@@ -37,6 +45,14 @@ export class Connection {
 
 	/**
 	 * Connects to a CUSS Platform at the provided URL
+	 * @param {string} baseURL - url of the CUSS Platform
+	 * @param {string} client_id - The client_id of the CUSS 2 platform
+	 * @param {string} client_secret - The client_secret of the CUSS 2 platform
+	 * @param {string} tokenURL - The url of the CUSS Oauth Server
+	 * @returns {Promise<Connection>} - The connection object
+	 * @example
+	 * /// Connects to a CUSS Platform at the provided URL
+	 * const connection = await Connection.connect('url', 'my-client-id', 'my-client-secret', 'token-url');
 	 */
 	static async connect(baseURL:string, client_id: string, client_secret: string, tokenURL?: string): Promise<Connection> {
 		const connection = new Connection(baseURL, client_id, client_secret, tokenURL);

@@ -1,3 +1,4 @@
+
 import { log, logger, helpers, LogMessage } from "./helper";
 import {EnvironmentLevel} from "./interfaces/environmentLevel";
 import {PlatformData} from "./interfaces/platformData";
@@ -50,17 +51,115 @@ function validateComponentId(componentID:any) {
 }
 
 /**
- * Class to create a CUSS 2 object, used it interface with a cuss platform.
+ * @class Class to create a CUSS 2 object, used it interface with a cuss platform.
+ * @property {connection} connection - The connection object used to communicate with the cuss platform.
+ * @property {EnvironmentLevel} environmentLevel - The environment level of the cuss platform. *Note* see IATA docs for more details.
+ * @property {any | undefined} components - The components of the cuss platform.
+ * @property {BehaviorSubject<Component|null>} stateChange - The state change subject that emits when the application state changes.
+ * @property {BehaviorSubject<any>} componentStateChange - The component change subject emits when a component's state changes.
+ * @property {Subject<PlatformData>} onmessage - The onmessage subject for unsolicited and solicited events. *Note* see IATA docs for more details.
+ * @property {BagTagPrinter} bagTagPrinter - The bag tag printer component class to interact with the device.
+ * @property {BoardingPassPrinter} boardingPassPrinter - The boarding pass printer component class to interact with the device.
+ * @property {DocumentReader} documentReader - The document reader component class to interact with the device.
+ * @property {BarcodeReader} barcodeReader - The barcode reader component class to interact with the device.
+ * @property {Announcement} announcement - The announcement component class to interact with the device.
+ * @property {Keypad} keypad - The keypad component class to interact with the device.
+ * @property {CardReader} cardReader - The card reader component class to interact with the device.
+ * @property {Subject<undefined>} activated - The activated subject will emit when the application moves to the active state.
+ * @property {Subject<AppState>} deactivated - The deactivated subject emits when the application is moved from the active state. *Note* see IATA docs for more details. AppState is an alias for ApplicationStates.ApplicationStateCodeEnum.
+ * @property {AppState} pendingStateChange - The  application pending state change. *Note* see IATA docs for more details.
+ * @property {boolean} multiTenant - The multi tenant flag.
+ * @property {boolean} accessibleMode - The accessible mode flag.
+ * @property {string} language - The language.
+ * 
+ * @example
+ * // Connect to the cuss platform
+ * this.cuss2.connection
+ * @example
+ * // Get the  current environment level
+ * this.cuss2.environmentLevel
+ * @example
+ * // Get the components
+ * this.cuss2.components
+ * @example
+ * // Subscribe to the state change subject
+ * this.cuss2.stateChange.subscribe(stateChange => {
+ * 	// Do something with the state change
+ * });
+ * @example
+ * // Subscribe to the component state change subject
+ * this.cuss2.componentStateChange.subscribe(componentStateChange => {
+ * 	// Do something with the component state change
+ * });
+ * @example
+ * // Subscribe to the onmessage subject
+ * this.cuss2.onmessage.subscribe(onmessage => {
+ * 	// Do something with the platform data
+ * });
+ * @example
+ * // Get the bag tag printer object
+ * // click here for more info
+ * this.cuss2.bagTagPrinter
+ * @example
+ * // Get the boarding pass printer object
+ * // click here for more info
+ * this.cuss2.boardingPassPrinter
+ * @example
+ * // Get the document reader object
+ * // click here for more info
+ * this.cuss2.documentReader
+ * @example
+ * // Get the barcode reader object
+ * // click here for more info
+ * this.cuss2.barcodeReader
+ * @example
+ * // Get the announcement object
+ * // click here for more info
+ * this.cuss2.announcement
+ * @example
+ * // Get the keypad object
+ * // click here for more info
+ * this.cuss2.keypad
+ * @example
+ * // Get the card reader object
+ * // click here for more info
+ * this.cuss2.cardReader
+ * @example
+ * // Get the activated subject
+ * this.cuss2.activated.subscribe(() => {
+ * 	// Do something when the application is activated
+ * });
+ * @example
+ * // Get the deactivated subject
+ * this.cuss2.deactivated.subscribe((appState) => {
+ * 	// Do something when the application is deactivated
+ * });
+ * @example
+ * // Get the pending state change
+ * this.cuss2.pendingStateChange
+ * @example
+ * // Get the multi tenant flag
+ * this.cuss2.multiTenant
+ * @example
+ * // Get the accessible mode flag
+ * this.cuss2.accessibleMode
+ * @example
+ * // Get the language
+ * this.cuss2.language
  */
 export class Cuss2 {
 
 	/**
-	 * @method connect
+	 * @memberof Cuss2
+	 * @method connect - Connect to the cuss platform.
 	 * @param {string} url  - The url of the CUSS 2 platform
 	 * @param {string} client_id  - The client_id of the CUSS 2 platform
 	 * @param {string} client_secret  - The client_secret of the CUSS 2 platform
 	 * @param {Object} [options={}] - An object of options passed in for the connection
 	 * @returns {Promise<Cuss2>} A promise that resolves to a Cuss2 object
+	 * @example
+	 * const connect = await Cuss2.connect('url', 'client_id', 'client_secret', "options");
+	 * 
 	 */
 	static async connect(url: string, client_id: string, client_secret: string, options: any = {}): Promise<Cuss2> {
 		const connection = await Connection.connect(url, client_id, client_secret,  options);
@@ -74,13 +173,9 @@ export class Cuss2 {
 
 	private constructor(connection: Connection) {
 		this.connection = connection;
-		/**
-		 * Subscribe to messages from the CUSS 2 platform
-		 */
+		// Subscribe to messages from the CUSS 2 platform
 		connection.messages.subscribe(async e => await this._handleWebSocketMessage(e))
-		/**
-		 * Subscribe to the connection being closed and attempt to reconnect
-		 */
+		// Subscribe to the connection being closed and attempt to reconnect
 		connection.onclose.subscribe(async () => {
 			await connection._connect();
 			await this._initialize();
@@ -108,9 +203,10 @@ export class Cuss2 {
 	accessibleMode: boolean = false;
 	language?: string;
 
-	/**
-	 * @property {StateChange.current} state Get the current application state from the CUSS 2 platform
-	 */
+  /**
+	* @typeof {StateChange.current} state Get the current application state from the CUSS 2 platform
+	* @returns {AppState} The current application state
+  */
 	get state() {
 		return this.stateChange.getValue().current;
 	}
@@ -182,9 +278,15 @@ export class Cuss2 {
 		//
 		// "GET" calls
 		//
+
 		/**
 		 * Get the current environment level.
-		 * @returns {Promise<EnvironmentLevel>} - The current environment level
+		 * @memberof Cuss2
+		 * @method getEnvironment
+		 * @returns {Promise<EnvironmentLevel>} - The current environment level. *Note* see IATA docs for more details.
+		 * @example
+		 * // *Note* see IATA docs for more details.
+		 * const environment = await cuss2.getEnvironment();
 		 */
 		getEnvironment: async (): Promise<EnvironmentLevel> => {
 			const response = await this.connection.get('/platform/environment');
@@ -194,7 +296,11 @@ export class Cuss2 {
 		},
 		/**
 		 * Get a list of components.
+		 * @memberof Cuss2
+		 * @method getComponents
 		 * @returns {Promise<ComponentList>} - The list of components
+		 * @example
+		 * const components = await cuss2.getComponents();
 		 */
 		getComponents: async (): Promise<ComponentList> => {
 			const response = await this.connection.get('/platform/components');
@@ -241,8 +347,12 @@ export class Cuss2 {
 		},
 		/**
 		 * Get the status of a given component (device).
+		 * @memberof Cuss2
+		 * @method getStatus
 		 * @param {number} componentID - The ID of the desired device 
-		 * @returns {Promise<PlatformData>} - The status of the component
+		 * @returns {Promise<PlatformData>} - The status of the component. *Note* see IATA docs for more details.
+		 * @example
+		 * const status = await cuss2.getStatus(componentID);
 		 */
 		getStatus: async (componentID:number): Promise<PlatformData> => {
 			const response = await this.connection.get('/peripherals/query/' + componentID);
@@ -252,18 +362,26 @@ export class Cuss2 {
 
 		/**
 		 * Send a command to a given component (device).
+		 * @memberof Cuss2
+		 * @method send
 		 * @param {number} componentID - The ID of the desired device
-		 * @param dataExchange
-		 * @returns {Promise<PlatformData>} 
+		 * @param dataExchange - Object to exchange data between the application and platform. *Note* see IATA docs for more details.
+		 * @returns {Promise<PlatformData>} *Note* see IATA docs for more details.
+		 * @example
+		 * const setup = await cuss2.send(componentID, dataExchange);
 		 */
 		send: async (componentID:number, dataExchange:DataExchange): Promise<PlatformData> => {
 			return this.connection.post('/peripherals/send/' + componentID, dataExchange);
 		},
 		/**
 		 * Send setup instructions to a given component (device).
+		 * @memberof Cuss2
+		 * @method setup
 		 * @param {number} componentID - The ID of the desired device 
-		 * @param dataExchange 
-		 * @returns {Promise<PlatformData>}
+		 * @param dataExchange - Object to exchange data between the application and platform. *Note* see IATA docs for more details.
+		 * @returns {Promise<PlatformData>} *Note* see IATA docs for more details.
+		 * @example
+		 * const status = await cuss2.setup(componentID, dataExchange);
 		 */
 		setup: async (componentID:number, dataExchange:DataExchange): Promise<PlatformData> => {
 			validateComponentId(componentID);
@@ -271,8 +389,12 @@ export class Cuss2 {
 		},
 		/**
 		 * Sends a cancel command to a given component (device).
+		 * @memberof Cuss2
+		 * @method cancel
 		 * @param {number} componentID - The ID of the desired device 
-		 * @returns {Promise<PlatformData>}
+		 * @returns {Promise<PlatformData>} *Note* see IATA docs for more details.
+		 * @example
+		 * const statusCancel = await cuss2.cancel(componentID);
 		 */
 		cancel: async (componentID:number): Promise<PlatformData> => {
 			validateComponentId(componentID);
@@ -284,8 +406,12 @@ export class Cuss2 {
 		*/
 		/**
 		 * Sends enable command to a given component (device).
+		 * @memberof Cuss2
+		 * @method enable
 		 * @param {number} componentID - The ID of the desired device
-		 * @returns {Promise<PlatformData>}
+		 * @returns {Promise<PlatformData>} *Note* see IATA docs for more details.
+		 * @example
+		 * const statusEnable = await cuss2.enable(componentID);
 		 */
 		enable: async (componentID:number): Promise<PlatformData> => {
 			validateComponentId(componentID);
@@ -293,8 +419,12 @@ export class Cuss2 {
 		},
 		/**
 		 * Sends disable command to a given component (device).
+		 * @memberof Cuss2
+		 * @method disable
 		 * @param {number} componentID - The ID of the desired device
-		 * @returns {Promise<PlatformData>}
+		 * @returns {Promise<PlatformData>} *Note* see IATA docs for more details.
+		 * @example
+		 * const statusDisable = await cuss2.disable(componentID);
 		 */
 		disable: async (componentID:number): Promise<PlatformData> => {
 			validateComponentId(componentID);
@@ -307,10 +437,14 @@ export class Cuss2 {
 
 		/**
 		 * Sends request to the platform for the application to change states.
+		 * @memberof Cuss2
+		 * @method staterequest
 		 * @param {AppState} state - The state to change to.
 		 * @param {ChangeReason} reasonCode - The enumerated reasonCode for the state change.
 		 * @param {string} reason - The reason for the state change.
-		 * @returns {Promise<PlatformData|undefined>} Response from the platform.
+		 * @returns {Promise<PlatformData|undefined>} Response from the platform. *Note* see IATA docs for more details.
+		 * @example
+		 * const startRequest = await cuss2.staterequest(state, reasonCode, reason);
 		 */
 		staterequest: async (state: AppState, reasonCode = ChangeReason.NOTAPPLICABLE, reason = ''): Promise<PlatformData|undefined> => {
 			if (this.pendingStateChange) {
@@ -342,7 +476,32 @@ export class Cuss2 {
 		/*
 		*		/peripherals/announcement/XXXXX
 		*/
+		/**
+		 * Sends announcement to a given component (device).
+		 * 
+		 * @memberof Cuss2
+		 * @namespace announcement
+		 * @method announcement
+		 * @param {number} componentID - The ID of the desired device
+		 * @param {string} rawData - The message to send
+		 * @returns {Promise<PlatformData>} *Note* see IATA docs for more details.
+		 * @property {method} play - Play the announcement.
+		 * @example
+		 * const play = await cuss2.announcement.play(componentID, rawData);
+		 * @property {method} pause - Pause the announcement.
+		 * @example
+		 * const stop = await cuss2.announcement.stop(componentID);
+		 * @property {method} resume - Resume the announcement.
+		 * @example
+		 * const resume = await cuss2.announcement.resume(componentID);
+		 * @property {method} stop - Stop the announcement.
+		 * @example
+		 * const stop = await cuss2.announcement.stop(componentID);
+		 */
 		announcement: {
+			/**
+			 * @memberof Cuss2.announcement
+			 */
 			play: async (componentID:number, rawData:string): Promise<PlatformData> => {
 				validateComponentId(componentID);
 				const dataExchange = {
@@ -352,16 +511,26 @@ export class Cuss2 {
 				} as DataExchange;
 				return await this.connection.post('/peripherals/announcement/play/' + componentID, dataExchange);
 			},
+
+			/**
+			 * @memberof Cuss2.announcement
+			 */
 			pause: async (componentID:number): Promise<PlatformData> => {
 				validateComponentId(componentID);
 				return await this.connection.post('/peripherals/announcement/pause/' + componentID);
 			},
 
+			/**
+			 * @memberof Cuss2.Announcement
+			 */
 			resume: async (componentID:number): Promise<PlatformData> => {
 				validateComponentId(componentID);
 				return await this.connection.post('/peripherals/announcement/resume/' + componentID);
 			},
 
+			/**
+			 * @memberof Cuss2.announcement
+			 */
 			stop: async (componentID:number): Promise<PlatformData> => {
 				validateComponentId(componentID);
 				return await this.connection.post('/peripherals/announcement/stop/' + componentID);
@@ -374,7 +543,11 @@ export class Cuss2 {
 	//
 	/**
 	 * Request the platform to change the application state to Available state.
-	 * @returns {Promise<PlatformData|undefined>} Response from the platform.
+	 * @memberof Cuss2
+	 * @method requestActiveState
+	 * @returns {Promise<PlatformData|undefined>} Response from the platform. *Note* see IATA docs for more details.
+	 * @example
+	 * const requestActiveState = await cuss2.requestActiveState();
 	 */
 	async requestAvailableState(): Promise<PlatformData|undefined> {
 		// allow hoping directly to AVAILABLE from INITIALIZE
@@ -386,7 +559,11 @@ export class Cuss2 {
 	}
 	/**
 	 * Request the platform to change the application state to Unavailable state.
-	 * @returns {Promise<PlatformData|undefined>} Response from the platform.
+	 * @memberof Cuss2
+	 * @method requestUnavailableState
+	 * @returns {Promise<PlatformData|undefined>} Response from the platform. *Note* see IATA docs for more details.
+	 * @example
+	 * const requestUnavailableState = await cuss2.requestUnavailableState();
 	 */
 	requestUnavailableState(): Promise<PlatformData|undefined> {
 		const okToChange = this.state === AppState.INITIALIZE || this.state === AppState.AVAILABLE || this.state === AppState.ACTIVE;
@@ -394,14 +571,22 @@ export class Cuss2 {
 	}
 	/**
 	 * Request the platform to change the application state to Stopped state.
-	 * @returns {Promise<PlatformData|undefined>} Response from the platform.
+	 * @memberof Cuss2
+	 * @method requestStoppedState
+	 * @returns {Promise<PlatformData|undefined>} Response from the platform. *Note* see IATA docs for more details.
+	 * @example
+	 * const requestStoppedState = await cuss2.requestStoppedState();
 	 */
 	requestStoppedState(): Promise<PlatformData|undefined> {
 		return this.api.staterequest(AppState.STOPPED);
 	}
 	/**
 	 * Request the platform to change the application state to Active state.
+	 * @memberof Cuss2
+	 * @method requestActiveState
 	 * @returns {Promise<PlatformData|undefined>} Response from the platform.
+	 * @example
+	 * const requestActiveState = await cuss2.requestActiveState();
 	 */
 	requestActiveState(): Promise<PlatformData|undefined> {
 		const okToChange = this.state === AppState.AVAILABLE || this.state === AppState.ACTIVE;
@@ -409,7 +594,11 @@ export class Cuss2 {
 	}
 	/**
 	 * Request the platform to reload the application.
+	 * @memberof Cuss2
+	 * @method requestReload
 	 * @returns {Promise<boolean>} Response from the platform whether it can reload or not.
+	 * @example
+	 * const requestReload = await cuss2.requestReload();
 	 */
 	async requestReload(): Promise<boolean> {
 		const okToChange = !this.state || this.state === AppState.UNAVAILABLE || this.state === AppState.AVAILABLE || this.state === AppState.ACTIVE;
@@ -424,7 +613,11 @@ export class Cuss2 {
 
 	/**
 	 * Query each component for its current state.
+	 * @memberof Cuss2
+	 * @method queryComponents
 	 * @returns {Promise<boolean>} Response from the platform, whether the query was able to be sent or not.
+	 * @example
+   * const queryComponents = await cuss2.queryComponents();
 	 */
 	async queryComponents(): Promise<boolean> {
 		if (!this.components) {
@@ -439,6 +632,8 @@ export class Cuss2 {
 	}
 
 	/**
+	 * 
+	 * @typeof unavailableComponents
 	 * @returns {Component[]} List of unavailable components.
 	 */
 	get unavailableComponents(): Component[] {
@@ -446,6 +641,7 @@ export class Cuss2 {
 		return components.filter((c:Component) => !c.ready);
 	}
 	/**
+	 * @typeof unavailableRequiredComponents
 	 * @returns {Component[]} List of unavailable components that have been marked required.
 	 */
 	get unavailableRequiredComponents(): Component[] {
@@ -454,6 +650,10 @@ export class Cuss2 {
 
 	/**
 	 * Check if all required components are available and move application to the appropriate state based on their status.
+	 * @memberof Cuss2
+	 * @method checkRequiredComponentsAndSyncState
+	 * @example
+	 * cuss2.checkRequiredComponentsAndSyncState();
 	 */
 	checkRequiredComponentsAndSyncState(): void {
 		if (this.pendingStateChange) return;

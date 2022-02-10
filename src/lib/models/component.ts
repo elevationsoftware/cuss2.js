@@ -16,40 +16,71 @@ import {PlatformResponseError} from "./platformResponseError";
 import {take, timeout} from "rxjs/operators";
 
 /**
- * @class Component
- * @classdesc General object representing a CUSS component with methods and properties to interact with it.
+ * @class General object representing a CUSS component with methods and properties to interact with it.
  * @param {EnvironmentComponent} component 
  * @param {Cuss2} cuss2 
  * @param {DeviceType} _type 
+ * @property {number} id - Numeric ID assigned to the component; used for identification of a specific component.
+ * @property {Subject<PlatformData>} onmessage - Observable that emits when a message is received from the component.
+ * @property {boolean} required - Whether the component is required to be connected to the CUSS Platform.
+ * @property {BehaviorSubject<StatusCodes>} statusChanged - Observable that emits the status of the component on changes.
+ * @property {DeviceType} deviceType - The type of device the component is, *See IATA documentation for more details.
+ * @property {number} pendingCalls - The number of pending calls to the component.
+ * @property {boolean} enabled - Whether the component is enabled or not.
+ * @property {number} pollingInterval - The interval in milliseconds to poll the component for data.
+ * @property {any} parent - The parent of the component.
+ * @property {Component[]} subcomponents - The subcomponents of the component. 
+ * @property {BehaviorSubject<boolean>} readyStateChanged - emits true when the component is ready
+ * @example
+ * // id is the numeric ID assigned to the component
+ * this.id = id;
+ * @example
+ * // onmessage is an observable that emits when a message is received from the component
+ * this.onmessage.subscribe(data => {
+ * 	console.log(data);
+ * });
+ * @example
+ * // required is whether the component is required to be connected to the CUSS Platform
+ * this.required = true;
+ * @example
+ * // statusChanged is an observable that emits the status of the component on changes
+ * this.statusChanged.subscribe(status => {
+ * 	console.log(status);
+ * });
+ * @example
+ * // deviceType is the type of device the component is, *See IATA documentation for more details.
+ * this.deviceType = DeviceType;
+ * @example
+ * // pendingCalls is the number of pending calls to the component
+ * this.pendingCalls = 0;
+ * @example
+ * // enabled is whether the component is enabled or not
+ * this.enabled
+ * @example
+ * // pollingInterval is the interval in milliseconds to poll the component
+ * this.pollingInterval = 1000;
+ * @example
+ * // parent is the parent of the component
+ * this.parent = parent;
+ * @example
+ * // subcomponents are an array subcomponents to the component
+ * this.subcomponents = subcomponents;
+ * @example
+ * // readyStateChanged is an observable that emits true when the component is ready
+ * this.readyStateChanged.subscribe(ready => {
+ * 	console.log(ready);
+ * });
  */
 export class Component {
 	_component: EnvironmentComponent;
-	/**
-	 * @property {number} id - Numeric ID assigned to the component; used for identification of a specific component.
-	 */
 	id: number;
-	/**
-	 * @property {Subject<PlatformData>} onmessage - Observable that emits when a message is received from the component.
-	 */
 	onmessage: Subject<PlatformData> = new Subject<PlatformData>();
 	api: any;
-	/**
-	 * @property {boolean} required - 
-	 */
 	required: boolean = false;
-	/**
-	 * @property {BehaviorSubject<StatusCodes} statusChanged - Observable that emits the status of the component on changes.
-	 */
 	statusChanged: BehaviorSubject<StatusCodes> = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
 	_eventHandlingCode: EventHandlingCodes = EventHandlingCodes.UNAVAILABLE;
-	/**
-	 * @property {DeviceType} deviceType - The type of device the component is, *See IATA documentation for more details.
-	 */
 	deviceType: DeviceType;
 	pendingCalls: number = 0;
-	/**
-	 * @property {boolean} enabled - Whether the component is enabled or not.
-	 */
 	enabled: boolean = false;
 	pollingInterval = 3000;
 	_poller: any;
@@ -57,17 +88,25 @@ export class Component {
 	subcomponents: Component[] = []
 
 	/**
+	 * @typeof Getter
 	 * @returns {boolean} true if the component is ready
 	 */
 	get ready(): boolean {
 		return this._eventHandlingCode === EventHandlingCodes.READY;
 	}
-	/**
-	 * @property {BehaviorSubject<boolean>} readyStateChanged - emits true when the component is ready
-	 */
+
 	readyStateChanged: Subject<boolean> = new Subject<boolean>();
 
+	/**
+	 * @typeof Getter
+	 * @returns {boolean} true if there are pending calls to the component
+	 */
 	get pending(): boolean { return this.pendingCalls > 0; }
+
+	/**
+	 * @typeof Getter
+	 * @returns {StatusCodes} the status of the component
+	 */
 	get status(): StatusCodes { return this.statusChanged.getValue(); }
 
 	constructor(component: EnvironmentComponent, cuss2: Cuss2, _type: DeviceType = DeviceType.UNKNOWN) {
@@ -123,6 +162,7 @@ export class Component {
 			this.statusChanged.next(msg.statusCode);
 		}
 	}
+
 	pollUntilReady(requireOK = false, pollingInterval = this.pollingInterval) {
 		if (this._poller) return;
 		const poll = () => {
@@ -137,10 +177,10 @@ export class Component {
 		poll();
 	}
 
-
 	_handleMessage(data:any) {
 		this.onmessage.next(data);
 	}
+
 	async _call(action:Function) {
 		this.pendingCalls++;
 		const decrement = (r:any)=>{
@@ -150,14 +190,31 @@ export class Component {
 		return action().then(decrement).catch((e:any) => Promise.reject(decrement(e)))
 	}
 
-	enable(...args: any[]) {
+	/**
+	 * Enable the component.
+	 * @param {any} args
+	 * @returns {Promise<PlatformData>} - The response from the platform.
+	 * @example
+	 * // Enable the component
+	 * Component.enable();
+	 * 
+	 */
+	enable(...args: any[]): Promise<PlatformData> {
 		return this._call(() => this.api.enable(this.id))
 			.then((r:any) => {
 				this.enabled = true;
 				return r;
 			})
 	}
-	disable() {
+
+	/**
+	 * Disable the component.
+	 * @returns {Promise<PlatformData>} - The response from the platform.
+	 * @example
+	 * // Disable the component
+	 * Component.disable();
+	 */
+	disable(): Promise<PlatformData> {
 		return this._call(() => this.api.disable(this.id))
 			.then((r:any) => {
 				this.enabled = false;
@@ -171,26 +228,74 @@ export class Component {
 				return Promise.reject(e);
 			});
 	}
-	cancel() {
+
+	/**
+	 * Call to cancel the component. 
+	 * @returns {Promise<PlatformData>} - The response from the platform.
+	 * @example
+	 * // Cancel the component
+	 * Component.cancel();
+	 */
+	cancel(): Promise<PlatformData> {
 		return this._call(() => this.api.cancel(this.id));
 	}
-	query() {
+
+	/**
+	 * Gives the status of the component.
+	 * @returns {Promise<PlatformData>} - The response from the platform.
+	 * @example
+	 * // Get the status of the component
+	 * Component.query();
+	 */
+	query(): Promise<PlatformData> {
 		return this._call(() => this.api.getStatus(this.id));
 	}
 
-	async setup(applicationData: ApplicationData) {
+	/**
+	 * Sends set up data which depends on the type of the component.
+	 * @param {ApplicationData} applicationData - *Note* see IATA standard for details on the format of the data.
+	 * @returns {Promise<PlatformData>} - The response from the platform.
+	 * @example
+	 * // Send set up data to the component
+	 * Component.setup(applicationData);
+	 */
+	async setup(applicationData: ApplicationData): Promise<PlatformData> {
 		// {dataRecords: object[]|null = null, illuminationData: object|null = null}
 		return await this.api.setup(this.id, {
 			toPlatform: applicationData // { dataRecords, illuminationData }
 		} as DataExchange);
 	}
-	async send(applicationData: ApplicationData) {
+
+	/**
+	 * A generic way to communicate with the component from the application.
+	 * @param {ApplicationData} applicationData - *Note* see IATA standard for details on the format of the data.
+	 * @returns {Promise<PlatformData>} - The response from the platform.
+	 * @example
+	 * // Send data to the component
+	 * Component.send(applicationData);
+	 */
+	async send(applicationData: ApplicationData): Promise<PlatformData> {
 		// {dataRecords: object[]|null = null, illuminationData: object|null = null}
 		return await this.api.send(this.id, {
 			toPlatform: applicationData // { dataRecords, illuminationData }
 		} as DataExchange);
 	}
 }
+
+/**
+ * @class A component that reads data from the platform
+ * @extends Component
+ * @property {Subject<string[]>} data - emits an array of data records
+ * @property {string[]} previousData - the previous data records 
+ * @example
+ * // emits an array of data records
+ * DataReaderComponent.data.subscribe(data => {
+ * 	console.log(data);
+ * });
+ * @example
+ * // emit previous data records
+ * console.log(DataReaderComponent.previousData);
+ */
 export class DataReaderComponent extends Component {
 	data = new Subject<string[]>();
 	previousData: string[] = [];
@@ -203,6 +308,13 @@ export class DataReaderComponent extends Component {
 		}
 	}
 
+	/**
+	 * Will enable the component and start reading data and after the timeout will disable the component.
+	 * @param {number} ms - timeout in milliseconds
+	 * @example
+	 * // Enable the component and start reading data
+	 * DataReaderComponent.read(5000);
+	 */
 	async read(ms:number=30000) {
 		return new Promise(async(resolve,reject)=>{
 				await this.enable();
@@ -216,21 +328,48 @@ export class DataReaderComponent extends Component {
 			.finally(() => this.disable());
 	}
 }
+
+/**
+ * @class A component that reads barcodes from the platform.
+ * @extends DataReaderComponent
+ * @param {EnvironmentComponent} component 
+ * @param {Cuss2} cuss2
+ */
 export class BarcodeReader extends DataReaderComponent {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.BARCODE_READER);
 	}
 }
+
+/**
+ * @class A component that reads documents from the platform.
+ * @extends DataReaderComponent
+ * @param {EnvironmentComponent} component
+ * @param {Cuss2} cuss2
+ */
 export class DocumentReader extends DataReaderComponent {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.PASSPORT_READER);
 	}
 }
+
+/**
+ * @class A component that reads data from the platform.
+ * @extends DataReaderComponent
+ * @param {EnvironmentComponent} component
+ * @param {Cuss2} cuss2
+ */
 export class CardReader extends DataReaderComponent {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.MSR_READER);
 	}
-
+/**
+ * Call set up to enable payment mode or form of identification.
+ * @param {boolean} yes true is payment mode, false is form of identification
+ * @example
+ * // Enable payment mode
+ * CardReader.enablePayment(true);
+ */
 	async enablePayment(yes:boolean) {
 		await this.setup({dataRecords: [{
 			data: '',
@@ -238,6 +377,13 @@ export class CardReader extends DataReaderComponent {
 		}]});
 	}
 
+	/**
+	 * read the card data for payment
+	 * @param {number} ms - timeout in milliseconds of how long it will read for.
+	 * @example
+	 * // read the card data for payment
+	 * CardReader.readPayment(5000);
+	 */
 	async readPayment(ms:number=30000) {
 		await this.enablePayment(true);
 		await this.read(ms);
@@ -245,6 +391,33 @@ export class CardReader extends DataReaderComponent {
 	}
 }
 
+/**
+ * @class A component that prints.
+ * @extends Component
+ * @param {EnvironmentComponent} component
+ * @param {Cuss2} cuss2
+ * @param {DeviceType} _type
+ * @property {Feeder} feeder - The feeder component linked this printer.
+ * @property {Dispenser} dispenser - The dispenser component linked this printer.
+ * @property {Subject<boolean>} combinedReadyStateChanged - The combined ready state of this printer, feeder, and dispenser; emits true when ready.
+ * @property {BehaviorSubject<StatusCodes>} combinedStatusChanged - The combined status of this printer, feeder, and dispenser; emits on status code changes.
+
+ * @example
+ * //feeder
+ * Printer.feeder // The linked feeder component
+ * @example
+ * //dispenser
+ * Printer.dispenser // The linked dispenser component
+ * @example
+ * //combinedReadyStateChanged
+ * Printer.combinedReadyStateChanged.subscribe(ready => {
+ * 	console.log(ready);
+ * });
+ * @example
+ * //combinedStatusChanged.subscribe(status => {
+ * 	console.log(status);
+ * });
+ */
 export class Printer extends Component {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2, _type: DeviceType) {
 		super(component, cuss2, _type);
@@ -300,36 +473,34 @@ export class Printer extends Component {
 		});
 	}
 
-	/**
-	 * @property The feeder component linked this printer.
-	 */
 	feeder: Feeder;
-	/**
-	 * @property The dispenser component linked this printer.
-	 */
 	dispenser: Dispenser;
-	/**
-	 * @property The combined ready state of this printer, feeder, and dispenser; emits true when ready.
-	 */
 	combinedReadyStateChanged: Subject<boolean> = new Subject<boolean>();
-	/**
-	 * @property The combined status of this printer, feeder, and dispenser; emits on status code changes.
-	 */
 	combinedStatusChanged: BehaviorSubject<StatusCodes> = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
 
 	_superStatusChanged: BehaviorSubject<StatusCodes>;
 	_superReadyStateChanged: Subject<boolean>;
 
+	/**
+	 * @typeof Getter
+	 * @returns {BehaviorSubject<boolean>} - The observable that will emit when media present has changed.
+	 */
 	get mediaPresentChanged() {
 		return this.dispenser.mediaPresentChanged;
 	}
+
+	/**
+	 * @typeof - Getter
+	 * @returns {boolean} - The current media present state.
+	 */
 	get mediaPresent(): boolean {
 		return this.dispenser.mediaPresentChanged.getValue();
 	}
 
 	_combinedReady = false;
 	/**
-	 * The combined ready state of the printer, feeder, and dispenser
+	 * @typeof - Getter
+	 * @returns {boolean} - The combined ready state of the printer, feeder, and dispenser
 	 */
 	get combinedReady(): boolean {
 		return this._combinedReady;
@@ -337,7 +508,8 @@ export class Printer extends Component {
 
 	_combinedStatus = StatusCodes.OK;
 	/**
-	 * The combined status of the printer, feeder, and dispenser.
+	 * @typeof - Getter
+	 * @returns {StatusCodes} - The combined status of the printer, feeder, and dispenser.
 	 */
 	get combinedStatus(): StatusCodes {
 		return this._combinedStatus;
@@ -369,6 +541,15 @@ export class Printer extends Component {
 		this.combinedReadyStateChanged = rsc;
 	}
 
+	/**
+	 * Combined call to set up the printer and then print.
+	 * @param {string[]} rawSetupData - The setup data to send to the printer.
+	 * @param {string} rawData - The data to print.
+	 * @returns {Promise<PlatformData>} - The response from the platform after the print command.
+	 * @example
+	 * //set up and print
+	 * await Printer.setupAndPrintRaw(['string1','string2'], 'string3')
+	 */
 	async setupAndPrintRaw(rawSetupData: string[], rawData?: string) {
 		if (typeof rawData !== 'string') {
 			throw new TypeError('Invalid argument: rawData');
@@ -377,12 +558,31 @@ export class Printer extends Component {
 		await this.setupRaw(rawSetupData);
 		return this.printRaw(rawData);
 	}
+
+	/**
+	 * Sends a print command to the printer.
+	 * @param {string} rawData - The data to print. 
+	 * @returns {Promise<PlatformData>} - The response from the platform.
+	 * @example
+	 * //print
+	 * await Printer.printRaw('string')
+	 */
 	async printRaw(rawData: string) {
 		return this.sendRaw(rawData)
 			.catch((e:PlatformResponseError) => {
 				return this.cancel().then(() => { throw e })
 			});
 	}
+
+  /**
+	 * Sends a setup command to the printer.
+	 * @param {string | string[]}raw - The setup data to send to the printer. 
+	 * @param { Array<CUSSDataTypes>} dsTypes - The data types of the setup data. *OptionalParam*
+	 * @returns {Promise<PlatformData>} - The response from the platform.
+	 * @example
+	 * //setup
+	 * await Printer.setupRaw('string')
+	 */
 	async setupRaw(raw: string|string[], dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.ITPS ]) {
 		const isArray = Array.isArray(raw);
 		if (!raw || (isArray && !raw[0])) {
@@ -399,6 +599,7 @@ export class Printer extends Component {
 		return await Promise.all(rawArray.map(r => this.api.setup(this.id, dx(r))))
 			.then(results => isArray? results : results[0])
 	}
+
 	async sendRaw(raw: string, dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.ITPS ] ) {
 		const dataExchange = {
 			toPlatform: {
@@ -408,13 +609,23 @@ export class Printer extends Component {
 
 		return this.api.send(this.id, dataExchange);
 	}
+
 	async aeaCommand(cmd:string) {
 		const response = await this.setupRaw(cmd);
 		return (response.dataRecords||[]).map((r:any)=>r.data||'')
 	}
+
+	/**
+	 * Gets environment data from the printer.
+	 * @returns dataRecords from the PlatformData response.
+	 * @example
+	 * //get environment data
+	 * Printer.getEnvironmentData()
+	 */
 	async getEnvironment() {
 		return Cuss2.helpers.deserializeDictionary((await this.aeaCommand('ES'))[0]);
 	}
+
 	async _getPairedResponse(cmd:string, n:number=2) {
 		const response = (await this.aeaCommand(cmd))[0];
 		return Cuss2.helpers.split_every(response.substr(response.indexOf('OK')+2), n) || [];
@@ -429,6 +640,7 @@ export class Printer extends Component {
 			return this._getPairedResponse('LS')
 		},
 	};
+
 	pectabs:any = {
 		clear: async (id='') => {
 			const response = await this.aeaCommand('PC'+id);
@@ -440,6 +652,13 @@ export class Printer extends Component {
 	};
 
 }
+
+/**
+ * @class A printer that can print bag tags.
+ * @extends Printer
+ * @param {EnvironmentComponent} component
+ * @param {Cuss2} cuss2
+ */
 export class BagTagPrinter extends Printer {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.BAG_TAG_PRINTER);
@@ -455,6 +674,13 @@ export class BagTagPrinter extends Printer {
 		},
 	};
 }
+
+/**
+ * @class A printer that can print boarding passes.
+ * @extends Printer
+ * @param {EnvironmentComponent} component
+ * @param {Cuss2} cuss2
+ */
 export class BoardingPassPrinter extends Printer {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.BOARDING_PASS_PRINTER);
@@ -471,15 +697,52 @@ export class BoardingPassPrinter extends Printer {
 	};
 }
 
+
+/**
+ * @class A part of a printer that feeds paper.
+ * @extends Component
+ * @param {EnvironmentComponent} component
+ * @param {Cuss2} cuss2
+ * @property {Printer} printer - The printer that this feeder is attached to.
+ * @example 
+ * //get the printer that this feeder is attached to
+ * Feeder.printer
+ */
 export class Feeder extends Component {
 	printer?: Printer;
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.FEEDER);
 	}
 }
+
+/**
+ * @class A part of a printer that dispenses printed media.
+ * @extends Component
+ * @param {EnvironmentComponent} component
+ * @param {Cuss2} cuss2
+ * @property {Printer} printer - The printer that this dispenser is attached to.
+ * @property {BehaviorSubject<boolean>} mediaPresentChanged - Will emit when the media present state changes.
+ * @example
+ * //get the printer that this dispenser is attached to
+ * Dispenser.printer
+ * @example
+ * // subscribe to media present state
+ * Dispenser.mediaPresentChanged.subscribe(present => {
+ * 	if (present) {
+ * 		console.log('media is present');
+ * 	} else {
+ * 		console.log('media is not present');
+ * 	}
+ * });
+ */
 export class Dispenser extends Component {
 	printer?: Printer;
 	mediaPresentChanged: BehaviorSubject<boolean>;
+
+	/**
+	 * @typeof Getter
+	 * @returns {boolean} - Whether or not media is present in the dispenser.
+	 */
 	get mediaPresent(): boolean {
 		return this.mediaPresentChanged.getValue();
 	}
@@ -503,6 +766,19 @@ export class Dispenser extends Component {
 		})
 	}
 }
+
+/**
+ * @class A component that provides keypad input.
+ * @extends Component
+ * @param {EnvironmentComponent} component
+ * @param {Cuss2} cuss2
+ * @property {Subject<any>} data - Emits the data from the keypad (button presses).
+ * @example
+ * //subscribe to keypad data
+ * Keypad.data.subscribe(data => {
+ * 	console.log(data);
+ * });
+ */
 export class Keypad extends Component {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.KEY_PAD);
@@ -531,7 +807,20 @@ export class Keypad extends Component {
 	}
 	data: Subject<any> = new Subject<any>();
 }
+
+/**
+ * @class A component that announces messages.
+ * @extends Component
+ */
 export class Announcement extends Component {
+	/**
+	 * Say the announcement.
+	 * @param {string} text - The text to say.
+	 * @param {string} lang - The language used to say the text.
+	 * @returns {Promise<PlatformData>} - The response from the platform.
+	 * @example
+ 	 * Announcement.say("something to say", "en-US");
+	 */
 	say(text:string, lang:string='en-US') {
 		const xml = `<?xml version="1.0" encoding="UTF-8"?><speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${lang}">${text}</speak>`;
 		return this.play(xml);
@@ -539,21 +828,55 @@ export class Announcement extends Component {
 	play(xml:string) {
 		return this.api.announcement.play(this.id, xml);
 	}
+	/**
+	 * Stop the announcement.
+	 * @returns {Promise<PlatformData>} - The response from the platform.
+	 * @example
+ 	 * Announcement.stop();
+	 */
 	stop() {
 		return this.api.announcement.stop(this.id);
 	}
+	/**
+	 * Pause the announcement.
+	 * @returns {Promise<PlatformData>} - The response from the platform.
+   * @example
+   * Announcement.pause();
+	 */
 	pause() {
 		return this.api.announcement.pause(this.id);
 	}
+	/**
+	 * Resume the announcement.
+	 * @returns {Promise<PlatformData>} - The response from the platform.
+	 * @example
+ 	 * Announcement.resume();
+	 */
 	resume() {
 		return this.api.announcement.resume(this.id);
 	}
 }
 
+/**
+ * @class A component that controls illumination.
+ * @extends Component
+ * @param {EnvironmentComponent} component
+ * @param {Cuss2} cuss2
+ */
 export class Illumination extends Component {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.ILLUMINATION);
 	}
+	/**
+	 * Enable the illumination.
+	 * @param {number} duration - The duration of the illumination in milliseconds.
+	 * @param {string | number[]} color - The color of the illumination.
+	 * @param {number[]} blink - How many times to blink
+	 * @returns {Promise<PlatformData>} - The response from the platform.
+	 * @example
+	 * //enable the illumination
+	 * Illumination.enable(1000, '#FF0000', [1, 2]);
+	 */
 	async enable(duration: number, color?: String|number[], blink?: number[]) {
 		// @ts-ignore
 		let name = (typeof color === 'string')? (IlluminationDataLightColor.NameEnum)[color] : undefined;
@@ -566,6 +889,12 @@ export class Illumination extends Component {
 		return await this.send({illuminationData: {duration, lightColor: {name, rgb}, blinkRate}});
 	}
 }
+
+/**
+ * @class A component that provides audio feedback.
+ * @param {EnvironmentComponent} component
+ * @param {Cuss2} cuss2
+ */
 export class Headset extends Component {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.HEADSET);
