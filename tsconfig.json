@@ -10,7 +10,7 @@
     "lib": ["es2020", "dom"],
     "rootDir": "src",
     "moduleResolution": "node",
-    "target": "es2020",
+    "target": "es2019",
     "declaration": true,
     "outDir": "./dist"
   }
