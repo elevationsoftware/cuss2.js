@@ -465,12 +465,6 @@ export class Printer extends Component {
 			}
 		});
 		this.combinedStatusChanged = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
-		
-		cuss2.activated.subscribe(() => {
-			if (this.ready) {
-				this.enable();
-			}
-		});
 	}
 
 	feeder: Feeder;
@@ -660,8 +654,19 @@ export class Printer extends Component {
  * @param {Cuss2} cuss2
  */
 export class BagTagPrinter extends Printer {
+	autoEnable: boolean;
+
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.BAG_TAG_PRINTER);
+		this.autoEnable = cuss2.autoEnableBTP;
+
+		cuss2.activated.subscribe(() => {
+			if (this.ready) {
+				if (this.autoEnable) {
+					this.enable();
+				}
+			}
+		});
 	}
 
 	pectabs:any = {
@@ -682,8 +687,19 @@ export class BagTagPrinter extends Printer {
  * @param {Cuss2} cuss2
  */
 export class BoardingPassPrinter extends Printer {
+	autoEnable: boolean;
+
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.BOARDING_PASS_PRINTER);
+		this.autoEnable = cuss2.autoEnableBPP;
+
+		cuss2.activated.subscribe(() => {
+			if (this.ready) {
+				if (this.autoEnable) {
+					this.enable();
+				}
+			}
+		});
 	}
 
 	templates:any = {

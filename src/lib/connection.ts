@@ -7,6 +7,7 @@ import {takeWhile} from "rxjs/operators";
 import { CUSS2ApiResponse } from "./interfaces/cUSS2ApiResponse";
 import {PlatformResponseError} from "./models/platformResponseError";
 import {ReturnCodes} from "./interfaces/returnCodes";
+import { Printer } from "./models/component";
 
 const axiosClient = axios.create();
 axiosClient.defaults.raxConfig = {
@@ -73,6 +74,10 @@ export class Connection {
 	private constructor(baseURL:string, client_id: string, client_secret: string, options:any = {}) {
 		this.timeout = options.timeout || 30000;
 		this.pingInterval = options.pingInterval || this.pingInterval
+		if (options.autoEnable) { 
+			this.autoEnableBTP = options.autoEnableBTP;
+			this.autoEnableBPP = options.autoEnableBPP;
+		}
 		const endOfHostname = baseURL.indexOf('?');
 		if (endOfHostname > -1) {
 			baseURL = baseURL.substr(0, endOfHostname);
@@ -100,6 +105,8 @@ export class Connection {
 	onclose: Subject<void> = new Subject();
 	pingInterval = 15000;
 	lastPong = 0;
+	autoEnableBTP: boolean = true;
+	autoEnableBPP: boolean = true;
 	_pinger: any = 0;
 
 	_config = {

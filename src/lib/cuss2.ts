@@ -180,9 +180,14 @@ export class Cuss2 {
 			await connection._connect();
 			await this._initialize();
 		});
+
+		this.autoEnableBPP = this.connection.autoEnableBPP;
+		this.autoEnableBTP = this.connection.autoEnableBTP;
 	}
 
 	connection:Connection;
+	autoEnableBPP: boolean = true;
+	autoEnableBTP: boolean = true;
 	environment: EnvironmentLevel = {} as EnvironmentLevel;
 	components: any|undefined = undefined;
 	stateChange: BehaviorSubject<StateChange> = new BehaviorSubject<StateChange>(new StateChange(AppState.STOPPED, AppState.STOPPED));
