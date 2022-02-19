@@ -82,7 +82,7 @@ export class Component {
 	deviceType: DeviceType;
 	pendingCalls: number = 0;
 	enabled: boolean = false;
-	pollingInterval = 3000;
+	pollingInterval = 10000;
 	_poller: any;
 	parent: any;
 	subcomponents: Component[] = []
@@ -753,7 +753,7 @@ export class Dispenser extends Component {
 		this.mediaPresentChanged = new BehaviorSubject<boolean>(false);
 		this.statusChanged.subscribe((status) => {
 			if (status === StatusCodes.MEDIAPRESENT) {
-				this.pollUntilReady(true, 100);
+				this.pollUntilReady(true, 2000);
 				if (!this.mediaPresent) {
 					this.mediaPresentChanged.next(true);
 				}
