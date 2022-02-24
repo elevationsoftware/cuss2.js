@@ -55,8 +55,9 @@ export class Connection {
 	 * /// Connects to a CUSS Platform at the provided URL
 	 * const connection = await Connection.connect('url', 'my-client-id', 'my-client-secret', 'token-url');
 	 */
-	static async connect(baseURL:string, client_id: string, client_secret: string, tokenURL?: string): Promise<Connection> {
-		const connection = new Connection(baseURL, client_id, client_secret, tokenURL);
+	static async connect(baseURL: string, client_id: string, client_secret: string, tokenURL?: string, options: any = {}): Promise<Connection> {
+		const opt = { ...options, tokenURL: tokenURL };
+		const connection = new Connection(baseURL, client_id, client_secret, opt);
 		let delay = .5;
 		function connect() : Promise<any> {
 			return connection._connect().catch(async (err) => {
@@ -74,16 +75,15 @@ export class Connection {
 	private constructor(baseURL:string, client_id: string, client_secret: string, options:any = {}) {
 		this.timeout = options.timeout || 30000;
 		this.pingInterval = options.pingInterval || this.pingInterval
-		if (options.autoEnable) { 
-			this.autoEnableBTP = options.autoEnableBTP;
-			this.autoEnableBPP = options.autoEnableBPP;
-		}
+		if (typeof options.autoEnableBTP === 'boolean') { this.autoEnableBTP = options.autoEnableBTP; }
+		if (typeof options.autoEnableBPP === 'boolean') { this.autoEnableBPP = options.autoEnableBPP; }
+
 		const endOfHostname = baseURL.indexOf('?');
 		if (endOfHostname > -1) {
 			baseURL = baseURL.substr(0, endOfHostname);
 		}
-		if(baseURL.endsWith('/')) {
-			baseURL = baseURL.substr(0, baseURL.length-1)
+		if (baseURL.endsWith('/')) {
+			baseURL = baseURL.substr(0, baseURL.length - 1)
 		}
 		this._baseURL = baseURL;
 
