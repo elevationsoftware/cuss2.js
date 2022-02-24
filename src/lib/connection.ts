@@ -7,7 +7,6 @@ import { takeWhile } from "rxjs/operators";
 import { CUSS2ApiResponse } from "./interfaces/cUSS2ApiResponse";
 import { PlatformResponseError } from "./models/platformResponseError";
 import { ReturnCodes } from "./interfaces/returnCodes";
-import { Printer } from "./models/component";
 
 const axiosClient = axios.create();
 axiosClient.defaults.raxConfig = {
