@@ -162,7 +162,7 @@ export class Cuss2 {
 	 * 
 	 */
 	static async connect(url: string, client_id: string, client_secret: string, options: any = {}): Promise<Cuss2> {
-		const connection = await Connection.connect(url, client_id, client_secret,  options.tokenURL, options);
+		const connection = await Connection.connect(url, client_id, client_secret,  options);
 		const cuss2 = new Cuss2(connection);
 		await cuss2._initialize();
 		return cuss2;
@@ -180,14 +180,11 @@ export class Cuss2 {
 			await connection._connect();
 			await this._initialize();
 		});
-
-		this.autoEnableBPP = this.connection.autoEnableBPP;
-		this.autoEnableBTP = this.connection.autoEnableBTP;
 	}
 
 	connection:Connection;
-	autoEnableBPP: boolean = true;
-	autoEnableBTP: boolean = true;
+	autoEnableBPP: boolean = false;
+	autoEnableBTP: boolean = false;
 	environment: EnvironmentLevel = {} as EnvironmentLevel;
 	components: any|undefined = undefined;
 	stateChange: BehaviorSubject<StateChange> = new BehaviorSubject<StateChange>(new StateChange(AppState.STOPPED, AppState.STOPPED));

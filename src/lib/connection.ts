@@ -54,9 +54,8 @@ export class Connection {
 	 * /// Connects to a CUSS Platform at the provided URL
 	 * const connection = await Connection.connect('url', 'my-client-id', 'my-client-secret', 'token-url');
 	 */
-	static async connect(baseURL: string, client_id: string, client_secret: string, tokenURL?: string, options: any = {}): Promise<Connection> {
-		const opt = { ...options, tokenURL: tokenURL };
-		const connection = new Connection(baseURL, client_id, client_secret, opt);
+	static async connect(baseURL:string, client_id: string, client_secret: string, tokenURL?: string): Promise<Connection> {
+		const connection = new Connection(baseURL, client_id, client_secret, tokenURL);
 		let delay = .5;
 		function connect(): Promise<any> {
 			return connection._connect().catch(async (err) => {
@@ -74,8 +73,6 @@ export class Connection {
 	private constructor(baseURL: string, client_id: string, client_secret: string, options: any = {}) {
 		this.timeout = options.timeout || 30000;
 		this.pingInterval = options.pingInterval || this.pingInterval
-		if (typeof options.autoEnableBTP === 'boolean') { this.autoEnableBTP = options.autoEnableBTP; }
-		if (typeof options.autoEnableBPP === 'boolean') { this.autoEnableBPP = options.autoEnableBPP; }
 
 		const endOfHostname = baseURL.indexOf('?');
 		if (endOfHostname > -1) {
@@ -104,8 +101,6 @@ export class Connection {
 	onclose: Subject<void> = new Subject();
 	pingInterval = 15000;
 	lastPong = 0;
-	autoEnableBTP: boolean = true;
-	autoEnableBPP: boolean = true;
 	_pinger: any = 0;
 
 	_config = {
