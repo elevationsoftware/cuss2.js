@@ -162,7 +162,7 @@ export class Cuss2 {
 	 * 
 	 */
 	static async connect(url: string, client_id: string, client_secret: string, options: any = {}): Promise<Cuss2> {
-		const connection = await Connection.connect(url, client_id, client_secret,  options);
+		const connection = await Connection.connect(url, client_id, client_secret,  options.tokenURL, options);
 		const cuss2 = new Cuss2(connection);
 		await cuss2._initialize();
 		return cuss2;
