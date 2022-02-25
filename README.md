@@ -54,17 +54,11 @@ const connect = async (cuss2URL: string, clientId: string, clientSecret: string)
 
 // Connect to cuss2 Platform
 const { clientId, clientSecret, platformURL } = platformConfig;
-connect(platformURL, clientId, clientSecret, options = {}) // optional object for config options such as auto enabling of BTP or BPP
+connect(platformURL, clientId, clientSecret)
   .then(checkDevices)
   .catch(connectionFailure);
 ```
 
-### Connection Options
-----------------------------------------------------------
-Optional 4th argument to the connection method
- - `autoEnableBTP: boolean` - true by default, pass in as false the options object to disable this feature.
- - `autoEnableBPP: boolean` - true by default, pass as false in the options object to disable this feature.
- ---------------------------------------------------------
 ### Methods and Components
 Below are the methods you can use to interact with the CUSS 2.0 API and a list of components. 
 ___
