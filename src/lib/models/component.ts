@@ -656,14 +656,6 @@ export class Printer extends Component {
 export class BagTagPrinter extends Printer {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.BAG_TAG_PRINTER);
-
-		cuss2.activated.subscribe(() => {
-			if (this.ready) {
-				if (cuss2.autoEnableBTP) {
-					this.enable();
-				}
-			}
-		});
 	}
 
 	pectabs:any = {
@@ -686,14 +678,6 @@ export class BagTagPrinter extends Printer {
 export class BoardingPassPrinter extends Printer {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
 		super(component, cuss2, DeviceType.BOARDING_PASS_PRINTER);
-
-		cuss2.activated.subscribe(() => {
-			if (this.ready) {
-				if (cuss2.autoEnableBPP) {
-					this.enable();
-				}
-			}
-		});
 	}
 
 	templates:any = {
