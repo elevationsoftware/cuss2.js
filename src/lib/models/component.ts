@@ -465,12 +465,6 @@ export class Printer extends Component {
 			}
 		});
 		this.combinedStatusChanged = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
-		
-		cuss2.activated.subscribe(() => {
-			if (this.ready) {
-				this.enable();
-			}
-		});
 	}
 
 	feeder: Feeder;

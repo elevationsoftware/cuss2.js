@@ -19,10 +19,10 @@ The library and corresponding app platform also ensure backwards compatibility t
 - Typescript libs for [Angular](https://github.com/elevationsoftware/cuss2-angular) and [React](https://github.com/elevationsoftware/cuss2-react)
 
 
-## The Sandbox - Coming Soon
+## The Sandbox
 
-While you are developing your application, you can use the Elevated CUSS Sandbox against real platform responses. Watch your application respond correctly to CUSS Events like a paper jam or a required device unavailable.
-- [CUSS Sandbox]() - Coming Soon
+While you are developing your application, you can use the Elevated CUSS Sandbox to test against real platform responses. Watch your application respond correctly to CUSS Events like a paper jam or a required device unavailable.
+- [CUSS Sandbox](https://elevated-admin.herokuapp.com/login?org=cuss)
 
 ## Getting Started
 
@@ -58,6 +58,7 @@ connect(platformURL, clientId, clientSecret)
   .then(checkDevices)
   .catch(connectionFailure);
 ```
+
 ### Methods and Components
 Below are the methods you can use to interact with the CUSS 2.0 API and a list of components. 
 ___
