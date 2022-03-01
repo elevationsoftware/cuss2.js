@@ -164,6 +164,7 @@ export class Cuss2 {
 	static async connect(url: string, client_id: string, client_secret: string, options: any = {}): Promise<Cuss2> {
 		const connection = await Connection.connect(url, client_id, client_secret,  options);
 		const cuss2 = new Cuss2(connection);
+		document.body.setAttribute('elevated-cuss2', '1')
 		Cuss2._prep_devtools(cuss2)
 		await cuss2._initialize();
 		return cuss2;
