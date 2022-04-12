@@ -163,19 +163,17 @@ export class Cuss2 {
 	 */
 	static async connect(url: string, client_id: string, client_secret: string, options: any = {}): Promise<Cuss2> {
 		document.body.setAttribute('elevated-cuss2', '1')
+		function broadcast(detail: any) {
+			const event = new CustomEvent('send_to_cuss2_devtools', {detail});
+			window.dispatchEvent(event);
+		}
+		Cuss2.logger.subscribe(broadcast);
+
 		const connection = await Connection.connect(url, client_id, client_secret,  options);
 		const cuss2 = new Cuss2(connection);
-		Cuss2._prep_devtools(cuss2)
-		await cuss2._initialize();
-		return cuss2;
-	}
-	static _prep_devtools(cuss2: Cuss2) {
+
 		if (document.body.hasAttribute('cuss2-devtools')) {
 			console.log('cuss2-devtools detected');
-			function send_to_cuss2_devtools(detail: any) {
-				const event = new CustomEvent('send_to_cuss2_devtools', {detail});
-				window.dispatchEvent(event);
-			}
 			// @ts-ignore
 			window.addEventListener("execute_from_cuss2_devtools", async ({detail: {id, cmd, args=[]}}) => {
 				console.log('EVENT:execute_from_cuss2_devtools', cmd, args)
@@ -194,11 +192,12 @@ export class Cuss2 {
 					catch(e) {error = e}
 				}
 				else response = target;
-				send_to_cuss2_devtools({id, cmd, response, error});
+				broadcast({id, cmd, response, error});
 			}, false);
-			cuss2.onmessage.subscribe((data) => send_to_cuss2_devtools({onmessage: data}));
-			Cuss2.logger.subscribe(send_to_cuss2_devtools);
 		}
+
+		await cuss2._initialize();
+		return cuss2;
 	}
 	static _get(cuss2: Cuss2, parts: String[]) {
 		// @ts-ignore
