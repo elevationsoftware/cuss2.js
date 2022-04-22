@@ -123,9 +123,7 @@ export class Component {
 			}
 		});
 		cuss2.deactivated.subscribe(() => {
-			if (this.enabled) {
-				this.disable();
-			}
+			this.enabled = false;
 		});
 
 		if (component.linkedComponentIDs?.length) {

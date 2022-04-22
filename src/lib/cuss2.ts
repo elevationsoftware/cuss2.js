@@ -592,6 +592,15 @@ export class Cuss2 {
 			await this.requestUnavailableState();
 		}
 		const okToChange = this.state === AppState.UNAVAILABLE || this.state === AppState.ACTIVE;
+		
+		if (okToChange && this.state === AppState.ACTIVE) {
+			this.components.forEach(async (component: Component) => {
+				if (component.enabled) {
+					await component.disable()
+				}
+			});
+		}
+
 		return okToChange ? this.api.staterequest(AppState.AVAILABLE) : Promise.resolve(undefined);
 	}
 	/**
