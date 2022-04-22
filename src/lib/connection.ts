@@ -163,13 +163,13 @@ export class Connection {
 				const data = JSON.parse(event.data);
 				if (data.description === 'Client already connected') {
 					removeListeners();
-					log('error', data.description, event.data);
+					log('error', data.description, data);
 					return reject(new Error('Client already connected'))
 				}
 
 				if (data.description === 'Client authorized' && data.returnCode === 'RC_OK') {
 					removeListeners();
-					log('info', "Token Confirmed", event.data);
+					log('info', "Token Confirmed", data);
 					this._socket = socket;
 					this.lastPong = Date.now() + (this.pingInterval + 2000);
 					this._startPingPong();
