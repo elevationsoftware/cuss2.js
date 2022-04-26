@@ -598,7 +598,7 @@ export class Cuss2 {
 				const componentList = Object.values(this.components) as Component[];
 				componentList.forEach(async (component: Component) => {
 					if (component.enabled) {
-						await component.disable()
+						await component.disable();
 					}
 				});
 			}
@@ -622,7 +622,7 @@ export class Cuss2 {
 				const componentList = Object.values(this.components) as Component[];
 				componentList.forEach(async (component: Component) => {
 					if (component.enabled) {
-						await component.disable()
+						await component.disable();
 					}
 				});
 			}
