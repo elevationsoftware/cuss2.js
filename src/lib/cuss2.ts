@@ -282,7 +282,7 @@ export class Cuss2 {
 
 			if (this._online && currentState === AppState.UNAVAILABLE) {
 				await this.queryComponents().catch(e => log('verbose', 'failed to queryComponents', e));
-				this.checkRequiredComponentsAndSyncState();
+				// this.checkRequiredComponentsAndSyncState();
 			}
 			else if (currentState === AppState.ACTIVE) {
 				this.multiTenant = message.applicationActivation?.executionMode === ExecutionModeEnum.MAM;
@@ -301,7 +301,7 @@ export class Cuss2 {
 				component.updateState(message);
 				this.componentStateChange.next(component);
 				if (unsolicited || message.functionName === 'query') {
-					this.checkRequiredComponentsAndSyncState();
+					// this.checkRequiredComponentsAndSyncState();
 				}
 			}
 		}
