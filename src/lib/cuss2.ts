@@ -594,11 +594,14 @@ export class Cuss2 {
 		const okToChange = this.state === AppState.UNAVAILABLE || this.state === AppState.ACTIVE;
 		
 		if (okToChange && this.state === AppState.ACTIVE) {
-			this.components.forEach(async (component: Component) => {
-				if (component.enabled) {
-					await component.disable()
-				}
-			});
+			if (this.components) {
+				const componentList = Object.values(this.components) as Component[];
+				componentList.forEach(async (component: Component) => {
+					if (component.enabled) {
+						await component.disable();
+					}
+				});
+			}
 		}
 
 		return okToChange ? this.api.staterequest(AppState.AVAILABLE) : Promise.resolve(undefined);
@@ -615,11 +618,14 @@ export class Cuss2 {
 		const okToChange = this.state === AppState.INITIALIZE || this.state === AppState.AVAILABLE || this.state === AppState.ACTIVE;
 
 		if (okToChange && this.state === AppState.ACTIVE) {
-			this.components.forEach(async (component: Component) => {
-				if (component.enabled) {
-					await component.disable()
-				}
-			});
+			if (this.components) {
+				const componentList = Object.values(this.components) as Component[];
+				componentList.forEach(async (component: Component) => {
+					if (component.enabled) {
+						await component.disable();
+					}
+				});
+			}
 		}
 		
 		return okToChange ? this.api.staterequest(AppState.UNAVAILABLE) : Promise.resolve(undefined);
