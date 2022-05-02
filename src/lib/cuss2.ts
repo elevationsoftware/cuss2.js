@@ -302,7 +302,7 @@ export class Cuss2 {
 			if (component && component.stateIsDifferent(message)) {
 				component.updateState(message);
 				this.componentStateChange.next(component);
-				if (this._online && unsolicited || message.functionName === 'query') {
+				if (this._online && (unsolicited || message.functionName === 'query')) {
 					this.checkRequiredComponentsAndSyncState();
 				}
 			}
