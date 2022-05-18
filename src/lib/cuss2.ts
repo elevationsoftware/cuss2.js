@@ -233,7 +233,7 @@ export class Cuss2 {
 	announcement?: Announcement;
 	keypad?: Keypad;
 	cardReader?: CardReader;
-	activated: Subject<undefined> = new Subject<undefined>();
+	activated: Subject<ApplicationActivation> = new Subject<ApplicationActivation>();
 	deactivated: Subject<AppState> = new Subject<AppState>();
 	pendingStateChange?: AppState;
 	multiTenant?: boolean;
@@ -287,10 +287,12 @@ export class Cuss2 {
 				}
 			}
 			else if (currentState === AppState.ACTIVE) {
+				if (!message.applicationActivation)
+					throw new Error('ApplicationActivation missing')
 				this.multiTenant = message.applicationActivation?.executionMode === ExecutionModeEnum.MAM;
 				this.accessibleMode = message.applicationActivation?.accessibleMode || false;
 				this.language = message.applicationActivation?.languageID;
-				this.activated.next(undefined);
+				this.activated.next(message.applicationActivation);
 			}
 			if (prevState === AppState.ACTIVE) {
 				this.deactivated.next(currentState as AppState);
@@ -733,7 +735,7 @@ export class Cuss2 {
 				this.requestUnavailableState();
 			}
 		}
-		else if (!this.components) {
+		else if (this.components) {
 			this.requestUnavailableState();
 		}
 	}
