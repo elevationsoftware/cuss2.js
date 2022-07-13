@@ -72,6 +72,7 @@ export class Connection {
 
 	private constructor(baseURL: string, client_id: string, client_secret: string, options: any = {}) {
 		this.timeout = options.timeout || 30000;
+		this.pingInterval = options.pingInterval || this.pingInterval 
 
 		const endOfHostname = baseURL.indexOf('?');
 		if (endOfHostname > -1) {
@@ -98,6 +99,9 @@ export class Connection {
 	_socket?: WebSocket;
 	messages: BehaviorSubject<any> = new BehaviorSubject<any>({});
 	onclose: Subject<void> = new Subject();
+	pingInterval = 0;
+	lastPong = 0;
+	_pinger: any = 0;
 
 	_config = {
 		headers: {
@@ -167,12 +171,20 @@ export class Connection {
 					removeListeners();
 					log('info', "Token Confirmed", data);
 					this._socket = socket;
+					this.lastPong = Date.now() + (this.pingInterval + 2000);
+					if (this.pingInterval) {
+						this._startPingPong();
+					}
 
 					socket.onmessage = (event) => {
 						const data = JSON.parse(event.data);
 						if (data.ping) {
 							socket.send(`{ "pong": ${Date.now()} }`);
 							log('info', 'PING OK.');
+						}
+						if (data.pong) {
+							log('info', 'PONG OK.');
+							return this.lastPong = Date.now() + (this.pingInterval + 2000);
 						}
 						this.messages.next(data);
 					};
@@ -191,6 +203,23 @@ export class Connection {
 			socket.onclose = rejectionHandler;
 			socket.onerror = rejectionHandler;
 		});
+	}
+
+	_startPingPong() {
+		const ping = () => {
+			this._socket?.send(`{ "ping": ${Date.now()} }`);
+		};
+		clearInterval(this._pinger);
+		this._pinger = setInterval(() => {
+			if (this.lastPong < Date.now()) {
+				clearInterval(this._pinger);
+				this._socket?.close();
+			}
+			else {
+				log('info', 'pong OK.', this.lastPong - Date.now());
+				ping();
+			}
+		}, this.pingInterval);
 	}
 
 	async post(path: string, data?: any): Promise<any> {
