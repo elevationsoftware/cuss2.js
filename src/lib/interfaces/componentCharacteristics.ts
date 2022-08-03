@@ -18,7 +18,7 @@ import { DeviceTypes } from './deviceTypes';
 import { MediaTypes } from './mediaTypes';
 
 export interface ComponentCharacteristics { 
-    deviceHelpInstruction?: ComponentCharacteristicsDeviceHelpInstruction;
+    deviceHelpInstruction?: string;
     /**
      * A list of data types identifiers.
      */

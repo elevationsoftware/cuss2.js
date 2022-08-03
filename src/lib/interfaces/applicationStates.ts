@@ -13,8 +13,8 @@
 /**
  * Application state codes and reasons to be passed with the statechange request.
  */
-export interface ApplicationStates { 
-    applicationStateCode: ApplicationStateCodes;
+export interface ApplicationStates {
+	  applicationStateCode: ApplicationStates.ApplicationStateCodeEnum;
     /**
      * Indicates whether the application shal operate in ACCESSIBLE mode or not.
      */
