@@ -19,5 +19,5 @@ import { TransactionReference } from './transactionReference';
 export interface EPaymentMessageTransactionTransactionRequestPreAuth { 
     transactionReference?: TransactionReference;
     approvalCode?: ApprovalCode;
-    approvelAmounts: AmountType;
+    approvalAmounts: AmountType;
 }

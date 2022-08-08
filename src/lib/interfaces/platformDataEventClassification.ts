@@ -14,7 +14,7 @@ import { EventModes } from './eventModes';
 import { EventTypes } from './eventTypes';
 
 /**
- * More detailed description of the event/indication that is sen t by the platform.
+ * More detailed description of the event/indication that is sent by the platform.
  */
 export interface PlatformDataEventClassification { 
     eventMode?: EventModes;

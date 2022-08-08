@@ -16,7 +16,7 @@ import { RgbType } from './rgbType';
  */
 export interface IlluminationDataLightColor { 
     /**
-     * Predefined values: CLR_ON, CLR_OFF, CLR_RED, CLR_GREEN, CLR_BLUE, CLR_DARKRED, CLR_DARKGREEN, CLR_DARKBLUE, CLR_YELLOW, CLR_MAGENTA, CLR_CYAN, CLR_AMBER, CLR_PURPLE, CLR_SPRINGGREEN,CLR_WHITE
+     * Predefined values: CLR_ON, CLR_OFF, CLR_RED, CLR_GREEN, CLR_BLUE, CLR_DARKRED, CLR_DARKGREEN, CLR_DARKBLUE, CLR_YELLOW, CLR_MAGENTA, CLR_CYAN, CLR_AMBER, CLR_PURPLE, CLR_SPRINGGREEN, CLR_WHITE
      */
     name?: IlluminationDataLightColor.NameEnum;
     rgb?: RgbType;

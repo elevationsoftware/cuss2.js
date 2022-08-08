@@ -29,7 +29,7 @@ export interface ApplicationActivation {
     /**
      * Any additional options of execution in combination with the executionMode.
      */
-    executionOptions?: string;
+    executionOptions?: Array<string>;
     /**
      * As per RFC3066.- Please refer also to: http://www.lingoes.net/en/translator/langcode.htm
      */
