@@ -11,14 +11,14 @@
  */
 import { ApplicationActivation } from './applicationActivation';
 import { ApplicationID } from './applicationID';
-import { ApplicationStates } from './applicationStates';
+import { ApplicationState } from './applicationState';
 import { BaggageData } from './baggageData';
 import { CommonUseBiometricMessage } from './commonUseBiometricMessage';
 import { CommonUsePaymentMessage } from './commonUsePaymentMessage';
 import { ComponentList } from './componentList';
+import { ComponentState } from './componentState';
 import { DataRecordList } from './dataRecordList';
 import { EnvironmentLevel } from './environmentLevel';
-import { EventHandlingCodes } from './eventHandlingCodes';
 import { PassengerSessionID } from './passengerSessionID';
 import { PlatformDataEventClassification } from './platformDataEventClassification';
 import { RequestID } from './requestID';
@@ -43,12 +43,12 @@ export interface PlatformData {
      * Name of the function/directive/endpoint which has been executed.
      */
     functionName: string;
-    eventHandlingCode: EventHandlingCodes;
+    componentState: ComponentState;
     eventClassification?: PlatformDataEventClassification;
     statusCode: StatusCodes;
     environmentLevel?: EnvironmentLevel;
     componentList?: ComponentList;
-    currentApplicationState: ApplicationStates;
+    currentApplicationState: ApplicationState;
     passengerSessionID: PassengerSessionID;
     dataRecords?: DataRecordList;
     bagdropData?: BaggageData;

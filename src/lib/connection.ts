@@ -186,6 +186,11 @@ export class Connection {
 							log('info', 'PONG OK.');
 							return this.lastPong = Date.now() + (this.pingInterval + 2000);
 						}
+						// TODO: remove.
+						// Added for backwards compatibility after Aug '22 interface changes
+						if (!data.componentState) {
+							data.componentState = data.eventHandlingCode;
+						}
 						this.messages.next(data);
 					};
 					socket.onclose = () => {

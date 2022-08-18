@@ -3,14 +3,13 @@ import { log, logger, helpers, LogMessage } from "./helper";
 import {EnvironmentLevel} from "./interfaces/environmentLevel";
 import {PlatformData} from "./interfaces/platformData";
 import {BehaviorSubject, Subject} from "rxjs";
-import {ApplicationStates} from "./interfaces/applicationStates";
-import AppState = ApplicationStates.ApplicationStateCodeEnum;
-import ChangeReason = ApplicationStates.ApplicationStateChangeReasonCodeEnum;
+import {ApplicationStateCodes as AppState} from "./interfaces/applicationStateCodes";
+import { ApplicationStateChangeReasonCodes as ChangeReason } from './interfaces/applicationStateChangeReasonCodes';
 import {ComponentList} from "./interfaces/componentList";
 
 import {Connection} from "./connection";
 import {DataExchange} from "./interfaces/dataExchange";
-import {ComponentTypes} from "./interfaces/componentTypes";
+
 import {
 	Announcement,
 	BarcodeReader,
@@ -66,7 +65,7 @@ function validateComponentId(componentID:any) {
  * @property {Keypad} keypad - The keypad component class to interact with the device.
  * @property {CardReader} cardReader - The card reader component class to interact with the device.
  * @property {Subject<undefined>} activated - The activated subject will emit when the application moves to the active state.
- * @property {Subject<AppState>} deactivated - The deactivated subject emits when the application is moved from the active state. *Note* see IATA docs for more details. AppState is an alias for ApplicationStates.ApplicationStateCodeEnum.
+ * @property {Subject<AppState>} deactivated - The deactivated subject emits when the application is moved from the active state. *Note* see IATA docs for more details. AppState is an alias for ApplicationStateCodeEnum.
  * @property {AppState} pendingStateChange - The  application pending state change. *Note* see IATA docs for more details.
  * @property {boolean} multiTenant - The multi tenant flag.
  * @property {boolean} accessibleMode - The accessible mode flag.
@@ -269,8 +268,16 @@ export class Cuss2 {
 
 		log('verbose', '[event.currentApplicationState]', message.currentApplicationState);
 
-		const currentState = message.currentApplicationState?.toString();
 		const unsolicited = !message.functionName;
+
+		let currentState:any = message.currentApplicationState;
+
+		// TODO: remove when platform and cuss2.js are upgraded to Aug 22 CUSS2 updates.
+		// applicationStateCode was an enumeration; the update
+		// changed it to an object with the value we need nested inside.
+		if (currentState && typeof currentState !== 'string') {
+			currentState = currentState.applicationStateCode
+		}
 		if(!currentState) {
 			this.connection._socket?.close();
 			throw new Error('Platform in invalid state. Cannot continue.');

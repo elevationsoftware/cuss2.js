@@ -11,40 +11,17 @@
  */
 
 /**
- * Application state codes and reasons to be passed with the statechange request.
+ * Application state change reason codes...<p> *NOT_APPLICABLE:* None of the codes below apply (e.g. state change to AVAILABLE or ACTIVE) <br> *OUT_OF_SERVICE_HOURS:* Application is outside its operation time <br> *OUT_OF_SERVICE_HARDWARE:* One or more necessary hardware devices are not available <br> *OUT_OF_SERVICE_BHS:* The Baggage Handling System is not available <br> *OUT_OF_SERVICE_CONSUMABLES:* Any of the required consumables are on low or out of stock <br> *OUT_OF_SERVICE_INTERNAL:* Application internal problem (see free form text for additional information) <br> *OUT_OF_SERVICE_DCS:* The airline''s Departure Control System is not reachable <br> *OUT_OF_SERVICE_BACKEND:* The applications backend is not reachable 
  */
-export interface ApplicationStates {
-    applicationStateCode: ApplicationStates.ApplicationStateCodeEnum;
-    /**
-     * Indicates whether the application shal operate in ACCESSIBLE mode or not.
-     */
-    applicationStateChangeReasonCode: ApplicationStates.ApplicationStateChangeReasonCodeEnum;
-    /**
-     * The application can use this additional field to inform the platform about the reason for the current state change in free form text. The platform stores this information in its platform logs for bug fixing purposes.
-     */
-    applicationStateChangeReason?: string;
-}
-export namespace ApplicationStates {
-    export type ApplicationStateCodeEnum = 'INITIALIZE' | 'UNAVAILABLE' | 'AVAILABLE' | 'ACTIVE' | 'STOPPED' | 'RELOAD' | 'SUSPENDED' | 'DISABLED';
-    export const ApplicationStateCodeEnum = {
-        INITIALIZE: 'INITIALIZE' as ApplicationStateCodeEnum,
-        UNAVAILABLE: 'UNAVAILABLE' as ApplicationStateCodeEnum,
-        AVAILABLE: 'AVAILABLE' as ApplicationStateCodeEnum,
-        ACTIVE: 'ACTIVE' as ApplicationStateCodeEnum,
-        STOPPED: 'STOPPED' as ApplicationStateCodeEnum,
-        RELOAD: 'RELOAD' as ApplicationStateCodeEnum,
-        SUSPENDED: 'SUSPENDED' as ApplicationStateCodeEnum,
-        DISABLED: 'DISABLED' as ApplicationStateCodeEnum
-    };
-    export type ApplicationStateChangeReasonCodeEnum = 'NOT_APPLICABLE' | 'OUT_OF_SERVICE_HOURS' | 'OUT_OF_SERVICE_HARDWARE' | 'OUT_OF_SERVICE_BHS' | 'OUT_OF_SERVICE_CONSUMABLES' | 'OUT_OF_SERVICE_INTERNAL' | 'OUT_OF_SERVICE_DCS' | 'OUT_OF_SERVICE_BACKEND';
-    export const ApplicationStateChangeReasonCodeEnum = {
-        NOTAPPLICABLE: 'NOT_APPLICABLE' as ApplicationStateChangeReasonCodeEnum,
-        OUTOFSERVICEHOURS: 'OUT_OF_SERVICE_HOURS' as ApplicationStateChangeReasonCodeEnum,
-        OUTOFSERVICEHARDWARE: 'OUT_OF_SERVICE_HARDWARE' as ApplicationStateChangeReasonCodeEnum,
-        OUTOFSERVICEBHS: 'OUT_OF_SERVICE_BHS' as ApplicationStateChangeReasonCodeEnum,
-        OUTOFSERVICECONSUMABLES: 'OUT_OF_SERVICE_CONSUMABLES' as ApplicationStateChangeReasonCodeEnum,
-        OUTOFSERVICEINTERNAL: 'OUT_OF_SERVICE_INTERNAL' as ApplicationStateChangeReasonCodeEnum,
-        OUTOFSERVICEDCS: 'OUT_OF_SERVICE_DCS' as ApplicationStateChangeReasonCodeEnum,
-        OUTOFSERVICEBACKEND: 'OUT_OF_SERVICE_BACKEND' as ApplicationStateChangeReasonCodeEnum
-    };
-}
+export type ApplicationStateChangeReasonCodes = 'NOT_APPLICABLE' | 'OUT_OF_SERVICE_HOURS' | 'OUT_OF_SERVICE_HARDWARE' | 'OUT_OF_SERVICE_BHS' | 'OUT_OF_SERVICE_CONSUMABLES' | 'OUT_OF_SERVICE_INTERNAL' | 'OUT_OF_SERVICE_DCS' | 'OUT_OF_SERVICE_BACKEND';
+
+export const ApplicationStateChangeReasonCodes = {
+    NOTAPPLICABLE: 'NOT_APPLICABLE' as ApplicationStateChangeReasonCodes,
+    OUTOFSERVICEHOURS: 'OUT_OF_SERVICE_HOURS' as ApplicationStateChangeReasonCodes,
+    OUTOFSERVICEHARDWARE: 'OUT_OF_SERVICE_HARDWARE' as ApplicationStateChangeReasonCodes,
+    OUTOFSERVICEBHS: 'OUT_OF_SERVICE_BHS' as ApplicationStateChangeReasonCodes,
+    OUTOFSERVICECONSUMABLES: 'OUT_OF_SERVICE_CONSUMABLES' as ApplicationStateChangeReasonCodes,
+    OUTOFSERVICEINTERNAL: 'OUT_OF_SERVICE_INTERNAL' as ApplicationStateChangeReasonCodes,
+    OUTOFSERVICEDCS: 'OUT_OF_SERVICE_DCS' as ApplicationStateChangeReasonCodes,
+    OUTOFSERVICEBACKEND: 'OUT_OF_SERVICE_BACKEND' as ApplicationStateChangeReasonCodes
+};

@@ -6,7 +6,7 @@ import {
 	DataExchange,
 	DataRecord,
 	EnvironmentComponent,
-	EventHandlingCodes,
+	ComponentState,
 	IlluminationDataLightColor,
 	PlatformData,
 	StatusCodes
@@ -78,7 +78,7 @@ export class Component {
 	api: any;
 	required: boolean = false;
 	statusChanged: BehaviorSubject<StatusCodes> = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
-	_eventHandlingCode: EventHandlingCodes = EventHandlingCodes.UNAVAILABLE;
+	_componentState: ComponentState = ComponentState.UNAVAILABLE;
 	deviceType: DeviceType;
 	pendingCalls: number = 0;
 	enabled: boolean = false;
@@ -92,7 +92,7 @@ export class Component {
 	 * @returns {boolean} true if the component is ready
 	 */
 	get ready(): boolean {
-		return this._eventHandlingCode === EventHandlingCodes.READY;
+		return this._componentState === ComponentState.READY;
 	}
 
 	readyStateChanged: Subject<boolean> = new Subject<boolean>();
@@ -142,16 +142,16 @@ export class Component {
 	}
 
 	stateIsDifferent(msg: PlatformData): boolean {
-		return this.status !== msg.statusCode || this._eventHandlingCode !== msg.eventHandlingCode;
+		return this.status !== msg.statusCode || this._componentState !== msg.componentState;
 	}
 
 	updateState(msg: PlatformData): void {
-		if (msg.eventHandlingCode !== this._eventHandlingCode) {
-			this._eventHandlingCode = msg.eventHandlingCode;
-			if (msg.eventHandlingCode !== EventHandlingCodes.READY) {
+		if (msg.componentState !== this._componentState) {
+			this._componentState = msg.componentState;
+			if (msg.componentState !== ComponentState.READY) {
 				this.enabled = false;
 			}
-			this.readyStateChanged.next(msg.eventHandlingCode === EventHandlingCodes.READY)
+			this.readyStateChanged.next(msg.componentState === ComponentState.READY)
 		}
 		// Sometimes status is not sent by an unsolicited event so we poll to be sure
 		if (!this.ready && this.required && !this._poller && this.pollingInterval > 0) {
@@ -512,11 +512,11 @@ export class Printer extends Component {
 	updateState(msg: PlatformData): void {
 		//CUTnHOLD can cause a TIMEOUT response if the tag is not taken in a certain amount of time.
 		// Unfortunately, it briefly considers the Printer to be UNAVAILABLE.
-		if (msg.functionName === 'send' && msg.statusCode === StatusCodes.TIMEOUT && msg.eventHandlingCode === EventHandlingCodes.UNAVAILABLE) {
-			msg.eventHandlingCode = EventHandlingCodes.READY;
+		if (msg.functionName === 'send' && msg.statusCode === StatusCodes.TIMEOUT && msg.componentState === ComponentState.UNAVAILABLE) {
+			msg.componentState = ComponentState.READY;
 		}
 		// if now ready, query linked components to get their latest status
-		if (!this.ready && msg.eventHandlingCode === EventHandlingCodes.READY) {
+		if (!this.ready && msg.componentState === ComponentState.READY) {
 			this.feeder.query().catch(console.error);
 			this.dispenser.query().catch(console.error);
 		}

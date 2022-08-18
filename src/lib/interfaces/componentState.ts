@@ -9,42 +9,14 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { CUSSDataTypes } from './cUSSDataTypes';
-import { ComponentCharacteristicsConveyorSBD } from './componentCharacteristicsConveyorSBD';
-import { ComponentCharacteristicsDisplayType } from './componentCharacteristicsDisplayType';
-import { ComponentCharacteristicsDocumentBin } from './componentCharacteristicsDocumentBin';
-import { ComponentCharacteristicsNavigationType } from './componentCharacteristicsNavigationType';
-import { DeviceTypes } from './deviceTypes';
-import { MediaTypes } from './mediaTypes';
 
-export interface ComponentCharacteristics { 
-    deviceHelpInstruction?: string;
-    /**
-     * A list of data types identifiers.
-     */
-    dsTypesList?: Array<CUSSDataTypes>;
-    /**
-     * A list of media type identifiers.
-     */
-    mediaTypesList: Array<MediaTypes>;
-    /**
-     * A list of device type identifiers.
-     */
-    deviceTypesList?: Array<DeviceTypes>;
-    navigationType?: ComponentCharacteristicsNavigationType;
-    displayType?: ComponentCharacteristicsDisplayType;
-    /**
-     * ITPS/AEA version supported by printers (BTP/BPP). - The minimum version must be [current version -1]. Example: 2018
-     */
-    itpsVersion?: string;
-    /**
-     * Scalable Vector Graphics (SVG) 1.1. -  Please refer also to: https://www.w3.org/TR/SVG11/
-     */
-    svgVersion?: string;
-    /**
-     * If true, the baggage tag printer supports color printing (black and red).
-     */
-    supportsColor?: boolean;
-    documentBin?: ComponentCharacteristicsDocumentBin;
-    conveyorSBD?: ComponentCharacteristicsConveyorSBD;
-}
+/**
+ * Virtual component state codes <p> *READY:* Component is ready to receive and execute any directives <br> *BUSY:* Indicates any component activity (e.g. reading/writing) that has been invoked <br>  *UNVAILABLE:* Error condition that requires manual intervention 
+ */
+export type ComponentState = 'READY' | 'BUSY' | 'UNAVAILABLE';
+
+export const ComponentState = {
+    READY: 'READY' as ComponentState,
+    BUSY: 'BUSY' as ComponentState,
+    UNAVAILABLE: 'UNAVAILABLE' as ComponentState
+};
