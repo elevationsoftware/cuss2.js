@@ -9,43 +9,25 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { CUSSDataTypes } from './cUSSDataTypes';
-import { ComponentCharacteristicsConveyorSBD } from './componentCharacteristicsConveyorSBD';
-import { ComponentCharacteristicsDeviceHelpInstruction } from './componentCharacteristicsDeviceHelpInstruction';
-import { ComponentCharacteristicsDisplayType } from './componentCharacteristicsDisplayType';
-import { ComponentCharacteristicsDocumentBin } from './componentCharacteristicsDocumentBin';
-import { ComponentCharacteristicsNavigationType } from './componentCharacteristicsNavigationType';
-import { DeviceTypes } from './deviceTypes';
-import { MediaTypes } from './mediaTypes';
+import { ApplicationStateChangeReasonCodes } from './applicationStateChangeReasonCodes';
+import { ApplicationStateCodes } from './applicationStateCodes';
 
-export interface ComponentCharacteristics { 
-    deviceHelpInstruction?: ComponentCharacteristicsDeviceHelpInstruction;
+/**
+ * Application state codes and reasons to be passed with the statechange request.
+ */
+export interface ApplicationState { 
+    applicationStateCode: ApplicationStateCodes;
     /**
-     * A list of data types identifiers.
+     * Indicates whether the application shall operate in ACCESSIBLE mode or not.
      */
-    dsTypesList?: Array<CUSSDataTypes>;
+    accessibleMode: boolean;
+    applicationStateChangeReasonCode: ApplicationStateChangeReasonCodes;
     /**
-     * A list of media type identifiers.
+     * The application can use this additional field to inform the platform about the reason for the current state change in free form text. The platform stores this information in its platform logs for bug fixing purposes.
      */
-    mediaTypesList: Array<MediaTypes>;
+    applicationStateChangeReason?: string;
     /**
-     * A list of device type identifiers.
+     * The platform can track which airline code to use for self activated processes/applications.
      */
-    deviceTypesList?: Array<DeviceTypes>;
-    navigationType?: ComponentCharacteristicsNavigationType;
-    displayType?: ComponentCharacteristicsDisplayType;
-    /**
-     * ITPS/AEA version supported by printers (BTP/BPP). - The minimum version must be [current version -1]. Example: 2018
-     */
-    itpsVersion?: string;
-    /**
-     * Scalable Vector Graphics (SVG) 1.1. -  Please refer also to: https://www.w3.org/TR/SVG11/
-     */
-    svgVersion?: string;
-    /**
-     * If true, the baggage tag printer supports color printing (black and red).
-     */
-    supportsColor?: boolean;
-    documentBin?: ComponentCharacteristicsDocumentBin;
-    conveyorSBD?: ComponentCharacteristicsConveyorSBD;
+    applicationBrand?: string;
 }

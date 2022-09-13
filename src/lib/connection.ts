@@ -257,10 +257,7 @@ export class Connection {
 
 		log("verbose", `[connection.${type}()] ${path} response:\n`, r.data);
 
-		const { requestID, returnCode } = r.data as CUSS2ApiResponse;
-		if (returnCode !== ReturnCodes.OK || (path === '/platform/applications/staterequest/UNAVAILABLE' && returnCode === ReturnCodes.STATE)) {
-			return Promise.reject(new Error('HTTP call failed with: ' + returnCode))
-		}
+		const { requestID } = r.data as CUSS2ApiResponse;
 		log("verbose", '[connection._call()] waiting for reply with id: ' + requestID);
 
 		return new Promise<PlatformData>((resolve, reject) => {

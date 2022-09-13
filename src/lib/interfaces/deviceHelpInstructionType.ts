@@ -9,43 +9,17 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { CUSSDataTypes } from './cUSSDataTypes';
-import { ComponentCharacteristicsConveyorSBD } from './componentCharacteristicsConveyorSBD';
-import { ComponentCharacteristicsDeviceHelpInstruction } from './componentCharacteristicsDeviceHelpInstruction';
-import { ComponentCharacteristicsDisplayType } from './componentCharacteristicsDisplayType';
-import { ComponentCharacteristicsDocumentBin } from './componentCharacteristicsDocumentBin';
-import { ComponentCharacteristicsNavigationType } from './componentCharacteristicsNavigationType';
-import { DeviceTypes } from './deviceTypes';
-import { MediaTypes } from './mediaTypes';
 
-export interface ComponentCharacteristics { 
-    deviceHelpInstruction?: ComponentCharacteristicsDeviceHelpInstruction;
+/**
+ * XML formatted device help text structure to be inserted into applications audio output.
+ */
+export interface DeviceHelpInstructionType { 
     /**
-     * A list of data types identifiers.
+     * The list of supported languages as RFC3066 2-letter codes or 2-2-letter codes
      */
-    dsTypesList?: Array<CUSSDataTypes>;
+    supportedLanguages?: Array<string>;
     /**
-     * A list of media type identifiers.
+     * XML formatted device help text structure to be passed to applications audio output. The texts for the audio output need to be in SSML 1.0/SSML 1.1 format.<p>   <b>Example:</b>   ```XML   <?xml version=\"1.0\" encoding=\"UTF-8\"?>   <deviceHelp lang-supported=\"en-US,ja-JP\">     <deviceDescription time=\"7\">       <speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\">The magnetic card reader device is used to read the data from your credit card or frequent flier card</speak>           <speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"ja-JP\">磁気カードリーダ装置は、クレジットカードやマイレージカードからデータを読 み取るために使用される </speak>     </deviceDescription>     <deviceLocation time=\"5\">       <speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\">The card reader is located to the lower right of the main screen </speak>       <speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"ja-JP\">カードリーダは、メイン画面の右下に配置されている </speak>     </deviceLocation>     <deviceProfile time=\"13\">       <speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\">The reader is mounted horizontally and protrudes about one half inch from the face of the kiosk. It is 2 inches tall and 5 inches wide with a card slot located in the center</speak>            <speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"ja-JP\"> 読者は、水平に搭載され、キオスクの表面から約0.5インチに突出している。こ れは、中心部に位置するカードスロットを持つ広い背の高い2インチと5インチ である </speak>     </deviceProfile>   </deviceHelp> 
      */
-    mediaTypesList: Array<MediaTypes>;
-    /**
-     * A list of device type identifiers.
-     */
-    deviceTypesList?: Array<DeviceTypes>;
-    navigationType?: ComponentCharacteristicsNavigationType;
-    displayType?: ComponentCharacteristicsDisplayType;
-    /**
-     * ITPS/AEA version supported by printers (BTP/BPP). - The minimum version must be [current version -1]. Example: 2018
-     */
-    itpsVersion?: string;
-    /**
-     * Scalable Vector Graphics (SVG) 1.1. -  Please refer also to: https://www.w3.org/TR/SVG11/
-     */
-    svgVersion?: string;
-    /**
-     * If true, the baggage tag printer supports color printing (black and red).
-     */
-    supportsColor?: boolean;
-    documentBin?: ComponentCharacteristicsDocumentBin;
-    conveyorSBD?: ComponentCharacteristicsConveyorSBD;
+    deviceHelpInstructions?: string;
 }

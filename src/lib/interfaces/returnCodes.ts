@@ -11,18 +11,12 @@
  */
 
 /**
- * Interface Return Codes definitions with the following semantics...<p>  *RC_OK:* Directive has been accepted by the CUSS interface <br>  *RC_STATE:* Application is not in the correct state to invoke this directive <br>  *RC_DENIED:* Application is not allowed to use that component <br>  *RC_PARAMETER:* Error in parameters <br>  *RC_LISTENER:* There is no application listener to respond to <br>  *RC_SHARE:* Request in wrong share mode (the component may be blocked by any application) <br>  *RC_NOT_SUPPORTED:* Unauthorized command within data stream (PDF, SVG or AEA/ITPS) <br>  *RC_TIMEOUT:* Execution timeout in processing the request <br>  *RC_ERROR:* Any error that does not fall into the error categories above 
+ * Interface Return Codes definitions with the following semantics...<p>  *RC_OK:* Directive has been accepted by the CUSS platform and will be processed. - Check listener for asynchronous result(s) <br>  *RC_LISTENER:* There is no application listener to respond to. - Register a (new) listener before calling any endpoints <br>  *RC_ERROR:* Any error occured when calling the endpoint. - Check listener for detailed error/status code  RC_STATE: Now covered with StatusCodes::WRONG_STATE <br>  RC_DENIED: No longer needed because acquire/release have been removed <br>  RC_PARAMETER: Now covered with StatusCodes::FORMAT_ERROR <br>  RC_SHARE: Removed because it wasn't used by platform implementations <br>  RC_NOT_SUPPORTED: Now covered with StatusCodes::FORMAT_ERROR  <br>  RC_TIMEOUT: Now covered with StatusCodes::TIMEOUT <br>  
  */
-export type ReturnCodes = 'RC_OK' | 'RC_STATE' | 'RC_DENIED' | 'RC_PARAMETER' | 'RC_LISTENER' | 'RC_SHARE' | 'RC_NOT_SUPPORTED' | 'RC_TIMEOUT' | 'RC_ERROR';
+export type ReturnCodes = 'RC_OK' | 'RC_LISTENER' | 'RC_ERROR';
 
 export const ReturnCodes = {
     OK: 'RC_OK' as ReturnCodes,
-    STATE: 'RC_STATE' as ReturnCodes,
-    DENIED: 'RC_DENIED' as ReturnCodes,
-    PARAMETER: 'RC_PARAMETER' as ReturnCodes,
     LISTENER: 'RC_LISTENER' as ReturnCodes,
-    SHARE: 'RC_SHARE' as ReturnCodes,
-    NOTSUPPORTED: 'RC_NOT_SUPPORTED' as ReturnCodes,
-    TIMEOUT: 'RC_TIMEOUT' as ReturnCodes,
     ERROR: 'RC_ERROR' as ReturnCodes
 };

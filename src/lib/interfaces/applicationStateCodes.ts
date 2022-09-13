@@ -9,43 +9,19 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { CUSSDataTypes } from './cUSSDataTypes';
-import { ComponentCharacteristicsConveyorSBD } from './componentCharacteristicsConveyorSBD';
-import { ComponentCharacteristicsDeviceHelpInstruction } from './componentCharacteristicsDeviceHelpInstruction';
-import { ComponentCharacteristicsDisplayType } from './componentCharacteristicsDisplayType';
-import { ComponentCharacteristicsDocumentBin } from './componentCharacteristicsDocumentBin';
-import { ComponentCharacteristicsNavigationType } from './componentCharacteristicsNavigationType';
-import { DeviceTypes } from './deviceTypes';
-import { MediaTypes } from './mediaTypes';
 
-export interface ComponentCharacteristics { 
-    deviceHelpInstruction?: ComponentCharacteristicsDeviceHelpInstruction;
-    /**
-     * A list of data types identifiers.
-     */
-    dsTypesList?: Array<CUSSDataTypes>;
-    /**
-     * A list of media type identifiers.
-     */
-    mediaTypesList: Array<MediaTypes>;
-    /**
-     * A list of device type identifiers.
-     */
-    deviceTypesList?: Array<DeviceTypes>;
-    navigationType?: ComponentCharacteristicsNavigationType;
-    displayType?: ComponentCharacteristicsDisplayType;
-    /**
-     * ITPS/AEA version supported by printers (BTP/BPP). - The minimum version must be [current version -1]. Example: 2018
-     */
-    itpsVersion?: string;
-    /**
-     * Scalable Vector Graphics (SVG) 1.1. -  Please refer also to: https://www.w3.org/TR/SVG11/
-     */
-    svgVersion?: string;
-    /**
-     * If true, the baggage tag printer supports color printing (black and red).
-     */
-    supportsColor?: boolean;
-    documentBin?: ComponentCharacteristicsDocumentBin;
-    conveyorSBD?: ComponentCharacteristicsConveyorSBD;
-}
+/**
+ * Application state codes...<p> *UNAVAILABLE:* Application state change request to move to UNAVAILBLE <br>  *AVAILABLE:* Application state change request to move to AVAILBLE <br>  *ACTIVE:* Platform initated or application state change request to move to ACTIVE <br>  *STOPPED:* Application state change request to move to STOPPED <br>  *RELOAD:* Application state change request to move to RELOAD <br>  *INITIALIZE:* Platform initated application state <br> *SUSPENDED:* Platform initated application state <br> *DISABLED:* Platform initated application state 
+ */
+export type ApplicationStateCodes = 'INITIALIZE' | 'UNAVAILABLE' | 'AVAILABLE' | 'ACTIVE' | 'STOPPED' | 'RELOAD' | 'SUSPENDED' | 'DISABLED';
+
+export const ApplicationStateCodes = {
+    INITIALIZE: 'INITIALIZE' as ApplicationStateCodes,
+    UNAVAILABLE: 'UNAVAILABLE' as ApplicationStateCodes,
+    AVAILABLE: 'AVAILABLE' as ApplicationStateCodes,
+    ACTIVE: 'ACTIVE' as ApplicationStateCodes,
+    STOPPED: 'STOPPED' as ApplicationStateCodes,
+    RELOAD: 'RELOAD' as ApplicationStateCodes,
+    SUSPENDED: 'SUSPENDED' as ApplicationStateCodes,
+    DISABLED: 'DISABLED' as ApplicationStateCodes
+};

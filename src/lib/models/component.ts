@@ -11,7 +11,7 @@ import {
 	PlatformData,
 	StatusCodes
 } from "../..";
-import {DeviceType} from '../interfaces/deviceType';
+import {DeviceType} from './deviceType';
 import {PlatformResponseError} from "./platformResponseError";
 import {take, timeout} from "rxjs/operators";
 
