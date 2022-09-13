@@ -11,7 +11,7 @@
  */
 import { ApplicationActivation } from './applicationActivation';
 import { ApplicationID } from './applicationID';
-import { ApplicationState } from './applicationState';
+import { ApplicationStates } from './applicationStates';
 import { BaggageData } from './baggageData';
 import { CommonUseBiometricMessage } from './commonUseBiometricMessage';
 import { CommonUsePaymentMessage } from './commonUsePaymentMessage';
@@ -48,7 +48,7 @@ export interface PlatformData {
     statusCode: StatusCodes;
     environmentLevel?: EnvironmentLevel;
     componentList?: ComponentList;
-    currentApplicationState: ApplicationState;
+    currentApplicationState: ApplicationStates;
     passengerSessionID: PassengerSessionID;
     dataRecords?: DataRecordList;
     bagdropData?: BaggageData;

@@ -1,11 +1,12 @@
-import {ApplicationStateCodes} from "../..";
+import {ApplicationStates} from "../..";
+import AppState = ApplicationStates.ApplicationStateCodeEnum;
 
 
 export class StateChange {
-	previous:ApplicationStateCodes;
-	current:ApplicationStateCodes;
+	previous:AppState;
+	current:AppState;
 
-	constructor(previous:ApplicationStateCodes, current:ApplicationStateCodes) {
+	constructor(previous:AppState, current:AppState) {
 		this.previous = previous;
 		this.current = current;
 	}

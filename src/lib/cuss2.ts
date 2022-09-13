@@ -3,8 +3,9 @@ import { log, logger, helpers, LogMessage } from "./helper";
 import {EnvironmentLevel} from "./interfaces/environmentLevel";
 import {PlatformData} from "./interfaces/platformData";
 import {BehaviorSubject, Subject} from "rxjs";
-import {ApplicationStateCodes as AppState} from "./interfaces/applicationStateCodes";
-import { ApplicationStateChangeReasonCodes as ChangeReason } from './interfaces/applicationStateChangeReasonCodes';
+import {ApplicationStates} from "./interfaces/applicationStates";
+import AppState = ApplicationStates.ApplicationStateCodeEnum;
+import ChangeReason = ApplicationStates.ApplicationStateChangeReasonCodeEnum;
 import {ComponentList} from "./interfaces/componentList";
 
 import {Connection} from "./connection";
