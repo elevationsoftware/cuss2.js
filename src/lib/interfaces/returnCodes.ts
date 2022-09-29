@@ -11,12 +11,13 @@
  */
 
 /**
- * Interface Return Codes definitions with the following semantics...<p>  *RC_OK:* Directive has been accepted by the CUSS platform and will be processed. - Check listener for asynchronous result(s) <br>  *RC_LISTENER:* There is no application listener to respond to. - Register a (new) listener before calling any endpoints <br>  *RC_ERROR:* Any error occured when calling the endpoint. - Check listener for detailed error/status code  RC_STATE: Now covered with StatusCodes::WRONG_STATE <br>  RC_DENIED: No longer needed because acquire/release have been removed <br>  RC_PARAMETER: Now covered with StatusCodes::FORMAT_ERROR <br>  RC_SHARE: Removed because it wasn't used by platform implementations <br>  RC_NOT_SUPPORTED: Now covered with StatusCodes::FORMAT_ERROR  <br>  RC_TIMEOUT: Now covered with StatusCodes::TIMEOUT <br>  
+ * Interface Return Codes definitions with the following semantics...<p>  *RC_OK:* Directive has been accepted by the CUSS platform and will be processed. - Check listener for asynchronous result(s). <br>  *RC_ERROR:* Any error occured when calling the endpoint. - Check listener for detailed error/status code. <br> *RC_LISTENER:* There is no application listener to respond to. - Register a (new) listener before calling any endpoints <br>       *RC_OAUTH_ERROR:* Application passed an invalid token when trying to excute the directive. 
  */
-export type ReturnCodes = 'RC_OK' | 'RC_LISTENER' | 'RC_ERROR';
+export type ReturnCodes = 'RC_OK' | 'RC_ERROR' | 'RC_LISTENER' | 'RC_OAUTH_ERROR';
 
 export const ReturnCodes = {
     OK: 'RC_OK' as ReturnCodes,
+    ERROR: 'RC_ERROR' as ReturnCodes,
     LISTENER: 'RC_LISTENER' as ReturnCodes,
-    ERROR: 'RC_ERROR' as ReturnCodes
+    OAUTHERROR: 'RC_OAUTH_ERROR' as ReturnCodes
 };

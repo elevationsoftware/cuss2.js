@@ -9,13 +9,17 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { ApplicationData } from './applicationData';
-import { PlatformData } from './platformData';
+import { RequestID } from './requestID';
+import { ReturnCodes } from './returnCodes';
 
 /**
- * Data exchange object for application requests, platform-responses and -indications
+ * Direct Interface Acknowledge Codes
  */
-export interface DataExchange { 
-    toPlatform?: ApplicationData;
-    toApplication?: PlatformData;
+export interface APIAcknowledgement { 
+    returnCode: ReturnCodes;
+    requestID: RequestID;
+    /**
+     * Optional description of the returned error (if any)
+     */
+    description?: string;
 }

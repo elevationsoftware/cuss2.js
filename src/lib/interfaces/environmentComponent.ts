@@ -10,6 +10,7 @@
  * Do not edit the class manually.
  */
 import { ComponentCharacteristics } from './componentCharacteristics';
+import { ComponentID } from './componentID';
 import { ComponentTypes } from './componentTypes';
 
 export interface EnvironmentComponent { 
@@ -17,10 +18,7 @@ export interface EnvironmentComponent {
      * A textual description of the component. - Can be different on every platform. - Not to be used for component identfication.
      */
     componentDescription?: string;
-    /**
-     * The unique component identifier for this component.
-     */
-    componentID?: number;
+    componentID?: ComponentID;
     componentType?: ComponentTypes;
     /**
      * The characteristics of this specific component, please refer to CUSS-IG document for a detailed list and descriptions.
@@ -29,5 +27,5 @@ export interface EnvironmentComponent {
     /**
      * A list of identifiers of components linked to this component.
      */
-    linkedComponentIDs?: Array<number>;
+    linkedComponentIDs?: Array<ComponentID>;
 }

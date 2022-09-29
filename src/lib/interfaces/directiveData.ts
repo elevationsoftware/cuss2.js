@@ -9,17 +9,14 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { RequestID } from './requestID';
-import { ReturnCodes } from './returnCodes';
+import { ComponentID } from './componentID';
+import { PlatformDirectives } from './platformDirectives';
 
-/**
- * Direct Interface Return Codes
- */
-export interface CUSS2ApiResponse { 
-    returnCode: ReturnCodes;
-    requestID: RequestID;
+export interface DirectiveData { 
     /**
-     * Optional description of the returned error (if any)
+     * Application token (JWT) received with the Client Credentials
      */
-    description?: string;
+    oauthToken?: string;
+    directive?: PlatformDirectives;
+    componentID?: ComponentID;
 }

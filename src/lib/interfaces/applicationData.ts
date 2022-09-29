@@ -13,13 +13,17 @@ import { BaggageData } from './baggageData';
 import { CommonUseBiometricMessage } from './commonUseBiometricMessage';
 import { CommonUsePaymentMessage } from './commonUsePaymentMessage';
 import { DataRecordList } from './dataRecordList';
+import { DirectiveData } from './directiveData';
 import { IlluminationData } from './illuminationData';
+import { RequestID } from './requestID';
 import { ScreenResolution } from './screenResolution';
 
 /**
  * Data to be passed to the platform with directive calls.
  */
 export interface ApplicationData { 
+    directiveData: DirectiveData;
+    requestID?: RequestID;
     dataRecords?: DataRecordList;
     screenResolution?: ScreenResolution;
     illuminationData?: IlluminationData;

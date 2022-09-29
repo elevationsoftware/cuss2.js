@@ -11,9 +11,9 @@
  */
 
 /**
- * A Media Type describes what the component does and is able to handle/process<p>  *NON_APPLICABLE_MEDIATYPE:* Media type doesn't fit in any category <br>  *MAGCARD:* Cards with Mag-Stripes<br>  *JISCARD:* JIS II Magnetic Stripe Encoding (Japanese Industrial Standard)<br>  *CARD:* Any card not falling under more specific descriptions<br>  *CHIP:* Cards equipped with chips (e.g. Chip & PIN)<br>  *BARCODE:* Any type of 1- or 2D bar-code<br>  *TICKET:* Ticket document<br>  *RECEIPT:* Receipt document<br>  *BOARDINGPASS:* Standard Boarding Pass<br>  *BAGGAGETAG:* Standard Baggage Tag<br>  *HEAVYTAG:* Standard Heavy Tag<br>  *BAGGAGE:* Passenger Baggage<br>  *PASSPORT:* Machine readable Passport Document<br>  *IDCARD:* Machine readable National ID-Card<br>  *VISA:*  Machine readable Visa Document<br>  *DRIVERLICENSE:*  Machine readable Driver License<br>  *RFID:* Documents with RFID chips<br>  *NFC:* Documents with NFC chip<br>  *OCR:* OCR data<br>  *IMAGE:* Image data<br>  *VIDEO:* Video data<br>  *PRINTED:* Any printed document not falling under more specific descriptions<br>  *AUDIO:* Any audible data<br>  *VISUAL:* Any visual data<br>  *TOUCH:* Touch Screen input<br>  *DATASTRUCTURE:* XML or JSON formatted structured data 
+ * A Media Type describes what the component does and is able to handle/process<p>  *NON_APPLICABLE_MEDIATYPE:* Media type doesn't fit in any category <br>  *MAGCARD:* Cards with Mag-Stripes<br>  *JISCARD:* JIS II Magnetic Stripe Encoding (Japanese Industrial Standard)<br>  *CARD:* Any card not falling under more specific descriptions<br>  *CHIP:* Cards equipped with chips (e.g. Chip & PIN)<br>  *BARCODE:* Any type of 1- or 2D bar-code<br>  *TICKET:* Ticket document<br>  *RECEIPT:* Receipt document<br>  *BOARDINGPASS:* Standard Boarding Pass<br>  *BAGGAGETAG:* Standard Baggage Tag<br>  *HEAVYTAG:* Standard Heavy Tag<br> *RFID_BAGGAGETAG:* Baggage Tag with an RFID chip<br> *BAGGAGE:* Passenger Baggage<br>  *PASSPORT:* Machine readable Passport Document<br>  *IDCARD:* Machine readable National ID-Card<br>  *VISA:*  Machine readable Visa Document<br>  *DRIVERLICENSE:*  Machine readable Driver License<br>  *RFID:* Documents with RFID chips<br>  *NFC:* Documents with NFC chip<br>  *OCR:* OCR data<br>  *IMAGE:* Image data<br>  *VIDEO:* Video data<br>  *PRINTED:* Any printed document not falling under more specific descriptions<br>  *AUDIO:* Any audible data<br>  *VISUAL:* Any visual data<br>  *TOUCH:* Touch Screen input<br>  *DATASTRUCTURE:* XML or JSON formatted structured data 
  */
-export type MediaTypes = 'MAGCARD' | 'JISCARD' | 'CARD' | 'CHIP' | 'BARCODE' | 'TICKET' | 'RECEIPT' | 'BOARDINGPASS' | 'BAGGAGETAG' | 'HEAVYTAG' | 'BAGGAGE' | 'PASSPORT' | 'IDCARD' | 'VISA' | 'DRIVERLICENSE' | 'RFID' | 'NFC' | 'OCR' | 'IMAGE' | 'PRINTED' | 'AUDIO' | 'VISUAL' | 'TOUCH' | 'DATASTRUCTURE';
+export type MediaTypes = 'MAGCARD' | 'JISCARD' | 'CARD' | 'CHIP' | 'BARCODE' | 'TICKET' | 'RECEIPT' | 'BOARDINGPASS' | 'BAGGAGETAG' | 'HEAVYTAG' | 'RFID_BAGGAGETAG' | 'BAGGAGE' | 'PASSPORT' | 'IDCARD' | 'VISA' | 'DRIVERLICENSE' | 'RFID' | 'NFC' | 'OCR' | 'IMAGE' | 'PRINTED' | 'AUDIO' | 'VISUAL' | 'TOUCH' | 'DATASTRUCTURE';
 
 export const MediaTypes = {
     MAGCARD: 'MAGCARD' as MediaTypes,
@@ -26,6 +26,7 @@ export const MediaTypes = {
     BOARDINGPASS: 'BOARDINGPASS' as MediaTypes,
     BAGGAGETAG: 'BAGGAGETAG' as MediaTypes,
     HEAVYTAG: 'HEAVYTAG' as MediaTypes,
+    RFIDBAGGAGETAG: 'RFID_BAGGAGETAG' as MediaTypes,
     BAGGAGE: 'BAGGAGE' as MediaTypes,
     PASSPORT: 'PASSPORT' as MediaTypes,
     IDCARD: 'IDCARD' as MediaTypes,

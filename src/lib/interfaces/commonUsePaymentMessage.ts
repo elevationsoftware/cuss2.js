@@ -12,13 +12,11 @@
 import { CommonUsePaymentMessageCharacteristics } from './commonUsePaymentMessageCharacteristics';
 import { CommonUsePaymentMessageErrorResponse } from './commonUsePaymentMessageErrorResponse';
 import { EPaymentMessage } from './ePaymentMessage';
-import { VersionString } from './versionString';
 
 /**
  * Common use message document root element.
  */
 export interface CommonUsePaymentMessage { 
-    schemaVersion: VersionString;
     /**
      * An arbitrary tracking value that the CUSS application chooses and assigns when starting a payment function. The CUSS platform must then echo this requested value in all subsequent responses or asynchronous event messages related to that payment function. This correlation permits a CUSS application to match and associate request and response messages and is critical for the case where an application has more than one multi-step payment function ongoing concurrently.
      */

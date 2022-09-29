@@ -9,34 +9,8 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { ApplicationID } from './applicationID';
 
 /**
- * Applications and platforms use the CUSS 2 Application Transfer Structure for transferring control from one application to another.
+ * Reference of the component on which the directive shall be executed.
  */
-export interface ApplicationTransfer { 
-    /**
-     * Indicates whether to START an application or to CANCEL a pending transfer
-     */
-    transferRequestType: ApplicationTransfer.TransferRequestTypeEnum;
-    targetApplicationID: ApplicationID;
-    /**
-     * The application can use this value to change its look, feel, or behavior.
-     */
-    applicationBrand?: string;
-    /**
-     * As per RFC3066.- Please refer also to: http://www.lingoes.net/en/translator/langcode.htm
-     */
-    languageID: string;
-    /**
-     * Any data to be exchanged between callers and callees.
-     */
-    transferData?: string;
-}
-export namespace ApplicationTransfer {
-    export type TransferRequestTypeEnum = 'START' | 'CANCEL';
-    export const TransferRequestTypeEnum = {
-        START: 'START' as TransferRequestTypeEnum,
-        CANCEL: 'CANCEL' as TransferRequestTypeEnum
-    };
-}
+export type ComponentID = number;

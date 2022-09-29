@@ -15,12 +15,14 @@ import { ApplicationState } from './applicationState';
 import { BaggageData } from './baggageData';
 import { CommonUseBiometricMessage } from './commonUseBiometricMessage';
 import { CommonUsePaymentMessage } from './commonUsePaymentMessage';
+import { ComponentID } from './componentID';
 import { ComponentList } from './componentList';
 import { ComponentState } from './componentState';
 import { DataRecordList } from './dataRecordList';
 import { EnvironmentLevel } from './environmentLevel';
 import { PassengerSessionID } from './passengerSessionID';
 import { PlatformDataEventClassification } from './platformDataEventClassification';
+import { PlatformDirectives } from './platformDirectives';
 import { RequestID } from './requestID';
 import { StatusCodes } from './statusCodes';
 
@@ -33,23 +35,17 @@ export interface PlatformData {
      */
     timeStamp: Date;
     requestID: RequestID;
-    applicationActivation?: ApplicationActivation;
+    passengerSessionID: PassengerSessionID;
     applicationID: ApplicationID;
-    /**
-     * Reference of the component if it is the event source.
-     */
-    componentID?: number;
-    /**
-     * Name of the function/directive/endpoint which has been executed.
-     */
-    functionName: string;
+    componentID?: ComponentID;
     componentState: ComponentState;
+    currentApplicationState: ApplicationState;
     eventClassification?: PlatformDataEventClassification;
+    platformDirective?: PlatformDirectives;
     statusCode: StatusCodes;
+    applicationActivation?: ApplicationActivation;
     environmentLevel?: EnvironmentLevel;
     componentList?: ComponentList;
-    currentApplicationState: ApplicationState;
-    passengerSessionID: PassengerSessionID;
     dataRecords?: DataRecordList;
     bagdropData?: BaggageData;
     paymentData?: CommonUsePaymentMessage;
