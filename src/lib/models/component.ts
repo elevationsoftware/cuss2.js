@@ -392,6 +392,17 @@ export class CardReader extends DataReaderComponent {
 }
 
 /**
+ * @class A component that provides weight input
+ * @param {EnvironmentComponent} component
+ * @param {Cuss2} cuss2
+ */
+export class Scale extends DataReaderComponent {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.SCALE);
+	}
+}
+
+/**
  * @class A component that prints.
  * @extends Component
  * @param {EnvironmentComponent} component
