@@ -72,7 +72,7 @@
             
             <nav>
                 
-                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Announcement.html">Announcement</a></li><li><a href="BagTagPrinter.html">BagTagPrinter</a></li><li><a href="BarcodeReader.html">BarcodeReader</a></li><li><a href="BoardingPassPrinter.html">BoardingPassPrinter</a></li><li><a href="CardReader.html">CardReader</a></li><li><a href="Component.html">Component</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Cuss2.html">Cuss2</a></li><li><a href="DataReaderComponent.html">DataReaderComponent</a></li><li><a href="Dispenser.html">Dispenser</a></li><li><a href="DocumentReader.html">DocumentReader</a></li><li><a href="Feeder.html">Feeder</a></li><li><a href="Headset.html">Headset</a></li><li><a href="Illumination.html">Illumination</a></li><li><a href="Keypad.html">Keypad</a></li><li><a href="Printer.html">Printer</a></li></ul><h3>Global</h3><ul><li><a href="global.html#validateComponentId">validateComponentId</a></li></ul></div>
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Announcement.html">Announcement</a></li><li><a href="BagTagPrinter.html">BagTagPrinter</a></li><li><a href="BarcodeReader.html">BarcodeReader</a></li><li><a href="BoardingPassPrinter.html">BoardingPassPrinter</a></li><li><a href="CardReader.html">CardReader</a></li><li><a href="Component.html">Component</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Cuss2.html">Cuss2</a></li><li><a href="DataReaderComponent.html">DataReaderComponent</a></li><li><a href="Dispenser.html">Dispenser</a></li><li><a href="DocumentReader.html">DocumentReader</a></li><li><a href="Feeder.html">Feeder</a></li><li><a href="Headset.html">Headset</a></li><li><a href="Illumination.html">Illumination</a></li><li><a href="Keypad.html">Keypad</a></li><li><a href="Printer.html">Printer</a></li><li><a href="Scale.html">Scale</a></li></ul><h3>Global</h3><ul><li><a href="global.html#validateComponentId">validateComponentId</a></li></ul></div>
                 
             </nav>
         </div>
@@ -101,7 +101,7 @@ import {ComponentList} from "./interfaces/componentList";
 
 import {Connection} from "./connection";
 import {DataExchange} from "./interfaces/dataExchange";
-import {ComponentTypes} from "./interfaces/componentTypes";
+
 import {
 	Announcement,
 	BarcodeReader,
@@ -110,7 +110,8 @@ import {
 	Keypad,
 	CardReader,
 	BagTagPrinter,
-	BoardingPassPrinter, Illumination, Headset
+	BoardingPassPrinter, Illumination, Headset,
+	Scale
 } from "./models/component";
 import { CUSSDataTypes } from "./interfaces/cUSSDataTypes";
 import {StateChange} from "./models/stateChange";
@@ -127,7 +128,8 @@ const {
 	isDocumentReader,
 	isBarcodeReader,
 	isCardReader,
-	isKeypad, isIllumination, isHeadset
+	isKeypad, isIllumination, isHeadset,
+	isScale
 } = ComponentInterrogation;
 
 /**
@@ -157,7 +159,7 @@ function validateComponentId(componentID:any) {
  * @property {Keypad} keypad - The keypad component class to interact with the device.
  * @property {CardReader} cardReader - The card reader component class to interact with the device.
  * @property {Subject&lt;undefined>} activated - The activated subject will emit when the application moves to the active state.
- * @property {Subject&lt;AppState>} deactivated - The deactivated subject emits when the application is moved from the active state. *Note* see IATA docs for more details. AppState is an alias for ApplicationStates.ApplicationStateCodeEnum.
+ * @property {Subject&lt;AppState>} deactivated - The deactivated subject emits when the application is moved from the active state. *Note* see IATA docs for more details. AppState is an alias for ApplicationStateCodeEnum.
  * @property {AppState} pendingStateChange - The  application pending state change. *Note* see IATA docs for more details.
  * @property {boolean} multiTenant - The multi tenant flag.
  * @property {boolean} accessibleMode - The accessible mode flag.
@@ -253,11 +255,48 @@ export class Cuss2 {
 	 * 
 	 */
 	static async connect(url: string, client_id: string, client_secret: string, options: any = {}): Promise&lt;Cuss2> {
+		document.body.setAttribute('elevated-cuss2', '1')
+		function broadcast(detail: any) {
+			const event = new CustomEvent('send_to_cuss2_devtools', {detail});
+			window.dispatchEvent(event);
+		}
+		Cuss2.logger.subscribe(broadcast);
+
 		const connection = await Connection.connect(url, client_id, client_secret,  options);
 		const cuss2 = new Cuss2(connection);
+
+		if (document.body.hasAttribute('cuss2-devtools')) {
+			console.log('cuss2-devtools detected');
+			// @ts-ignore
+			window.addEventListener("execute_from_cuss2_devtools", async ({detail: {id, cmd, args=[]}}) => {
+				console.log('EVENT:execute_from_cuss2_devtools', cmd, args)
+				if (!cmd) return;
+				const parts = cmd.split('.')
+				let error, response, target = Cuss2._get(cuss2, parts);
+				if (typeof target === 'function') {
+					// @ts-ignore
+					const parent = Cuss2._get(cuss2, parts.slice(0, -1));
+					try {
+						// @ts-ignore
+						response = target.apply(parent, args);
+						if (response instanceof Promise)
+							response = await response;
+					}
+					catch(e) {error = e}
+				}
+				else response = target;
+				broadcast({id, cmd, response, error});
+			}, false);
+		}
+
 		await cuss2._initialize();
 		return cuss2;
 	}
+	static _get(cuss2: Cuss2, parts: String[]) {
+		// @ts-ignore
+		return parts.reduce((obj, prop) => obj &amp;&amp; obj[prop], cuss2)
+	}
+
 	static log = log;
 	static logger: Subject&lt;LogMessage> = logger;
 	static helpers = helpers;
@@ -287,7 +326,8 @@ export class Cuss2 {
 	announcement?: Announcement;
 	keypad?: Keypad;
 	cardReader?: CardReader;
-	activated: Subject&lt;undefined> = new Subject&lt;undefined>();
+	scale?: Scale;
+	activated: Subject&lt;ApplicationActivation> = new Subject&lt;ApplicationActivation>();
 	deactivated: Subject&lt;AppState> = new Subject&lt;AppState>();
 	pendingStateChange?: AppState;
 	multiTenant?: boolean;
@@ -323,8 +363,16 @@ export class Cuss2 {
 
 		log('verbose', '[event.currentApplicationState]', message.currentApplicationState);
 
-		const currentState = message.currentApplicationState?.toString();
 		const unsolicited = !message.functionName;
+
+		let currentState:any = message.currentApplicationState;
+
+		// TODO: remove when platform and cuss2.js are upgraded to Aug 22 CUSS2 updates.
+		// applicationStateCode was an enumeration; the update
+		// changed it to an object with the value we need nested inside.
+		if (currentState &amp;&amp; typeof currentState !== 'string') {
+			currentState = currentState.applicationStateCode
+		}
 		if(!currentState) {
 			this.connection._socket?.close();
 			throw new Error('Platform in invalid state. Cannot continue.');
@@ -334,15 +382,19 @@ export class Cuss2 {
 			log('verbose', `[state changed] old:${prevState} new:${currentState}`);
 			this.stateChange.next(new StateChange(prevState, currentState as AppState));
 
-			if (this._online &amp;&amp; currentState === AppState.UNAVAILABLE) {
+			if (currentState === AppState.UNAVAILABLE) {
 				await this.queryComponents().catch(e => log('verbose', 'failed to queryComponents', e));
-				this.checkRequiredComponentsAndSyncState();
+				if (this._online) {
+					this.checkRequiredComponentsAndSyncState();
+				}
 			}
 			else if (currentState === AppState.ACTIVE) {
+				if (!message.applicationActivation)
+					throw new Error('ApplicationActivation missing')
 				this.multiTenant = message.applicationActivation?.executionMode === ExecutionModeEnum.MAM;
 				this.accessibleMode = message.applicationActivation?.accessibleMode || false;
 				this.language = message.applicationActivation?.languageID;
-				this.activated.next(undefined);
+				this.activated.next(message.applicationActivation);
 			}
 			if (prevState === AppState.ACTIVE) {
 				this.deactivated.next(currentState as AppState);
@@ -354,7 +406,7 @@ export class Cuss2 {
 			if (component &amp;&amp; component.stateIsDifferent(message)) {
 				component.updateState(message);
 				this.componentStateChange.next(component);
-				if (unsolicited || message.functionName === 'query') {
+				if (this._online &amp;&amp; (unsolicited || message.functionName === 'query')) {
 					this.checkRequiredComponentsAndSyncState();
 				}
 			}
@@ -429,6 +481,7 @@ export class Cuss2 {
 				else if (isDispenser(component))  return; // instance = new Dispenser(component, this);
 				else if (isIllumination(component)) instance = new Illumination(component, this);
 				else if (isHeadset(component)) instance = new Headset(component, this);
+				else if (isScale(component)) instance = new Scale(component, this);
 				else instance = new Component(component, this);
 
 				return components[id] = instance;
@@ -646,6 +699,18 @@ export class Cuss2 {
 			await this.requestUnavailableState();
 		}
 		const okToChange = this.state === AppState.UNAVAILABLE || this.state === AppState.ACTIVE;
+		
+		if (okToChange &amp;&amp; this.state === AppState.ACTIVE) {
+			if (this.components) {
+				const componentList = Object.values(this.components) as Component[];
+				componentList.forEach(async (component: Component) => {
+					if (component.enabled) {
+						await component.disable();
+					}
+				});
+			}
+		}
+
 		return okToChange ? this.api.staterequest(AppState.AVAILABLE) : Promise.resolve(undefined);
 	}
 	/**
@@ -658,6 +723,18 @@ export class Cuss2 {
 	 */
 	requestUnavailableState(): Promise&lt;PlatformData|undefined> {
 		const okToChange = this.state === AppState.INITIALIZE || this.state === AppState.AVAILABLE || this.state === AppState.ACTIVE;
+
+		if (okToChange &amp;&amp; this.state === AppState.ACTIVE) {
+			if (this.components) {
+				const componentList = Object.values(this.components) as Component[];
+				componentList.forEach(async (component: Component) => {
+					if (component.enabled) {
+						await component.disable();
+					}
+				});
+			}
+		}
+		
 		return okToChange ? this.api.staterequest(AppState.UNAVAILABLE) : Promise.resolve(undefined);
 	}
 	/**
