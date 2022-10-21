@@ -354,6 +354,18 @@ export class DocumentReader extends DataReaderComponent {
 }
 
 /**
+ * @class A component that reads documents from the platform.
+ * @extends DataReaderComponent
+ * @param {EnvironmentComponent} component
+ * @param {Cuss2} cuss2
+ */
+ export class FaceReader extends DataReaderComponent {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.FACE_READER);
+	}
+}
+
+/**
  * @class A component that reads data from the platform.
  * @extends DataReaderComponent
  * @param {EnvironmentComponent} component

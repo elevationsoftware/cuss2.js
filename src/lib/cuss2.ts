@@ -20,6 +20,7 @@ import {
 	CardReader,
 	BagTagPrinter,
 	BoardingPassPrinter, Illumination, Headset,
+	FaceReader,
 	Scale
 } from "./models/component";
 import { CUSSDataTypes } from "./interfaces/cUSSDataTypes";
@@ -37,6 +38,7 @@ const {
 	isDocumentReader,
 	isBarcodeReader,
 	isCardReader,
+	isFaceReader,
 	isKeypad, isIllumination, isHeadset,
 	isScale
 } = ComponentInterrogation;
@@ -235,6 +237,7 @@ export class Cuss2 {
 	announcement?: Announcement;
 	keypad?: Keypad;
 	cardReader?: CardReader;
+	faceReader?: FaceReader;
 	scale?: Scale;
 	activated: Subject<ApplicationActivation> = new Subject<ApplicationActivation>();
 	deactivated: Subject<AppState> = new Subject<AppState>();
@@ -385,6 +388,7 @@ export class Cuss2 {
 				else if (isBarcodeReader(component)) instance = this.barcodeReader = new BarcodeReader(component, this);
 				else if (isCardReader(component)) instance = this.cardReader = new CardReader(component, this);
 				else if (isKeypad(component)) instance = this.keypad = new Keypad(component, this);
+				else if (isFaceReader(component)) instance = this.faceReader = new FaceReader(component, this);
 				// subcomponents
 				else if (isFeeder(component))  return; // instance = new Feeder(component, this);
 				else if (isDispenser(component))  return; // instance = new Dispenser(component, this);
