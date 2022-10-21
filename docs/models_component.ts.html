@@ -72,7 +72,7 @@
             
             <nav>
                 
-                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Announcement.html">Announcement</a></li><li><a href="BagTagPrinter.html">BagTagPrinter</a></li><li><a href="BarcodeReader.html">BarcodeReader</a></li><li><a href="BoardingPassPrinter.html">BoardingPassPrinter</a></li><li><a href="CardReader.html">CardReader</a></li><li><a href="Component.html">Component</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Cuss2.html">Cuss2</a></li><li><a href="DataReaderComponent.html">DataReaderComponent</a></li><li><a href="Dispenser.html">Dispenser</a></li><li><a href="DocumentReader.html">DocumentReader</a></li><li><a href="Feeder.html">Feeder</a></li><li><a href="Headset.html">Headset</a></li><li><a href="Illumination.html">Illumination</a></li><li><a href="Keypad.html">Keypad</a></li><li><a href="Printer.html">Printer</a></li></ul><h3>Global</h3><ul><li><a href="global.html#validateComponentId">validateComponentId</a></li></ul></div>
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Announcement.html">Announcement</a></li><li><a href="BagTagPrinter.html">BagTagPrinter</a></li><li><a href="BarcodeReader.html">BarcodeReader</a></li><li><a href="BoardingPassPrinter.html">BoardingPassPrinter</a></li><li><a href="CardReader.html">CardReader</a></li><li><a href="Component.html">Component</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Cuss2.html">Cuss2</a></li><li><a href="DataReaderComponent.html">DataReaderComponent</a></li><li><a href="Dispenser.html">Dispenser</a></li><li><a href="DocumentReader.html">DocumentReader</a></li><li><a href="Feeder.html">Feeder</a></li><li><a href="Headset.html">Headset</a></li><li><a href="Illumination.html">Illumination</a></li><li><a href="Keypad.html">Keypad</a></li><li><a href="Printer.html">Printer</a></li><li><a href="Scale.html">Scale</a></li></ul><h3>Global</h3><ul><li><a href="global.html#validateComponentId">validateComponentId</a></li></ul></div>
                 
             </nav>
         </div>
@@ -97,7 +97,7 @@ import {
 	DataExchange,
 	DataRecord,
 	EnvironmentComponent,
-	EventHandlingCodes,
+	ComponentState,
 	IlluminationDataLightColor,
 	PlatformData,
 	StatusCodes
@@ -169,11 +169,11 @@ export class Component {
 	api: any;
 	required: boolean = false;
 	statusChanged: BehaviorSubject&lt;StatusCodes> = new BehaviorSubject&lt;StatusCodes>(StatusCodes.OK);
-	_eventHandlingCode: EventHandlingCodes = EventHandlingCodes.UNAVAILABLE;
+	_componentState: ComponentState = ComponentState.UNAVAILABLE;
 	deviceType: DeviceType;
 	pendingCalls: number = 0;
 	enabled: boolean = false;
-	pollingInterval = 3000;
+	pollingInterval = 10000;
 	_poller: any;
 	parent: any;
 	subcomponents: Component[] = []
@@ -183,7 +183,7 @@ export class Component {
 	 * @returns {boolean} true if the component is ready
 	 */
 	get ready(): boolean {
-		return this._eventHandlingCode === EventHandlingCodes.READY;
+		return this._componentState === ComponentState.READY;
 	}
 
 	readyStateChanged: Subject&lt;boolean> = new Subject&lt;boolean>();
@@ -218,30 +218,31 @@ export class Component {
 		});
 
 		if (component.linkedComponentIDs?.length) {
-			const name = this.constructor.name[0].toLowerCase() + this.constructor.name.substr(1)
-			const parentId = Math.min(this.id, ...component.linkedComponentIDs)
+			// this.constructor.name[0].toLowerCase() + this.constructor.name.substr(1) in tagging this is not working currently
+			const name = this.deviceType;
+			const parentId = Math.min(this.id, ...component.linkedComponentIDs);
 			if(parentId != this.id) {
 				this.parent = cuss2.components[parentId]
 				// feeder and dispenser are created in the printer component
 				if (this.parent &amp;&amp; !this.parent[name]) {
-					this.parent.subcomponents.push(this)
-					this.parent[name] = this
+					this.parent.subcomponents.push(this);
+					this.parent[name] = this;
 				}
 			}
 		}
 	}
 
 	stateIsDifferent(msg: PlatformData): boolean {
-		return this.status !== msg.statusCode || this._eventHandlingCode !== msg.eventHandlingCode;
+		return this.status !== msg.statusCode || this._componentState !== msg.componentState;
 	}
 
 	updateState(msg: PlatformData): void {
-		if (msg.eventHandlingCode !== this._eventHandlingCode) {
-			this._eventHandlingCode = msg.eventHandlingCode;
-			if (msg.eventHandlingCode !== EventHandlingCodes.READY) {
+		if (msg.componentState !== this._componentState) {
+			this._componentState = msg.componentState;
+			if (msg.componentState !== ComponentState.READY) {
 				this.enabled = false;
 			}
-			this.readyStateChanged.next(msg.eventHandlingCode === EventHandlingCodes.READY)
+			this.readyStateChanged.next(msg.componentState === ComponentState.READY)
 		}
 		// Sometimes status is not sent by an unsolicited event so we poll to be sure
 		if (!this.ready &amp;&amp; this.required &amp;&amp; !this._poller &amp;&amp; this.pollingInterval > 0) {
@@ -482,6 +483,17 @@ export class CardReader extends DataReaderComponent {
 }
 
 /**
+ * @class A component that provides weight input
+ * @param {EnvironmentComponent} component
+ * @param {Cuss2} cuss2
+ */
+export class Scale extends DataReaderComponent {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.SCALE);
+	}
+}
+
+/**
  * @class A component that prints.
  * @extends Component
  * @param {EnvironmentComponent} component
@@ -555,12 +567,6 @@ export class Printer extends Component {
 			}
 		});
 		this.combinedStatusChanged = new BehaviorSubject&lt;StatusCodes>(StatusCodes.OK);
-		
-		cuss2.activated.subscribe(() => {
-			if (this.ready) {
-				this.enable();
-			}
-		});
 	}
 
 	feeder: Feeder;
@@ -608,11 +614,11 @@ export class Printer extends Component {
 	updateState(msg: PlatformData): void {
 		//CUTnHOLD can cause a TIMEOUT response if the tag is not taken in a certain amount of time.
 		// Unfortunately, it briefly considers the Printer to be UNAVAILABLE.
-		if (msg.functionName === 'send' &amp;&amp; msg.statusCode === StatusCodes.TIMEOUT &amp;&amp; msg.eventHandlingCode === EventHandlingCodes.UNAVAILABLE) {
-			msg.eventHandlingCode = EventHandlingCodes.READY;
+		if (msg.functionName === 'send' &amp;&amp; msg.statusCode === StatusCodes.TIMEOUT &amp;&amp; msg.componentState === ComponentState.UNAVAILABLE) {
+			msg.componentState = ComponentState.READY;
 		}
 		// if now ready, query linked components to get their latest status
-		if (!this.ready &amp;&amp; msg.eventHandlingCode === EventHandlingCodes.READY) {
+		if (!this.ready &amp;&amp; msg.componentState === ComponentState.READY) {
 			this.feeder.query().catch(console.error);
 			this.dispenser.query().catch(console.error);
 		}
@@ -843,7 +849,7 @@ export class Dispenser extends Component {
 		this.mediaPresentChanged = new BehaviorSubject&lt;boolean>(false);
 		this.statusChanged.subscribe((status) => {
 			if (status === StatusCodes.MEDIAPRESENT) {
-				this.pollUntilReady(true, 100);
+				this.pollUntilReady(true, 2000);
 				if (!this.mediaPresent) {
 					this.mediaPresentChanged.next(true);
 				}
