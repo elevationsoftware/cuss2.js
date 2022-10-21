@@ -1,7 +1,7 @@
 /**
  * Interface providing means to handle real-time events for all predefined CUSS websocket responses
  */
-export type DeviceType = 'UNKNOWN' | 'BAG_TAG_PRINTER' | 'BAG_TAG_FEEDER' | 'BAG_TAG_DISPENSER' | 'BOARDING_PASS_PRINTER' | 'BOARDING_PASS_FEEDER' | 'BOARDING_PASS_DISPENSER' | 'BARCODE_READER' | 'PASSPORT_READER' | 'MSR_READER' | 'KEY_PAD' | 'ANNOUNCEMENT' | 'FEEDER' | 'DISPENSER';
+export type DeviceType = 'UNKNOWN' | 'BAG_TAG_PRINTER' | 'BAG_TAG_FEEDER' | 'BAG_TAG_DISPENSER' | 'BOARDING_PASS_PRINTER' | 'BOARDING_PASS_FEEDER' | 'BOARDING_PASS_DISPENSER' | 'BARCODE_READER' | 'PASSPORT_READER' | 'MSR_READER' | 'KEY_PAD' | 'ANNOUNCEMENT' | 'FEEDER' | 'DISPENSER' | 'SCALE';
 
 export const DeviceType = {
 	UNKNOWN: 'UNKNOWN' as DeviceType,
@@ -19,5 +19,6 @@ export const DeviceType = {
 	FEEDER: 'FEEDER' as DeviceType,
 	DISPENSER: 'DISPENSER' as DeviceType,
 	ILLUMINATION: 'ILLUMINATION' as DeviceType,
-	HEADSET: 'HEADSET' as DeviceType
+	HEADSET: 'HEADSET' as DeviceType,
+	SCALE: 'SCALE' as DeviceType
 };

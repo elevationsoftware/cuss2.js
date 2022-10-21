@@ -19,7 +19,8 @@ import {
 	Keypad,
 	CardReader,
 	BagTagPrinter,
-	BoardingPassPrinter, Illumination, Headset
+	BoardingPassPrinter, Illumination, Headset,
+	Scale
 } from "./models/component";
 import { CUSSDataTypes } from "./interfaces/cUSSDataTypes";
 import {StateChange} from "./models/stateChange";
@@ -36,7 +37,8 @@ const {
 	isDocumentReader,
 	isBarcodeReader,
 	isCardReader,
-	isKeypad, isIllumination, isHeadset
+	isKeypad, isIllumination, isHeadset,
+	isScale
 } = ComponentInterrogation;
 
 /**
@@ -233,6 +235,7 @@ export class Cuss2 {
 	announcement?: Announcement;
 	keypad?: Keypad;
 	cardReader?: CardReader;
+	scale?: Scale;
 	activated: Subject<ApplicationActivation> = new Subject<ApplicationActivation>();
 	deactivated: Subject<AppState> = new Subject<AppState>();
 	pendingStateChange?: AppState;
@@ -387,6 +390,7 @@ export class Cuss2 {
 				else if (isDispenser(component))  return; // instance = new Dispenser(component, this);
 				else if (isIllumination(component)) instance = new Illumination(component, this);
 				else if (isHeadset(component)) instance = new Headset(component, this);
+				else if (isScale(component)) instance = new Scale(component, this);
 				else instance = new Component(component, this);
 
 				return components[id] = instance;
