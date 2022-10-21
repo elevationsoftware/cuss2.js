@@ -72,7 +72,7 @@
             
             <nav>
                 
-                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Announcement.html">Announcement</a></li><li><a href="BagTagPrinter.html">BagTagPrinter</a></li><li><a href="BarcodeReader.html">BarcodeReader</a></li><li><a href="BoardingPassPrinter.html">BoardingPassPrinter</a></li><li><a href="CardReader.html">CardReader</a></li><li><a href="Component.html">Component</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Cuss2.html">Cuss2</a></li><li><a href="DataReaderComponent.html">DataReaderComponent</a></li><li><a href="Dispenser.html">Dispenser</a></li><li><a href="DocumentReader.html">DocumentReader</a></li><li><a href="Feeder.html">Feeder</a></li><li><a href="Headset.html">Headset</a></li><li><a href="Illumination.html">Illumination</a></li><li><a href="Keypad.html">Keypad</a></li><li><a href="Printer.html">Printer</a></li></ul><h3>Global</h3><ul><li><a href="global.html#validateComponentId">validateComponentId</a></li></ul></div>
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Announcement.html">Announcement</a></li><li><a href="BagTagPrinter.html">BagTagPrinter</a></li><li><a href="BarcodeReader.html">BarcodeReader</a></li><li><a href="BoardingPassPrinter.html">BoardingPassPrinter</a></li><li><a href="CardReader.html">CardReader</a></li><li><a href="Component.html">Component</a></li><li><a href="Connection.html">Connection</a></li><li><a href="Cuss2.html">Cuss2</a></li><li><a href="DataReaderComponent.html">DataReaderComponent</a></li><li><a href="Dispenser.html">Dispenser</a></li><li><a href="DocumentReader.html">DocumentReader</a></li><li><a href="Feeder.html">Feeder</a></li><li><a href="Headset.html">Headset</a></li><li><a href="Illumination.html">Illumination</a></li><li><a href="Keypad.html">Keypad</a></li><li><a href="Printer.html">Printer</a></li><li><a href="Scale.html">Scale</a></li></ul><h3>Global</h3><ul><li><a href="global.html#validateComponentId">validateComponentId</a></li></ul></div>
                 
             </nav>
         </div>
@@ -89,15 +89,15 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import {BehaviorSubject, Subject} from "rxjs";
-import {helpers, log} from "./helper";
+            <pre class="prettyprint source linenums"><code>import { BehaviorSubject, Subject } from "rxjs";
+import { helpers, log } from "./helper";
 import * as rax from 'retry-axios';
 import axios from "axios";
-import {PlatformData} from "./interfaces/platformData";
-import {takeWhile} from "rxjs/operators";
+import { PlatformData } from "./interfaces/platformData";
+import { takeWhile } from "rxjs/operators";
 import { CUSS2ApiResponse } from "./interfaces/cUSS2ApiResponse";
-import {PlatformResponseError} from "./models/platformResponseError";
-import {ReturnCodes} from "./interfaces/returnCodes";
+import { PlatformResponseError } from "./models/platformResponseError";
+import { ReturnCodes } from "./interfaces/returnCodes";
 
 const axiosClient = axios.create();
 axiosClient.defaults.raxConfig = {
@@ -123,14 +123,14 @@ export class Connection {
 	 * /// Retrieve a token from the CUSS Oauth Server using a client id and client secret
 	 * const token = await Connection.authorize('url', 'my-client-id', 'my-client-secret', 'timeout');
 	 */
-	static authorize(url: string, client_id: string, client_secret: string, timeout: number = 10000): Promise&lt;string> {
+	static authorize(url: string, client_id: string, client_secret: string, timeout: number = 10000): Promise&lt;any> {
 		log('info', `Authorizing client '${client_id}'`, url);
 
-		return axiosClient.post(url, {client_id, client_secret}, {timeout})
-			.then(({data: {access_token}}: any) => {
-				log('info', "Token acquired", access_token);
+		return axiosClient.post(url, { client_id, client_secret }, { timeout })
+			.then(({ data }: any) => {
+				log('info', "Token acquired", data);
 
-				return access_token;
+				return data;
 			})
 	}
 
@@ -148,12 +148,12 @@ export class Connection {
 	static async connect(baseURL:string, client_id: string, client_secret: string, tokenURL?: string): Promise&lt;Connection> {
 		const connection = new Connection(baseURL, client_id, client_secret, tokenURL);
 		let delay = .5;
-		function connect() : Promise&lt;any> {
+		function connect(): Promise&lt;any> {
 			return connection._connect().catch(async (err) => {
-				log('info', 'Websocket connection failed: '+err.message , err);
+				log('info', 'Websocket connection failed: ' + err.message, err);
 				delay *= 2;
 				log('info', `Retrying Websocket connection in ${delay} seconds`);
-				await new Promise((resolve) => setTimeout(resolve, delay* 1000));
+				await new Promise((resolve) => setTimeout(resolve, delay * 1000));
 				return connect();
 			});
 		}
@@ -161,15 +161,16 @@ export class Connection {
 		return connection;
 	}
 
-	private constructor(baseURL:string, client_id: string, client_secret: string, options:any = {}) {
+	private constructor(baseURL: string, client_id: string, client_secret: string, options: any = {}) {
 		this.timeout = options.timeout || 30000;
-		this.pingInterval = options.pingInterval || this.pingInterval
+		this.pingInterval = options.pingInterval || this.pingInterval 
+
 		const endOfHostname = baseURL.indexOf('?');
 		if (endOfHostname > -1) {
 			baseURL = baseURL.substr(0, endOfHostname);
 		}
-		if(baseURL.endsWith('/')) {
-			baseURL = baseURL.substr(0, baseURL.length-1)
+		if (baseURL.endsWith('/')) {
+			baseURL = baseURL.substr(0, baseURL.length - 1)
 		}
 		this._baseURL = baseURL;
 
@@ -189,7 +190,7 @@ export class Connection {
 	_socket?: WebSocket;
 	messages: BehaviorSubject&lt;any> = new BehaviorSubject&lt;any>({});
 	onclose: Subject&lt;void> = new Subject();
-	pingInterval = 15000;
+	pingInterval = 0;
 	lastPong = 0;
 	_pinger: any = 0;
 
@@ -201,21 +202,35 @@ export class Connection {
 		timeout: 30000
 	};
 
-	get timeout() : number {
+	get timeout(): number {
 		return this._config.timeout;
 	}
 	set timeout(t: number) {
 		this._config.timeout = t;
 	}
 
-	async _connect() : Promise&lt;any> {
-		const access_token = await Connection.authorize(
-			this._auth.url,
-			this._auth.client_id,
-			this._auth.client_secret,
-			this.timeout
-		);
-		this._config.headers.Authorization = 'Bearer ' + access_token;
+	async _connect(): Promise&lt;any> {
+		let access_token: string, expires: number = 0, refresher: any = 0;
+		const _authenticate = async () => {
+			log('info', 'Getting access_token')
+			if (refresher)
+				clearTimeout(refresher);
+
+			const access_data = await Connection.authorize(
+				this._auth.url,
+				this._auth.client_id,
+				this._auth.client_secret,
+				this.timeout
+			);
+			access_token = access_data["access_token"];
+			expires = Math.max(0, access_data["expires_in"]);
+			this._config.headers.Authorization = 'Bearer ' + access_token;
+			if (expires) {
+				log('info', `access_token expires in ${expires} seconds`)
+				refresher = setTimeout(_authenticate, (expires - 1) * 1000);
+			}
+		}
+		await _authenticate();
 
 		return new Promise(async (resolve, reject) => {
 			if (this._socket &amp;&amp; this._socket.readyState === 1) {
@@ -232,29 +247,40 @@ export class Connection {
 			}
 			socket.onopen = () => {
 				log('info', "Socket opened; Sending Token...", this._socketURL);
-				socket.send(JSON.stringify({access_token}));
+				socket.send(JSON.stringify({ access_token }));
 			};
 			socket.onmessage = (event: any) => {
 				log('verbose', "[socket.onmessage]", event.data);
 				const data = JSON.parse(event.data);
 				if (data.description === 'Client already connected') {
 					removeListeners();
-					log('error', data.description, event.data);
+					log('error', data.description, data);
 					return reject(new Error('Client already connected'))
 				}
 
 				if (data.description === 'Client authorized' &amp;&amp; data.returnCode === 'RC_OK') {
 					removeListeners();
-					log('info', "Token Confirmed", event.data);
+					log('info', "Token Confirmed", data);
 					this._socket = socket;
 					this.lastPong = Date.now() + (this.pingInterval + 2000);
-					this._startPingPong();
+					if (this.pingInterval) {
+						this._startPingPong();
+					}
 
 					socket.onmessage = (event) => {
 						const data = JSON.parse(event.data);
+						if (data.ping) {
+							socket.send(`{ "pong": ${Date.now()} }`);
+							log('info', 'PING OK.');
+						}
 						if (data.pong) {
-							// move the expiration time ahead
+							log('info', 'PONG OK.');
 							return this.lastPong = Date.now() + (this.pingInterval + 2000);
+						}
+						// TODO: remove.
+						// Added for backwards compatibility after Aug '22 interface changes
+						if (!data.componentState) {
+							data.componentState = data.eventHandlingCode;
 						}
 						this.messages.next(data);
 					};
@@ -274,17 +300,18 @@ export class Connection {
 			socket.onerror = rejectionHandler;
 		});
 	}
+
 	_startPingPong() {
 		const ping = () => {
 			this._socket?.send(`{ "ping": ${Date.now()} }`);
 		};
 		clearInterval(this._pinger);
 		this._pinger = setInterval(() => {
-			if(this.lastPong &lt; Date.now()) {
+			if (this.lastPong &lt; Date.now()) {
 				clearInterval(this._pinger);
 				this._socket?.close();
 			}
-			else{
+			else {
 				log('info', 'pong OK.', this.lastPong - Date.now());
 				ping();
 			}
@@ -300,32 +327,32 @@ export class Connection {
 	}
 
 	// this consolidates get/post to simplify logging and reply handling
-	async _call(type: string, path: string, data:any): Promise&lt;any> {
+	async _call(type: string, path: string, data: any): Promise&lt;any> {
 		log("verbose", `[connection.${type}()] ${path}`);
 
-		const invalidTokenHandler = async (e:any) => {
+		const invalidTokenHandler = async (e: any) => {
 			if (e.response?.status === 401) {
-				log("verbose",'got a 401 - trying to re-authenticate')
+				log("verbose", 'got a 401 - trying to re-authenticate')
 				await this._connect();
-				log("verbose",'re-trying http request');
+				log("verbose", 're-trying http request');
 				//try again
 				return get_or_post();
 			}
 			throw e;
 		};
-		const get_or_post = () => type === 'post'?
+		const get_or_post = () => type === 'post' ?
 			axiosClient.post(this._baseURL + path, data, this._config) :
 			axiosClient.get(this._baseURL + path, this._config);
 
 		const r = await get_or_post().catch(invalidTokenHandler);
 
-		log("verbose",`[connection.${type}()] ${path} response:\n`, r.data);
+		log("verbose", `[connection.${type}()] ${path} response:\n`, r.data);
 
 		const { requestID, returnCode } = r.data as CUSS2ApiResponse;
 		if (returnCode !== ReturnCodes.OK || (path === '/platform/applications/staterequest/UNAVAILABLE' &amp;&amp; returnCode === ReturnCodes.STATE)) {
 			return Promise.reject(new Error('HTTP call failed with: ' + returnCode))
 		}
-		log("verbose",'[connection._call()] waiting for reply with id: ' + requestID);
+		log("verbose", '[connection._call()] waiting for reply with id: ' + requestID);
 
 		return new Promise&lt;PlatformData>((resolve, reject) => {
 			let timedout = false;
@@ -348,7 +375,7 @@ export class Connection {
 					return true; // continue getting messages
 				})
 			)
-				.subscribe(()=>{})
+				.subscribe(() => { })
 		})
 	}
 }
