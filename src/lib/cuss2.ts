@@ -394,7 +394,7 @@ export class Cuss2 {
 				else if (isDispenser(component))  return; // instance = new Dispenser(component, this);
 				else if (isIllumination(component)) instance = new Illumination(component, this);
 				else if (isHeadset(component)) instance = new Headset(component, this);
-				else if (isScale(component)) instance = new Scale(component, this);
+				else if (isScale(component)) instance = this.scale = new Scale(component, this);
 				else instance = new Component(component, this);
 
 				return components[id] = instance;
