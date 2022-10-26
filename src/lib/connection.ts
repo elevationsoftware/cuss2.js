@@ -190,8 +190,6 @@ export class Connection {
 						// Added for backwards compatibility after Aug '22 interface changes
 						if (data.toApplication && !data.toApplication.componentState) {
 							data.toApplication.componentState = data.toApplication.eventHandlingCode;
-						} else if (!data.toApplication && !data.componentState) {
-							data.componentState = data.eventHandlingCode;
 						}
 						this.messages.next(data);
 					};
