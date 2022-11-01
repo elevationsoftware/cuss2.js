@@ -29,42 +29,51 @@ pretendServer.handle = function (type, url, data, resolve, reject) {
 	});
 };
 
-const {Connection} = proxyquire('../dist/lib/connection.js', { 'axios': {
-	get: async (url) => {
-		return new Promise((resolve, reject) => {
-			asyncish(() => {
-				pretendServer.handle('get', url, {}, resolve, reject)
+const {Connection} = proxyquire('../dist/connection.js', { 'axios': {
+	create: () => ({
+		defaults: {},
+		interceptors: {
+			response: {
+				use: () => {},
+				eject: () => {},
+			}
+		},
+		get: async (url) => {
+			return new Promise((resolve, reject) => {
+				asyncish(() => {
+					pretendServer.handle('get', url, {}, resolve, reject)
+				})
 			})
-		})
-	},
-	post: async (url, data) => {
-		// console.log('mock post', url)
-		return new Promise((resolve, reject) => {
-			asyncish(() => {
+		},
+		post: async (url, data) => {
+			// console.log('mock post', url)
+			return new Promise((resolve, reject) => {
+				asyncish(() => {
 
-				if (url.endsWith('/token')) {
-					const {client_id, client_secret} = data
+					if (url.endsWith('/token')) {
+						const {client_id, client_secret} = data
 
-					if (client_secret === '🤫') {
-						resolve({data: {access_token: client_id}});
+						if (client_secret === '🤫') {
+							resolve({data: {access_token: client_id}});
+						}
+						else {
+							reject(new Error('Invalid Credentials'));
+						}
+						return;
 					}
-					else {
-						reject(new Error('Invalid Credentials'));
+
+					if (url.endsWith('/expire/test') && data.count === 0) {
+						//e.response.status
+						data.count++;
+						reject({ response: { status: 401 }});
+						return;
 					}
-					return;
-				}
 
-				if (url.endsWith('/expire/test') && data.count === 0) {
-					//e.response.status
-					data.count++;
-					reject({ response: { status: 401 }});
-					return;
-				}
-
-				pretendServer.handle('post', url, data, resolve, reject)
+					pretendServer.handle('post', url, data, resolve, reject)
+				})
 			})
-		})
-	}
+		}
+	})
 }});
 
 global.WebSocket = function WebSocket(url) {
@@ -116,8 +125,10 @@ describe('Connection', function () {
 	describe('authorize()', function () {
 		it('should get a token', async function () {
 			const token = await Connection.authorize('https://localhost/oauth/token', 'GIVE_ME_BACK_THIS_AS_THE_TOKEN', '🤫');
-			expect(token).to.be.a('string')
-			expect(token).to.equal('GIVE_ME_BACK_THIS_AS_THE_TOKEN');
+			expect(token).to.be.an('object')
+			expect(token).to.have.property('access_token')
+			expect(token.access_token).to.be.a('string')
+			expect(token.access_token).to.equal('GIVE_ME_BACK_THIS_AS_THE_TOKEN');
 		});
 
 		it('should return an error if credentials fail', async function () {
@@ -139,9 +150,9 @@ describe('Connection', function () {
 			expect(conn).to.be.an.instanceof(Connection)
 		});
 
-		it('should put the token in the Authorization header', async function () {
+		it('should store the access_token in the _config', async function () {
 			conn = await Connection.connect('http://local.host/path/to/api?query=igone', 'GIVE_ME_BACK_THIS_AS_THE_TOKEN', '🤫');
-			expect(conn._config.headers.Authorization).to.equal('Bearer GIVE_ME_BACK_THIS_AS_THE_TOKEN')
+			expect(conn._config.access_token).to.equal('GIVE_ME_BACK_THIS_AS_THE_TOKEN')
 		});
 
 		it('should strip of any query and trailing slash for the baseURL', async function () {
@@ -151,12 +162,12 @@ describe('Connection', function () {
 
 		it('should create a ws schema when http is used', async function () {
 			conn = await Connection.connect('http://local.host/path/to/api?query=igone', 'whatever', '🤫');
-			expect(conn._socketURL).to.equal('ws://local.host/path/to/api/subscribe')
+			expect(conn._socketURL).to.equal('ws://local.host/path/to/api/platform/subscribe')
 		});
 
 		it('should create a wss schema when https is used', async function () {
 			conn = await Connection.connect('https://local.host/path/to/api?query=igone', 'whatever', '🤫');
-			expect(conn._socketURL).to.equal('wss://local.host/path/to/api/subscribe')
+			expect(conn._socketURL).to.equal('wss://local.host/path/to/api/platform/subscribe')
 		});
 
 		it('should default the tokenURL to baseURL+/oauth/token', async function () {
@@ -165,72 +176,46 @@ describe('Connection', function () {
 		});
 
 		it('should use a custom tokenURL if provided', async function () {
-			conn = await Connection.connect('https://localhost', 'whatever', '🤫', 'http://custom.url/token');
+			conn = await Connection.connect('https://localhost', 'whatever', '🤫', {tokenURL:'http://custom.url/token'});
 			expect(conn._auth.url).to.equal('http://custom.url/token')
 		});
 
-
-		describe('Failure paths', function () {
-
-			it('should throw if unknown response after websocket gets the token', async function () {
-				try {
-					conn = await Connection.connect('https://localhost', 'gimme error', '🤫');
-					throw new Error('error response should have failed');
-				}
-				catch(e) {
-					expect(e).to.be.an('error');
-					expect(e.message).to.equal('Here is your error');
-				}
-			});
-
-			it("should close the connection if it doesn't like the token", async function () {
-				try {
-					conn = await Connection.connect('https://localhost', 'reject', '🤫');
-					throw new Error('rejection should have failed');
-				}
-				catch(e) {
-					expect(e).to.be.an('error');
-					expect(e.message).to.equal('Invalid Token');
-				}
-			});
-
-			it("should throw if it doesn't confirm the token", async function () {
-				try {
-					conn = await Connection.connect('https://localhost', 'no returnCode', '🤫');
-					throw new Error('rejection should have failed');
-				}
-				catch(e) {
-					expect(e).to.be.an('error');
-					expect(e.message).to.equal('Platform did not confirm token');
-				}
-			});
-
-		});
+		// This was the old way of sending the token....
+		// describe('Failure paths', function () {
+		//
+		// 	it('should throw if unknown response after websocket gets the token', async function () {
+		// 		try {
+		// 			conn = await Connection.connect('https://localhost', 'gimme error', '🤫');
+		// 			throw new Error('error response should have failed');
+		// 		}
+		// 		catch(e) {
+		// 			expect(e).to.be.an('error');
+		// 			expect(e.message).to.equal('Here is your error');
+		// 		}
+		// 	});
+		//
+		// 	it("should close the connection if it doesn't like the token", async function () {
+		// 		try {
+		// 			conn = await Connection.connect('https://localhost', 'reject', '🤫');
+		// 			throw new Error('rejection should have failed');
+		// 		}
+		// 		catch(e) {
+		// 			expect(e).to.be.an('error');
+		// 			expect(e.message).to.equal('Invalid Token');
+		// 		}
+		// 	});
+		//
+		// 	it("should throw if it doesn't confirm the token", async function () {
+		// 		try {
+		// 			conn = await Connection.connect('https://localhost', 'no returnCode', '🤫');
+		// 			throw new Error('rejection should have failed');
+		// 		}
+		// 		catch(e) {
+		// 			expect(e).to.be.an('error');
+		// 			expect(e.message).to.equal('Platform did not confirm token');
+		// 		}
+		// 	});
+		//
+		// });
 	});
-
-	describe('API Calls', function () {
-		it('should GET to the API and get a response back on the websocket', async function () {
-			conn = await Connection.connect('https://localhost', 'expire me', '🤫');
-			const res = await conn.get('/ping');
-			expect(res).to.be.an('object');
-			expect(res.statusCode).to.equal('OK');
-			expect(res.data).to.equal('pong');
-		});
-		it('should POST to the API and get a response back on the websocket', async function () {
-			conn = await Connection.connect('https://localhost', 'expire me', '🤫');
-			const res = await conn.post('/ping');
-			expect(res).to.be.an('object');
-			expect(res.statusCode).to.equal('OK');
-			expect(res.data).to.equal('pong');
-		});
-
-		it('should refresh the token on 401 response', async function () {
-			conn = await Connection.connect('https://localhost', 'expire me', '🤫');
-			const res = await conn.post('/expire/test', {count: 0});
-			expect(res).to.be.an('object');
-			expect(res.statusCode).to.equal('OK');
-		});
-
-	});
-
 });
