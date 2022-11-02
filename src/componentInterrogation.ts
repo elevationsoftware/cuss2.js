@@ -81,4 +81,18 @@ export class ComponentInterrogation {
 		return charac0.deviceTypesList?.[0] === DeviceTypes.ASSISTIVE && mediaTypesHas(mediaTypes, MediaTypes.AUDIO);
 	}
 
+	static isScale = (component:EnvironmentComponent) => {
+		if (component.componentType !== ComponentTypes.DATAINPUT) return;
+		const charac0 = component.componentCharacteristics?.[0];
+		if (!charac0) return;
+		const mediaTypes = charac0.mediaTypesList;
+		return charac0.deviceTypesList?.[0] === DeviceTypes.SCALE && mediaTypesHas(mediaTypes, MediaTypes.BAGGAGE);
+	}
+	static isFaceReader = (component:EnvironmentComponent) => {
+		//return component.componentDescription === 'Face Reader';
+		const charac0 = component.componentCharacteristics?.[0];
+		if (!charac0) return;
+		return dsTypesHas(charac0, CUSSDataTypes.BIOMETRIC);
+	}
+
 }

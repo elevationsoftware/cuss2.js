@@ -18,6 +18,8 @@ import {
 	BoardingPassPrinter,
 	Illumination,
 	Headset,
+	FaceReader,
+	Scale
 } from "./models/component.js";
 
 import {
@@ -44,7 +46,9 @@ const {
 	isDocumentReader,
 	isBarcodeReader,
 	isCardReader,
-	isKeypad, isIllumination, isHeadset
+	isFaceReader,
+	isKeypad, isIllumination, isHeadset,
+	isScale
 } = ComponentInterrogation;
 
 /**
@@ -74,7 +78,7 @@ function validateComponentId(componentID:any) {
  * @property {Keypad} keypad - The keypad component class to interact with the device.
  * @property {CardReader} cardReader - The card reader component class to interact with the device.
  * @property {Subject<undefined>} activated - The activated subject will emit when the application moves to the active state.
- * @property {Subject<AppState>} deactivated - The deactivated subject emits when the application is moved from the active state. *Note* see IATA docs for more details. AppState is an alias for .
+ * @property {Subject<AppState>} deactivated - The deactivated subject emits when the application is moved from the active state. *Note* see IATA docs for more details. AppState is an alias for ApplicationStateCodeEnum.
  * @property {AppState} pendingStateChange - The  application pending state change. *Note* see IATA docs for more details.
  * @property {boolean} multiTenant - The multi tenant flag.
  * @property {boolean} accessibleMode - The accessible mode flag.
@@ -239,6 +243,8 @@ export class Cuss2 {
 	announcement?: Announcement;
 	keypad?: Keypad;
 	cardReader?: CardReader;
+	faceReader?: FaceReader;
+	scale?: Scale;
 	activated: Subject<ApplicationActivation> = new Subject<ApplicationActivation>();
 	deactivated: Subject<AppState> = new Subject<AppState>();
 	pendingStateChange?: AppState;
@@ -382,11 +388,13 @@ export class Cuss2 {
 				else if (isBarcodeReader(component)) instance = this.barcodeReader = new BarcodeReader(component, this);
 				else if (isCardReader(component)) instance = this.cardReader = new CardReader(component, this);
 				else if (isKeypad(component)) instance = this.keypad = new Keypad(component, this);
+				else if (isFaceReader(component)) instance = this.faceReader = new FaceReader(component, this);
 				// subcomponents
 				else if (isFeeder(component))  return; // instance = new Feeder(component, this);
 				else if (isDispenser(component))  return; // instance = new Dispenser(component, this);
 				else if (isIllumination(component)) instance = new Illumination(component, this);
 				else if (isHeadset(component)) instance = new Headset(component, this);
+				else if (isScale(component)) instance = this.scale = new Scale(component, this);
 				else instance = new Component(component, this);
 
 				return components[id] = instance;
