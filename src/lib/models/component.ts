@@ -414,6 +414,12 @@ export class Scale extends DataReaderComponent {
 	}
 }
 
+export class Camera extends DataReaderComponent {
+	constructor(component: EnvironmentComponent, cuss2: Cuss2) {
+		super(component, cuss2, DeviceType.CAMERA);
+	}
+}
+
 /**
  * @class A component that prints.
  * @extends Component
