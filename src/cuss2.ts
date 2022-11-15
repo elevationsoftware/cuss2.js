@@ -19,7 +19,8 @@ import {
 	Illumination,
 	Headset,
 	FaceReader,
-	Scale
+	Scale,
+	Camera
 } from "./models/component.js";
 
 import {
@@ -48,7 +49,7 @@ const {
 	isCardReader,
 	isFaceReader,
 	isKeypad, isIllumination, isHeadset,
-	isScale
+	isScale, isCamera
 } = ComponentInterrogation;
 
 /**
@@ -245,6 +246,7 @@ export class Cuss2 {
 	cardReader?: CardReader;
 	faceReader?: FaceReader;
 	scale?: Scale;
+	camera?: Camera;
 	activated: Subject<ApplicationActivation> = new Subject<ApplicationActivation>();
 	deactivated: Subject<AppState> = new Subject<AppState>();
 	pendingStateChange?: AppState;
@@ -389,12 +391,13 @@ export class Cuss2 {
 				else if (isCardReader(component)) instance = this.cardReader = new CardReader(component, this);
 				else if (isKeypad(component)) instance = this.keypad = new Keypad(component, this);
 				else if (isFaceReader(component)) instance = this.faceReader = new FaceReader(component, this);
+				else if (isScale(component)) instance = this.scale = new Scale(component, this);
+				else if (isCamera(component)) instance = this.camera = new Camera(component, this);
 				// subcomponents
 				else if (isFeeder(component))  return; // instance = new Feeder(component, this);
 				else if (isDispenser(component))  return; // instance = new Dispenser(component, this);
 				else if (isIllumination(component)) instance = new Illumination(component, this);
 				else if (isHeadset(component)) instance = new Headset(component, this);
-				else if (isScale(component)) instance = this.scale = new Scale(component, this);
 				else instance = new Component(component, this);
 
 				return components[id] = instance;

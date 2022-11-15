@@ -94,5 +94,11 @@ export class ComponentInterrogation {
 		if (!charac0) return;
 		return dsTypesHas(charac0, CUSSDataTypes.BIOMETRIC);
 	}
-
+	static isCamera = (component: EnvironmentComponent) => {
+		if (component.componentType !== ComponentTypes.DATA_INPUT) return;
+		const charac0 = component.componentCharacteristics?.[0];
+		if (!charac0) return;
+		const mediaTypes = charac0.mediaTypesList;
+		return charac0.deviceTypesList?.[0] === DeviceTypes.CAMERA && mediaTypesHas(mediaTypes, MediaTypes.IMAGE);
+	}
 }
