@@ -64,7 +64,7 @@ export class ComponentInterrogation {
 	static isKeypad = (component:EnvironmentComponent) => {
 		const charac0 = component.componentCharacteristics?.[0];
 		if (!charac0) return;
-		return dsTypesHas(charac0, CUSSDataTypes.KEY) && dsTypesHas(charac0, CUSSDataTypes.KEYUP) && dsTypesHas(charac0, CUSSDataTypes.KEYDOWN);
+		return dsTypesHas(charac0, CUSSDataTypes.KEY) && dsTypesHas(charac0, CUSSDataTypes.KEY_UP) && dsTypesHas(charac0, CUSSDataTypes.KEY_DOWN);
 	}
 
 	static isIllumination = (component:EnvironmentComponent) => {
@@ -74,7 +74,7 @@ export class ComponentInterrogation {
 	}
 
 	static isHeadset = (component:EnvironmentComponent) => {
-		if (component.componentType !== ComponentTypes.MEDIAINPUT) return;
+		if (component.componentType !== ComponentTypes.MEDIA_INPUT) return;
 		const charac0 = component.componentCharacteristics?.[0];
 		if (!charac0) return;
 		const mediaTypes = charac0.mediaTypesList;
@@ -82,7 +82,7 @@ export class ComponentInterrogation {
 	}
 
 	static isScale = (component:EnvironmentComponent) => {
-		if (component.componentType !== ComponentTypes.DATAINPUT) return;
+		if (component.componentType !== ComponentTypes.DATA_INPUT) return;
 		const charac0 = component.componentCharacteristics?.[0];
 		if (!charac0) return;
 		const mediaTypes = charac0.mediaTypesList;

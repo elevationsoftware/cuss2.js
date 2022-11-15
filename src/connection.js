@@ -148,7 +148,7 @@ export class Connection extends EventEmitter {
 				if (data.meta?.requestID) {
 					this.emit(data.meta.requestID, data)
 				}
-				else {
+				else if (!data.meta?.platformDirective) {
 					console.error('Unknown message', data)
 				}
 			}
