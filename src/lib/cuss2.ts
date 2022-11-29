@@ -237,6 +237,7 @@ export class Cuss2 {
 	barcodeReader?: BarcodeReader;
 	announcement?: Announcement;
 	keypad?: Keypad;
+	headset?: Headset;
 	cardReader?: CardReader;
 	faceReader?: FaceReader;
 	scale?: Scale;
@@ -397,7 +398,7 @@ export class Cuss2 {
 				else if (isFeeder(component))  return; // instance = new Feeder(component, this);
 				else if (isDispenser(component))  return; // instance = new Dispenser(component, this);
 				else if (isIllumination(component)) instance = new Illumination(component, this);
-				else if (isHeadset(component)) instance = new Headset(component, this);
+				else if (isHeadset(component)) instance = this.headset = new Headset(component, this);
 				else instance = new Component(component, this);
 
 				return components[id] = instance;
