@@ -11,6 +11,9 @@ const dsTypesHas = (charac0:ComponentCharacteristics, type: CUSSDataTypes) => {
 const mediaTypesHas = (mediaTypes:MediaTypes[], type: MediaTypes) => {
 	return mediaTypes?.find((m) => m === type);
 }
+const deviceTypesHas = (deviceTypes: DeviceTypes[] | undefined, type: DeviceTypes) => {
+	return deviceTypes?.find((m) => m === type);
+}
 
 export class ComponentInterrogation {
 	static isAnnouncement = (component:EnvironmentComponent) => {
@@ -29,14 +32,14 @@ export class ComponentInterrogation {
 		const charac0 = component.componentCharacteristics?.[0];
 		if (!charac0) return;
 		const mediaTypes = charac0.mediaTypesList;
-		return charac0.deviceTypesList?.[0] === DeviceTypes.PRINT && mediaTypesHas(mediaTypes, MediaTypes.BAGGAGETAG);
+		return deviceTypesHas(charac0.deviceTypesList, DeviceTypes.PRINT) && mediaTypesHas(mediaTypes, MediaTypes.BAGGAGETAG);
 	}
 
 	static isBoardingPassPrinter = (component:EnvironmentComponent) => {
 		const charac0 = component.componentCharacteristics?.[0];
 		if (!charac0) return;
 		const mediaTypes = charac0.mediaTypesList;
-		return charac0.deviceTypesList?.[0] === DeviceTypes.PRINT && mediaTypesHas(mediaTypes, MediaTypes.BOARDINGPASS);
+		return deviceTypesHas(charac0.deviceTypesList, DeviceTypes.PRINT) && mediaTypesHas(mediaTypes, MediaTypes.BOARDINGPASS);
 	}
 
 	static isDocumentReader = (component:EnvironmentComponent) => {
@@ -68,7 +71,7 @@ export class ComponentInterrogation {
 	static isIllumination = (component:EnvironmentComponent) => {
 		const charac0 = component.componentCharacteristics?.[0];
 		if (!charac0) return;
-		return charac0.deviceTypesList?.[0] === DeviceTypes.ILLUMINATION;
+		return deviceTypesHas(charac0.deviceTypesList, DeviceTypes.ILLUMINATION);
 	}
 
 	static isHeadset = (component:EnvironmentComponent) => {
@@ -76,7 +79,7 @@ export class ComponentInterrogation {
 		const charac0 = component.componentCharacteristics?.[0];
 		if (!charac0) return;
 		const mediaTypes = charac0.mediaTypesList;
-		return charac0.deviceTypesList?.[0] === DeviceTypes.ASSISTIVE && mediaTypesHas(mediaTypes, MediaTypes.AUDIO);
+		return deviceTypesHas(charac0.deviceTypesList, DeviceTypes.ASSISTIVE) && mediaTypesHas(mediaTypes, MediaTypes.AUDIO);
 	}
 
 	static isScale = (component:EnvironmentComponent) => {
@@ -84,7 +87,7 @@ export class ComponentInterrogation {
 		const charac0 = component.componentCharacteristics?.[0];
 		if (!charac0) return;
 		const mediaTypes = charac0.mediaTypesList;
-		return charac0.deviceTypesList?.[0] === DeviceTypes.SCALE && mediaTypesHas(mediaTypes, MediaTypes.BAGGAGE);
+		return deviceTypesHas(charac0.deviceTypesList, DeviceTypes.SCALE) && mediaTypesHas(mediaTypes, MediaTypes.BAGGAGE);
 	}
 
 	static isFaceReader = (component:EnvironmentComponent) => {
@@ -99,7 +102,7 @@ export class ComponentInterrogation {
 		const charac0 = component.componentCharacteristics?.[0];
 		if (!charac0) return;
 		const mediaTypes = charac0.mediaTypesList;
-		return charac0.deviceTypesList?.[0] === DeviceTypes.CAMERA && mediaTypesHas(mediaTypes, MediaTypes.IMAGE);
+		return deviceTypesHas(charac0.deviceTypesList, DeviceTypes.CAMERA) && mediaTypesHas(mediaTypes, MediaTypes.IMAGE);
 	}
 
 }
