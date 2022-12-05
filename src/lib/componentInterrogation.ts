@@ -46,7 +46,9 @@ export class ComponentInterrogation {
 		const charac0 = component.componentCharacteristics?.[0];
 		if (!charac0) return;
 		const mediaTypes = charac0.mediaTypesList;
-		return mediaTypesHas(mediaTypes, MediaTypes.PASSPORT);
+		const dsTypes = charac0.dsTypesList;
+		const dsCheck = dsTypes?.find((q) => /DS_TYPES_CODELINE/gi.test(q));
+		return mediaTypesHas(mediaTypes, MediaTypes.PASSPORT) || !!dsCheck;
 	}
 
 	static isBarcodeReader = (component:EnvironmentComponent) => {
