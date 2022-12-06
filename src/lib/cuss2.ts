@@ -620,11 +620,11 @@ export class Cuss2 {
 		if (okToChange && this.state === AppState.ACTIVE) {
 			if (this.components) {
 				const componentList = Object.values(this.components) as Component[];
-				componentList.forEach(async (component: Component) => {
+				for (const component of componentList) {
 					if (component.enabled) {
 						await component.disable();
 					}
-				});
+				}
 			}
 		}
 
@@ -638,17 +638,17 @@ export class Cuss2 {
 	 * @example
 	 * const requestUnavailableState = await cuss2.requestUnavailableState();
 	 */
-	requestUnavailableState(): Promise<PlatformData|undefined> {
+	async requestUnavailableState(): Promise<PlatformData|undefined> {
 		const okToChange = this.state === AppState.INITIALIZE || this.state === AppState.AVAILABLE || this.state === AppState.ACTIVE;
 
 		if (okToChange && this.state === AppState.ACTIVE) {
 			if (this.components) {
 				const componentList = Object.values(this.components) as Component[];
-				componentList.forEach(async (component: Component) => {
+				for (const component of componentList) {
 					if (component.enabled) {
 						await component.disable();
 					}
-				});
+				}
 			}
 		}
 		
