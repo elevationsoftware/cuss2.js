@@ -247,6 +247,7 @@ export class Cuss2 {
 	pendingStateChange?: AppState;
 	multiTenant?: boolean;
 	accessibleMode: boolean = false;
+	onAccessibleModeChange: Subject<boolean> = new Subject<boolean>();
 	language?: string;
 
   /**
@@ -314,6 +315,9 @@ export class Cuss2 {
 			if (prevState === AppState.ACTIVE) {
 				this.deactivated.next(currentState as AppState);
 			}
+		} else if (currentState === AppState.ACTIVE && message.applicationActivation && message.applicationActivation.accessibleMode) {
+			this.accessibleMode = message.applicationActivation.accessibleMode;
+			this.onAccessibleModeChange.next(this.accessibleMode);
 		}
 
 		if(typeof message.componentID === 'number' && this.components) {
