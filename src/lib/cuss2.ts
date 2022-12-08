@@ -315,7 +315,7 @@ export class Cuss2 {
 			if (prevState === AppState.ACTIVE) {
 				this.deactivated.next(currentState as AppState);
 			}
-		} else if (currentState === AppState.ACTIVE && message.applicationActivation && message.applicationActivation.accessibleMode) {
+		} else if (currentState === AppState.ACTIVE && message.applicationActivation && typeof message.applicationActivation.accessibleMode !== undefined) {
 			this.accessibleMode = message.applicationActivation.accessibleMode;
 			this.onAccessibleModeChange.next(this.accessibleMode);
 		}
