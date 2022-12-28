@@ -16,6 +16,7 @@ import {
 	PlatformDirectives
 } from "cuss2-javascript-models";
 
+export { StatusCodes };
 
 export class LogMessage {
 	action: string;

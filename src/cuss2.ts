@@ -5,6 +5,7 @@ import {BehaviorSubject, Subject} from "rxjs";
 import {Connection} from "./connection.js";
 import {StateChange} from "./models/stateChange.js";
 import {ComponentInterrogation} from "./componentInterrogation.js";
+import { ApplicationStateCodes } from 'cuss2-javascript-models';
 import {
 	Announcement,
 	BarcodeReader,
@@ -35,6 +36,8 @@ import {
 	ApplicationStateCodes as AppState,
 	ApplicationStateChangeReasonCodes as ChangeReason
 } from "cuss2-javascript-models";
+
+export { ApplicationStateCodes, DataRecordList };
 
 const ExecutionModeEnum = ApplicationActivation.ExecutionModeEnum
 

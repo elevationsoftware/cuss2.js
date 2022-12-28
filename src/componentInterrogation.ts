@@ -1,3 +1,4 @@
+import { StatusCodes } from 'cuss2-javascript-models';
 import {
 	ComponentCharacteristics,
 	ComponentTypes,
@@ -6,6 +7,8 @@ import {
 	EnvironmentComponent,
 	MediaTypes
 } from "cuss2-javascript-models";
+
+export { EnvironmentComponent, MediaTypes };
 
 const dsTypesHas = (charac0:ComponentCharacteristics, type: CUSSDataTypes) => {
 	return charac0?.dsTypesList?.find((d) => d === type);
