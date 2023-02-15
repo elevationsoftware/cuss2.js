@@ -513,13 +513,6 @@ export class Printer extends Component {
 		StatusCodes.MEDIAABSENT,
 	];
 
-	_nonErrors: StatusCodes[] = [
-		StatusCodes.MEDIAFULL,
-		StatusCodes.MEDIAHIGH,
-		StatusCodes.MEDIAPRESENT,
-		StatusCodes.MEDIALOW,
-	];
-
 	/**
 	 * @typeof Getter
 	 * @returns {BehaviorSubject<boolean>} - The observable that will emit when media present has changed.
