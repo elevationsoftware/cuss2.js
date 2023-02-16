@@ -488,7 +488,7 @@ export class Printer extends Component {
 		])
 		.subscribe((statuses: StatusCodes[]) => {
 			const status = statuses.find(s => s != StatusCodes.OK) || StatusCodes.OK;
-			if (this.combinedStatus !== status) {
+			if (this.combinedStatus !== status && !this._nonCriticalErrors.includes(this.combinedStatus)) {
 				this._combinedStatus = status;
 				this.combinedStatusChanged.next(status);
 			}
@@ -503,6 +503,15 @@ export class Printer extends Component {
 
 	_superStatusChanged: BehaviorSubject<StatusCodes>;
 	_superReadyStateChanged: Subject<boolean>;
+	
+	_nonCriticalErrors: StatusCodes[] = [
+		StatusCodes.MEDIADAMAGED,
+		StatusCodes.MEDIAEMPTY,
+		StatusCodes.MEDIAJAMMED,
+		StatusCodes.MEDIAINCOMPLETELYINSERTED,
+		StatusCodes.MEDIAMISPLACED,
+		StatusCodes.MEDIAABSENT,
+	];
 
 	/**
 	 * @typeof Getter
