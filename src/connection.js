@@ -2,9 +2,9 @@ import {EventEmitter} from 'events'
 import {ApplicationData} from "cuss2-javascript-models"
 import {helpers} from "./helper.js";
 import {PlatformResponseError} from "./models/platformResponseError.js";
-if (typeof WebSocket === 'undefined') {
-	const {WebSocket} = await import("ws");
-}
+// if (typeof WebSocket === 'undefined') {
+// 	const {WebSocket} = await import("ws");
+// }
 
 // const log = console.log
 const log = (...args) => {}

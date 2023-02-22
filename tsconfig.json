@@ -1,16 +1,16 @@
 {
   "compilerOptions": {
 //    "strict": true,
-//    "module": "commonjs",
+    // "module": "commonjs",
 //    "jsx": "preserve",
-//    "esModuleInterop": true,
+    //"esModuleInterop": true,
 //    "removeComments": false,
     "sourceMap": true,
 //    "inlineSources": true,
     "lib": ["es2020", "dom"],
     "rootDir": "src",
     "moduleResolution": "node",
-    "target": "ESNext",
+    "target": "es6",
     "declaration": true,
     "allowJs": true,
     "outDir": "./dist"
