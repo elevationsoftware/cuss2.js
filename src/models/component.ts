@@ -221,7 +221,7 @@ export class Component {
 				return r;
 			})
 			.catch((e:PlatformResponseError) => {
-				if (e.statusCode === StatusCodes.OUTOFSEQUENCE) {
+				if (e.statusCode === StatusCodes.OUT_OF_SEQUENCE) {
 					this.enabled = false;
 					return e;
 				}
@@ -298,7 +298,7 @@ export class DataReaderComponent extends Component {
 
 	_handleMessage(data:PlatformData) {
 		this.onmessage.next(data);
-		if (data.statusCode === StatusCodes.DATAPRESENT && data.dataRecords?.length) {
+		if (data.statusCode === StatusCodes.DATA_PRESENT && data.dataRecords?.length) {
 			this.previousData = data.dataRecords?.map((dr:DataRecord) => dr.data);
 			this.data.next(this.previousData)
 		}
@@ -545,7 +545,7 @@ export class Printer extends Component {
 			this.feeder.query().catch(console.error);
 			this.dispenser.query().catch(console.error);
 		}
-		else if (msg.statusCode === StatusCodes.MEDIAPRESENT) {
+		else if (msg.statusCode === StatusCodes.MEDIA_PRESENT) {
 			this.dispenser.mediaPresentChanged.next(true);
 			// query the dispenser- which will start a poller that will detect when the media has been taken
 			this.dispenser.query().catch(console.error);
@@ -764,7 +764,7 @@ export class Dispenser extends Component {
 
 		this.mediaPresentChanged = new BehaviorSubject<boolean>(false);
 		this.statusChanged.subscribe((status) => {
-			if (status === StatusCodes.MEDIAPRESENT) {
+			if (status === StatusCodes.MEDIA_PRESENT) {
 				this.pollUntilReady(true, 2000);
 				if (!this.mediaPresent) {
 					this.mediaPresentChanged.next(true);

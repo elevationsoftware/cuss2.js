@@ -11,7 +11,7 @@ export class PlatformResponseError extends Error {
 		this.componentID = pd.meta.componentID;
 		this.componentState = pd.meta.componentState;
 		this.requestID = pd.meta.requestID;
-		this.statusCode = pd.meta.statusCode || StatusCodes.SOFTWAREERROR;
+		this.statusCode = pd.meta.statusCode || StatusCodes.SOFTWARE_ERROR;
 	}
 	componentID?:number;
 	componentState: ComponentState;
