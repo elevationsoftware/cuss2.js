@@ -117,7 +117,7 @@ export class Component {
 			enumerable: false
 		});
 		cuss2.onmessage.subscribe((data:PlatformData) => {
-			if (data?.componentID === this.id) {
+			if (data?.meta?.componentID === this.id) {
 				this._handleMessage(data);
 			}
 		});
