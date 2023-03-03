@@ -298,8 +298,8 @@ export class DataReaderComponent extends Component {
 
 	_handleMessage(data:PlatformData) {
 		this.onmessage.next(data);
-		if (data.statusCode === StatusCodes.DATA_PRESENT && data.dataRecords?.length) {
-			this.previousData = data.dataRecords?.map((dr:DataRecord) => dr.data);
+		if (data?.meta?.statusCode === StatusCodes.DATA_PRESENT && data?.payload?.dataRecords?.length) {
+			this.previousData = data?.payload?.dataRecords?.map((dr:DataRecord) => dr?.data);
 			this.data.next(this.previousData)
 		}
 	}
