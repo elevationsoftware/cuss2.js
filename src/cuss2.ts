@@ -308,11 +308,11 @@ export class Cuss2 {
 			}
 			else if (currentState === AppState.ACTIVE) {
 				if (!payload.applicationActivation)
-					throw new Error('ApplicationActivation missing')
-				this.multiTenant = payload.applicationActivation?.executionMode === ExecutionModeEnum.MAM;
-				this.accessibleMode = payload.applicationActivation?.accessibleMode || false;
-				this.language = payload.applicationActivation?.languageID;
-				this.activated.next(payload.applicationActivation);
+					//throw new Error('ApplicationActivation missing')
+				this.multiTenant = payload?.applicationActivation?.executionMode === ExecutionModeEnum.MAM;
+				this.accessibleMode = payload?.applicationActivation?.accessibleMode || false;
+				this.language = payload?.applicationActivation?.languageID || 'en-US';
+				this.activated.next(payload?.applicationActivation);
 			}
 			if (prevState === AppState.ACTIVE) {
 				this.deactivated.next(currentState as AppState);
