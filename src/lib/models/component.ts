@@ -215,14 +215,13 @@ export class Component {
 	 * Component.disable();
 	 */
 	disable(): Promise<PlatformData> {
+		this.enabled = false;
 		return this._call(() => this.api.disable(this.id))
 			.then((r:any) => {
-				this.enabled = false;
 				return r;
 			})
 			.catch((e:PlatformResponseError) => {
 				if (e.statusCode === StatusCodes.OUTOFSEQUENCE) {
-					this.enabled = false;
 					return e;
 				}
 				return Promise.reject(e);
