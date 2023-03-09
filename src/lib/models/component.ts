@@ -555,7 +555,7 @@ export class Printer extends Component {
 			this.dispenser.query().catch(console.error);
 		}
 
-		if (this.status !== msg.statusCode) {
+		if (this.status !== msg.statusCode && (msg.functionName === '' || msg.functionName === 'query')) {
 			this.statusChanged.next(msg.statusCode);
 		}
 		const rsc = this.combinedReadyStateChanged;
