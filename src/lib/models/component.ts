@@ -224,6 +224,7 @@ export class Component {
 				if (e.statusCode === StatusCodes.OUTOFSEQUENCE) {
 					return e;
 				}
+				this.enabled = true;
 				return Promise.reject(e);
 			});
 	}
