@@ -215,16 +215,16 @@ export class Component {
 	 * Component.disable();
 	 */
 	disable(): Promise<PlatformData> {
+		this.enabled = false;
 		return this._call(() => this.api.disable(this.id))
 			.then((r:any) => {
-				this.enabled = false;
 				return r;
 			})
 			.catch((e:PlatformResponseError) => {
 				if (e.statusCode === StatusCodes.OUTOFSEQUENCE) {
-					this.enabled = false;
 					return e;
 				}
+				this.enabled = true;
 				return Promise.reject(e);
 			});
 	}
@@ -564,7 +564,7 @@ export class Printer extends Component {
 			this.dispenser.query().catch(console.error);
 		}
 
-		if (this.status !== msg.statusCode) {
+		if (this.status !== msg.statusCode && (msg.functionName === '' || msg.functionName === 'query')) {
 			this.statusChanged.next(msg.statusCode);
 		}
 		const rsc = this.combinedReadyStateChanged;
