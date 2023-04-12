@@ -54,7 +54,9 @@ export class ComponentInterrogation {
 	static isBarcodeReader = (component:EnvironmentComponent) => {
 		const charac0 = component.componentCharacteristics?.[0];
 		if (!charac0) return;
-		return dsTypesHas(charac0, CUSSDataTypes.BARCODE);
+		const dsTypes = charac0.dsTypesList;
+		const dsCheck = dsTypes?.find((q) => /DS_TYPES_BARCODE/gi.test(q));
+		return dsTypesHas(charac0, CUSSDataTypes.BARCODE) || !!dsCheck;
 	}
 
 	static isCardReader = (component:EnvironmentComponent) => {
