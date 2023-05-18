@@ -73,6 +73,7 @@ sequenceDiagram
 
 ```ts
 // CUSS Transitions
+
 // Instantiating a connection
 const cuss2 = await Cuss2.connect(cuss2URL, clientId, clientSecret);
 
@@ -98,16 +99,71 @@ cuss2.deactivated.subscribe(() => {
 ```
 
 ### Interacting with CUSS Devices
-The library provides a simple and intuitive interface to interact common CUSS devices, that enable developer to develop complex platform interactions without any code boilerplate.
+The library provides a simple and intuitive interface to interact with common CUSS devices, that enable developer to develop complex platform interactions without any unnecessary boilerplate.
 
-#### Printers
+```mermaid
+sequenceDiagram
+    App-->>Component: Query 
+    Component-->>App: RC_OK
+    App-->>Component: Enable
+    App-->>Component: Interactions
+    App-->>Component: Disable
+```
+
+#### MediaOutputs
 
 ```ts
-... instantiating CUSS2 instance
 const cuss2 = await Cuss2.connect(cuss2URL, clientId, clientSecret);
 
-// ATBs
-cuss2?.boardingPassPrinter
+// query ATB
+ const res: PlatformData = await cuss2?.boardingPassPrinter.query();
+
+ // validate component state
+ if (res.meta.componentState !== ComponentState.READY) {
+    console.log('Component is not ready')
+ } else {
+
+  // Enable component
+  await cuss2.boardingPassPrinter.enable();
+
+  // SETUP ATB
+  await cuss2.boardingPassPrinter.setup(<PECTAB>);
+
+  // Print boarding pass
+  await cuss2.boardingPassPrinter.send(<PECTAB>);
+
+  // Helper function to do both setup and send
+  await cuss2.boardingPassPrinter.setupAndPrintRaw([<PECTAB_ARRAY>], <STREAM>);
+
+  // Disable component
+  await cuss2.boardingPassPrinter.disable();
+ }
+
+```
+
+#### MediaInput
+
+```ts
+const cuss2 = await Cuss2.connect(cuss2URL, clientId, clientSecret);
+
+// query ATB
+ const res: PlatformData = await cuss2?.barcodeReader.query();
+
+ // validate component state
+ if (res.meta.componentState !== ComponentState.READY) {
+    console.log('Component is not ready')
+ } else {
+  // Enable component
+  await cuss2.barcodeReader.enable();
+
+  // Subscribe to MEDIA_PRESENT
+  cuss2.barcodeReader.data.asObservable().subscribe((data: DataRecordList) => {
+    console.log(`Barcode Data ${data}`);
+
+    // Disable component
+    await cuss2.barcodeReader.disable();
+  });
+ }
 
 ```
 
