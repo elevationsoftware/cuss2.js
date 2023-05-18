@@ -41,14 +41,14 @@ To begin using the library, you will need to import the library into your projec
 ```ts
 import { Cuss2 } from "@elevated-libs/cuss2";
 
-const serviceState: { ref: Cuss2 | any} = { ref: null };
+const serviceState: { cuss2: Cuss2 | any} = { ref: null };
 const connect = async (cuss2URL: string, clientId: string, clientSecret: string): Promise<Cuss2 | null> => {
     // Avoid multiple subscriptions
     if (serviceState.ref) {
         return serviceState.ref;
     }
-    const ref = await Cuss2.connect(cuss2URL, clientId, clientSecret);
-    serviceState.ref = ref;
+    const cuss2 = await Cuss2.connect(cuss2URL, clientId, clientSecret);
+    serviceState.cuss2 = cuss2;
     return ref;
 };
 
@@ -57,6 +57,58 @@ const { clientId, clientSecret, platformURL } = platformConfig;
 connect(platformURL, clientId, clientSecret)
   .then(checkDevices)
   .catch(connectionFailure);
+```
+
+## State Transitions
+
+One of the most important aspect in a CUSS platform, is the ability to transition between application states correctly, that is why we tried to simplify all different aspect of the transitions through a simple rxjs subscription.
+
+```mermaid
+sequenceDiagram
+    Platform->>+App: Platform Initialize App
+    App-->>Platform: Request Unavailable
+    App-->>Platform: Check for required components
+    App-->>Platform: Request Available
+```
+
+```ts
+// CUSS Transitions
+// Instantiating a connection
+const cuss2 = await Cuss2.connect(cuss2URL, clientId, clientSecret);
+
+// Moving to unavailable
+await cuss2.requestUnavailableState();
+
+// checking for a ATB Printer
+if (cuss2?.boardingPassPrinter) {
+  // Moving to Available
+  await cuss2.requestAvailableState();
+}
+
+// Subscribe to active state
+cuss2.activated.subscribe(() => {
+  console.log('Application is active');
+});
+
+// Subscribe when application goes from active to available
+cuss2.deactivated.subscribe(() => {
+  console.log('Application is not longer active');
+});
+
+```
+
+### Interacting with CUSS Devices
+The library provides a simple and intuitive interface to interact common CUSS devices, that enable developer to develop complex platform interactions without any code boilerplate.
+
+#### Printers
+
+```ts
+... instantiating CUSS2 instance
+const cuss2 = await Cuss2.connect(cuss2URL, clientId, clientSecret);
+
+// ATBs
+cuss2?.boardingPassPrinter
+
 ```
 
 ### Methods and Components

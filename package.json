@@ -10,7 +10,7 @@
     "build": "tsc",
     "typedoc": "typedoc --entryPointStrategy expand",
     "pretypedoc": "rm -rf typedocs",
-    "doc": "jsdoc -d docs --configure jsconf.json src/lib -r",
+    "doc": "jsdoc -d docs --configure jsconf.json src/ -r",
     "predoc": "rm -rf docs/"
   },
   "dependencies": {
