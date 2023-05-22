@@ -106,17 +106,17 @@
     <section>
         <article><h1>@elevated-libs/cuss2</h1>
 <h2>About Elevated CUSS Library</h2>
-<p>Interact with a CUSS 2.0 Restful API using a simple interface leveraging the asyncronicity of event driven architectures. By using the Elevated CUSS library you will get:</p>
+<p>Interact with a CUSS 2 API using a simple interface leveraging the asyncronicity of event driven architectures. By using the Elevated CUSS library you will get:</p>
 <ul>
 <li>Simple device interfaces</li>
 <li>Subscribable events for all CUSS states and device status</li>
 </ul>
-<p>CUSS <a href="https://en.wikipedia.org/wiki/Common-use_self-service">(Common Use Self-Service)</a> is a modern Typescript library facilitating application development of Self-Service check-in apps, self-tagging apps and self bag-drop apps.</p>
-<p>You can have CUSS 2.0 NOW and run a modern browser entirely without plugins or Java. Finally, your Information Security department will be able to sign off on your CUSS applications.</p>
+<p>CUSS <a href="https://www.iata.org/en/programs/passenger/common-use/#tab-2">(Common Use Self-Service)</a> is a modern Typescript library facilitating application development of Self-Service check-in apps, self-tagging apps and self bag-drop apps.</p>
+<p>You can have CUSS 2 NOW and run a modern browser entirely without plugins or Java. Finally, your Information Security department will be able to sign off on your CUSS applications.</p>
 <p>We have also created typescript angular and react libs facilitating rapid development of CUSS applications.</p>
 <p>The library and corresponding app platform also ensure backwards compatibility to legacy 1.X versions of CUSS.</p>
 <ul>
-<li>Typescript libs for <a href="https://github.com/elevationsoftware/cuss2-angular">Angular</a> and <a href="https://github.com/elevationsoftware/cuss2-react">React</a></li>
+<li>Typescript libs for <a href="https://github.com/elevationsoftware/cuss2-docs/blob/master/angular/README.md">Angular</a> and <a href="https://github.com/elevationsoftware/cuss2-docs/blob/master/react/README.md">React</a></li>
 </ul>
 <h2>The Sandbox</h2>
 <p>While you are developing your application, you can use the Elevated CUSS Sandbox to test against real platform responses. Watch your application respond correctly to CUSS Events like a paper jam or a required device unavailable.</p>
@@ -164,6 +164,7 @@ connect(platformURL, clientId, clientSecret)
     App-->>Platform: Request Available
 </code></pre>
 <pre class="prettyprint source lang-ts"><code>// CUSS Transitions
+
 // Instantiating a connection
 const cuss2 = await Cuss2.connect(cuss2URL, clientId, clientSecret);
 
@@ -188,13 +189,63 @@ cuss2.deactivated.subscribe(() => {
 
 </code></pre>
 <h3>Interacting with CUSS Devices</h3>
-<p>The library provides a simple and intuitive interface to interact common CUSS devices, that enable developer to develop complex platform interactions without any code boilerplate.</p>
-<h4>Printers</h4>
-<pre class="prettyprint source lang-ts"><code>... instantiating CUSS2 instance
-const cuss2 = await Cuss2.connect(cuss2URL, clientId, clientSecret);
+<p>The library provides a simple and intuitive interface to interact with common CUSS devices, that enable developer to develop complex platform interactions without any unnecessary boilerplate.</p>
+<pre class="prettyprint source lang-mermaid"><code>sequenceDiagram
+    App-->>Component: Query 
+    Component-->>App: RC_OK
+    App-->>Component: Enable
+    App-->>Component: Interactions
+    App-->>Component: Disable
+</code></pre>
+<h4>MediaOutputs</h4>
+<pre class="prettyprint source lang-ts"><code>const cuss2 = await Cuss2.connect(cuss2URL, clientId, clientSecret);
 
-// ATBs
-cuss2?.boardingPassPrinter
+// query ATB
+ const res: PlatformData = await cuss2?.boardingPassPrinter.query();
+
+ // validate component state
+ if (res.meta.componentState !== ComponentState.READY) {
+    console.log('Component is not ready')
+ } else {
+
+  // Enable component
+  await cuss2.boardingPassPrinter.enable();
+
+  // SETUP ATB
+  await cuss2.boardingPassPrinter.setup(&lt;PECTAB>);
+
+  // Print boarding pass
+  await cuss2.boardingPassPrinter.send(&lt;PECTAB>);
+
+  // Helper function to do both setup and send
+  await cuss2.boardingPassPrinter.setupAndPrintRaw([&lt;PECTAB_ARRAY>], &lt;STREAM>);
+
+  // Disable component
+  await cuss2.boardingPassPrinter.disable();
+ }
+
+</code></pre>
+<h4>MediaInput</h4>
+<pre class="prettyprint source lang-ts"><code>const cuss2 = await Cuss2.connect(cuss2URL, clientId, clientSecret);
+
+// query component
+ const res: PlatformData = await cuss2?.barcodeReader.query();
+
+ // validate component state
+ if (res.meta.componentState !== ComponentState.READY) {
+    console.log('Component is not ready')
+ } else {
+  // Enable component
+  await cuss2.barcodeReader.enable();
+
+  // Subscribe to MEDIA_PRESENT
+  cuss2.barcodeReader.data.asObservable().subscribe((data: DataRecordList) => {
+    console.log(`Barcode Data ${data}`);
+
+    // Disable component
+    await cuss2.barcodeReader.disable();
+  });
+ }
 
 </code></pre>
 <h3>Methods and Components</h3>
@@ -328,7 +379,28 @@ cuss2?.boardingPassPrinter
 <td>A component that provides keypad input.</td>
 </tr>
 </tbody>
-</table></article>
+</table>
+<h4>Card Reader</h4>
+<p>Besides inheriting from all the Media Input methods, the library provides an automatic way to setup a card reader component to read ISO track data without truncation. This feature is only available on Platforms data provide a card reader component interface on CUSS 2 Platforms. The magtripe capabilities are officcially removed from CUSS 2 specification.</p>
+<pre class="prettyprint source lang-ts"><code>const cuss2 = await Cuss2.connect(cuss2URL, clientId, clientSecret);
+
+// query component
+ const res: PlatformData = await cuss2?.cardReader.query();
+
+ // validate component state
+ if (res.meta.componentState !== ComponentState.READY) {
+    console.log('Component is not ready')
+ } else {
+  // Enable component for ISO track data, for 10 secs then automatically disable the device
+  await cuss2.cardReader.readPayment(5000);
+
+  // Subscribe to MEDIA_PRESENT
+  cuss2.cardReader.data.asObservable().subscribe((data: DataRecordList) => {
+    console.log(`card Reader Data ${data}`);
+  });
+ }
+
+</code></pre></article>
     </section>
 
 
