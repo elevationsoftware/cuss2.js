@@ -451,15 +451,26 @@ export class Printer extends Component {
 	constructor(component: EnvironmentComponent, cuss2: Cuss2, _type: DeviceType) {
 		super(component, cuss2, _type);
 
-		const missingLink = (msg:string) => { throw new Error(msg); };
+		const missingLink = (msg:string) => { 
+			console.log(msg); 
+			return null;
+		};
 		const linked = component.linkedComponentIDs?.map(id => cuss2.components[id] as Component) || [];
-
-		this.feeder = linked.find(c => c instanceof Feeder) || missingLink('Feeder not found for Printer ' + this.id);
-		this.subcomponents.push(this.feeder)
+		const f = linked.find(c => c instanceof Feeder) as Feeder;
+		this.feeder = f || missingLink('Feeder not found for Printer ' + this.id);
+		if (this.feeder) {
+			this.subcomponents.push(this.feeder);
+		} else {
+			this.feeder = this
+		}
 
 		const d = linked.find(c => c instanceof Dispenser) as Dispenser;
 		this.dispenser = d || missingLink('Dispenser not found for Printer ' + this.id);
-		this.subcomponents.push(this.dispenser)
+		if (this.dispenser) {
+			this.subcomponents.push(this.dispenser)
+		} else {
+			this.dispenser = this;
+		}
 
 		// // @ts-ignore cause you're not smart enough
 		this._superReadyStateChanged = this.readyStateChanged;
