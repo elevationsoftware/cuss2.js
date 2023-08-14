@@ -626,7 +626,11 @@ export class Cuss2 {
 				const componentList = Object.values(this.components) as Component[];
 				for (const component of componentList) {
 					if (component.enabled) {
-						await component.disable();
+						try {
+							await component.disable();
+						} catch(e: any) {
+							log('error', `Failed to disable component ${component.id}`, e);
+						}
 					}
 				}
 			}
@@ -650,7 +654,11 @@ export class Cuss2 {
 				const componentList = Object.values(this.components) as Component[];
 				for (const component of componentList) {
 					if (component.enabled) {
-						await component.disable();
+						try {
+							await component.disable();
+						} catch (e: any) {
+							log('error', `Failed to disable component ${component.id}`, e);
+						}
 					}
 				}
 			}
