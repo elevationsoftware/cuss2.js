@@ -305,12 +305,12 @@ export class Cuss2 {
 				}
 			}
 			else if (currentState === AppState.ACTIVE) {
-				if (!message.applicationActivation)
-					throw new Error('ApplicationActivation missing')
-				this.multiTenant = message.applicationActivation?.executionMode === ExecutionModeEnum.MAM;
-				this.accessibleMode = message.applicationActivation?.accessibleMode || false;
-				this.language = message.applicationActivation?.languageID;
-				this.activated.next(message.applicationActivation);
+				if (message.applicationActivation) {
+					this.multiTenant = message.applicationActivation?.executionMode === ExecutionModeEnum.MAM;
+					this.accessibleMode = message.applicationActivation?.accessibleMode || false;
+					this.language = message.applicationActivation?.languageID;
+					this.activated.next(message.applicationActivation);
+				}
 			}
 			if (prevState === AppState.ACTIVE) {
 				this.deactivated.next(currentState as AppState);
