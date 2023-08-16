@@ -305,12 +305,12 @@ export class Cuss2 {
 				}
 			}
 			else if (currentState === AppState.ACTIVE) {
-				if (!message.applicationActivation)
-					throw new Error('ApplicationActivation missing')
-				this.multiTenant = message.applicationActivation?.executionMode === ExecutionModeEnum.MAM;
-				this.accessibleMode = message.applicationActivation?.accessibleMode || false;
-				this.language = message.applicationActivation?.languageID;
-				this.activated.next(message.applicationActivation);
+				if (message.applicationActivation) {
+					this.multiTenant = message.applicationActivation?.executionMode === ExecutionModeEnum.MAM;
+					this.accessibleMode = message.applicationActivation?.accessibleMode || false;
+					this.language = message.applicationActivation?.languageID;
+					this.activated.next(message.applicationActivation);
+				}
 			}
 			if (prevState === AppState.ACTIVE) {
 				this.deactivated.next(currentState as AppState);
@@ -626,7 +626,11 @@ export class Cuss2 {
 				const componentList = Object.values(this.components) as Component[];
 				for (const component of componentList) {
 					if (component.enabled) {
-						await component.disable();
+						try {
+							await component.disable();
+						} catch(e: any) {
+							log('error', `Failed to disable component ${component.id}`, e);
+						}
 					}
 				}
 			}
@@ -650,7 +654,11 @@ export class Cuss2 {
 				const componentList = Object.values(this.components) as Component[];
 				for (const component of componentList) {
 					if (component.enabled) {
-						await component.disable();
+						try {
+							await component.disable();
+						} catch (e: any) {
+							log('error', `Failed to disable component ${component.id}`, e);
+						}
 					}
 				}
 			}
