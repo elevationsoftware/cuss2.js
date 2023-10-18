@@ -9,7 +9,7 @@ import { PlatformResponseError } from "./models/platformResponseError";
 import { ReturnCodes } from "./interfaces/returnCodes";
 
 const axiosClient = axios.create();
-axiosClient.defaults.raxConfig = {
+(axiosClient.defaults as rax.RaxConfig).raxConfig = {
 	instance: axiosClient,
 	retry: 9999,
 	noResponseRetries: 9999,
@@ -160,7 +160,7 @@ export class Connection {
 			};
 			socket.onmessage = (event: any) => {
 				log('verbose', "[socket.onmessage]", event.data);
-				const data = JSON.parse(event.data);
+				const data = helpers.safeParse(event.data, {});
 				if (data.description === 'Client already connected') {
 					removeListeners();
 					log('error', data.description, data);
@@ -177,7 +177,7 @@ export class Connection {
 					}
 
 					socket.onmessage = (event) => {
-						const data = JSON.parse(event.data);
+						const data = helpers.safeParse(event.data, {});
 						if (data.ping) {
 							socket.send(`{ "pong": ${Date.now()} }`);
 							log('info', 'PING OK.');
