@@ -166,7 +166,7 @@ export class Component {
 	pollUntilReady(requireOK = false, pollingInterval = this.pollingInterval) {
 		if (this._poller) return;
 		const poll = () => {
-			if (this.ready && (!requireOK || this.status === StatusCodes.OK)) {
+			if (this.ready && (!requireOK || (this.status === StatusCodes.OK || this.status === StatusCodes.MEDIAABSENT || this.status === StatusCodes.MEDIALOW))) {
 				return this._poller = undefined;
 			}
 

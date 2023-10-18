@@ -39,6 +39,19 @@ export const helpers = {
 	 */
 	isNonCritical: (status:StatusCodes) => {
 		return !criticalErrors.some(s => s == status)
+	},
+	/**
+	 * Safe parsing of JSON data
+	 * @param data 
+	 * @param fallback 
+	 * @returns either parsed data or fallback
+	 */
+	safeParse: (data: any, fallback:any=null): any => {
+		try {
+			return JSON.parse(data);
+		} catch (e) {
+			return fallback;
+		}
 	}
 };
 
