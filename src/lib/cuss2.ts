@@ -269,9 +269,13 @@ export class Cuss2 {
 		}
 		log("info", "Getting Component List");
 		await this.api.getComponents();
+		// Ensure the app doesn't request UNAVAILABLE state when it's already in that state
 		if (this.state === AppState.INITIALIZE) {
 			await this.requestUnavailableState();
 			this.queryComponents().catch(e => log("error",'error querying components', e))
+			// For when the app has been refreshed while in AVAILABLE or ACTIVE state
+		} else if (this.state === AppState.AVAILABLE || this.state === AppState.ACTIVE) {
+			await this.requestUnavailableState();
 		}
 	}
 
