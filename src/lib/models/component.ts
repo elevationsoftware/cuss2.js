@@ -151,8 +151,9 @@ export class Component {
 			if (msg.componentState !== ComponentState.READY) {
 				this.enabled = false;
 			}
-			this.readyStateChanged.next(msg.componentState === ComponentState.READY)
+			
 		}
+		this.readyStateChanged.next(msg.componentState === ComponentState.READY)
 		// Sometimes status is not sent by an unsolicited event so we poll to be sure
 		if (!this.ready && this.required && !this._poller && this.pollingInterval > 0) {
 			this.pollUntilReady();
@@ -498,8 +499,10 @@ export class Printer extends Component {
 			this.dispenser.statusChanged
 		])
 		.subscribe((statuses: StatusCodes[]) => {
-			const status = statuses.find(s => s != StatusCodes.OK) || StatusCodes.OK;
-			if (this.combinedStatus !== status && !this._nonCriticalErrors.includes(this.combinedStatus)) {
+			// remove duplicate
+			const setStatuses = Array.from(new Set(statuses));
+			const status = setStatuses.length > 1 ? setStatuses.find(e=> this._criticalErrors.includes(e)) || setStatuses.find(e => e !== StatusCodes.OK) : setStatuses[0];
+			if (status && this.combinedStatus !== status ) {
 				this._combinedStatus = status;
 				this.combinedStatusChanged.next(status);
 			}
@@ -515,13 +518,13 @@ export class Printer extends Component {
 	_superStatusChanged: BehaviorSubject<StatusCodes>;
 	_superReadyStateChanged: Subject<boolean>;
 	
-	_nonCriticalErrors: StatusCodes[] = [
-		StatusCodes.MEDIADAMAGED,
+	_criticalErrors: StatusCodes[] = [
 		StatusCodes.MEDIAEMPTY,
 		StatusCodes.MEDIAJAMMED,
-		StatusCodes.MEDIAINCOMPLETELYINSERTED,
-		StatusCodes.MEDIAMISPLACED,
-		StatusCodes.MEDIAABSENT,
+		StatusCodes.NOTREACHABLE,
+		StatusCodes.NOTRESPONDING,
+		StatusCodes.BAGGAGEJAMMED,
+		StatusCodes.HARDWAREERROR
 	];
 
 	/**
@@ -578,10 +581,7 @@ export class Printer extends Component {
 		if (this.status !== msg.statusCode && (msg.functionName === '' || msg.functionName === 'query')) {
 			this.statusChanged.next(msg.statusCode);
 		}
-		const rsc = this.combinedReadyStateChanged;
-		this.combinedReadyStateChanged = this._superReadyStateChanged;
 		super.updateState(msg);
-		this.combinedReadyStateChanged = rsc;
 	}
 
 	/**
