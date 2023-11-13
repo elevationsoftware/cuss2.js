@@ -316,6 +316,12 @@ export class Cuss2 {
 					this.accessibleMode = message.applicationActivation?.accessibleMode || false;
 					this.language = message.applicationActivation?.languageID;
 					this.activated.next(message.applicationActivation);
+				} else {
+					this.activated.next({
+						executionMode: ExecutionModeEnum.MAM,
+						accessibleMode: false,
+						languageID: 'en-US'
+					});
 				}
 			}
 			if (prevState === AppState.ACTIVE) {
