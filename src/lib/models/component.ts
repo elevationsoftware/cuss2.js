@@ -151,9 +151,9 @@ export class Component {
 			if (msg.componentState !== ComponentState.READY) {
 				this.enabled = false;
 			}
-			
+			this.readyStateChanged.next(msg.componentState === ComponentState.READY);	
 		}
-		this.readyStateChanged.next(msg.componentState === ComponentState.READY)
+		
 		// Sometimes status is not sent by an unsolicited event so we poll to be sure
 		if (!this.ready && this.required && !this._poller && this.pollingInterval > 0) {
 			this.pollUntilReady();
