@@ -126,19 +126,27 @@ export class Component {
 			this.enabled = false;
 		});
 
-		if (component.linkedComponentIDs?.length) {
-			// this.constructor.name[0].toLowerCase() + this.constructor.name.substr(1) in tagging this is not working currently
-			const name = this.deviceType;
-			const parentId = Math.min(this.id, ...component.linkedComponentIDs);
-			if(parentId != this.id) {
-				this.parent = cuss2.components[parentId]
-				// feeder and dispenser are created in the printer component
-				if (this.parent && !this.parent[name]) {
-					this.parent.subcomponents.push(this);
-					this.parent[name] = this;
+		cuss2.componentsLoaded.subscribe((loaded) => {
+			if (loaded && component.linkedComponentIDs?.length) {
+				// this.constructor.name[0].toLowerCase() + this.constructor.name.substr(1) in tagging this is not working currently
+				const name = this.deviceType;
+				const parentId = Math.min(this.id, ...component.linkedComponentIDs);
+				if(parentId != this.id) {
+					this.parent = cuss2.components[parentId]
+					// feeder and dispenser are created in the printer component
+					if (this.parent && !this.parent[name]) {
+						this.parent.subcomponents.push(this);
+						this.parent[name] = this;
+					}
 				}
 			}
-		}
+		})
+
+		
+	}
+
+	checkForParents(): void {
+		
 	}
 
 	stateIsDifferent(msg: PlatformData): boolean {
@@ -153,9 +161,8 @@ export class Component {
 			}
 			this.readyStateChanged.next(msg.componentState === ComponentState.READY);	
 		}
-		
 		// Sometimes status is not sent by an unsolicited event so we poll to be sure
-		if (!this.ready && this.required && !this._poller && this.pollingInterval > 0) {
+		if (!this.ready && ((this.parent?.deviceType === DeviceType.BAG_TAG_PRINTER && this.deviceType === DeviceType.FEEDER) || this.required) && !this._poller && this.pollingInterval > 0) {
 			this.pollUntilReady();
 		}
 
@@ -167,7 +174,7 @@ export class Component {
 	pollUntilReady(requireOK = false, pollingInterval = this.pollingInterval) {
 		if (this._poller) return;
 		const poll = () => {
-			if (this.ready && (!requireOK || (this.status === StatusCodes.OK || this.status === StatusCodes.MEDIAABSENT || this.status === StatusCodes.MEDIALOW))) {
+			if (this.ready && (!requireOK || (this.status === StatusCodes.OK || this.status === StatusCodes.MEDIAABSENT || this.status === StatusCodes.MEDIALOW || this.status === StatusCodes.MEDIAFULL || StatusCodes.MEDIAPRESENT))) {
 				return this._poller = undefined;
 			}
 
@@ -176,7 +183,7 @@ export class Component {
 			}, pollingInterval);
 		}
 		poll();
-	}
+	}	
 
 	_handleMessage(data:any) {
 		this.onmessage.next(data);
@@ -205,7 +212,7 @@ export class Component {
 			.then((r:any) => {
 				this.enabled = true;
 				return r;
-			})
+			});
 	}
 
 	/**
@@ -225,8 +232,10 @@ export class Component {
 				if (e.statusCode === StatusCodes.OUTOFSEQUENCE) {
 					return e;
 				}
-				this.enabled = true;
 				return Promise.reject(e);
+			})
+			.finally(() => {
+				this.enabled = true;
 			});
 	}
 
@@ -474,10 +483,10 @@ export class Printer extends Component {
 		}
 
 		// // @ts-ignore cause you're not smart enough
-		this._superReadyStateChanged = this.readyStateChanged;
+		//this._superReadyStateChanged = this.readyStateChanged;
 
 		combineLatest([
-			this._superReadyStateChanged,
+			this.readyStateChanged,
 			this.feeder.readyStateChanged,
 			this.dispenser.readyStateChanged
 		])
@@ -491,19 +500,22 @@ export class Printer extends Component {
 		this.combinedReadyStateChanged = new BehaviorSubject<boolean>(false);
 
 		// @ts-ignore cause you're not smart enough
-		this._superStatusChanged = this.statusChanged;
+		//this._superStatusChanged = this.statusChanged;
 
 		combineLatest([
-			this._superStatusChanged,
+			this.statusChanged,
 			this.feeder.statusChanged,
 			this.dispenser.statusChanged
 		])
 		.subscribe((statuses: StatusCodes[]) => {
 			// remove duplicate
+			console.log('printer, feeder, dispenser', statuses);
 			const setStatuses = Array.from(new Set(statuses));
+			console.log('ID: ',this.id , 'COMBINED STATUS', setStatuses);
 			const status = setStatuses.length > 1 ? setStatuses.find(e=> this._criticalErrors.includes(e)) || setStatuses.find(e => e !== StatusCodes.OK) : setStatuses[0];
-			if (status && this.combinedStatus !== status ) {
+			if (status) {
 				this._combinedStatus = status;
+				console.log('combinedStatusChange to:', status)
 				this.combinedStatusChanged.next(status);
 			}
 		});
@@ -515,8 +527,8 @@ export class Printer extends Component {
 	combinedReadyStateChanged: Subject<boolean> = new Subject<boolean>();
 	combinedStatusChanged: BehaviorSubject<StatusCodes> = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
 
-	_superStatusChanged: BehaviorSubject<StatusCodes>;
-	_superReadyStateChanged: Subject<boolean>;
+	//_superStatusChanged: BehaviorSubject<StatusCodes>;
+	//_superReadyStateChanged: Subject<boolean>;
 	
 	_criticalErrors: StatusCodes[] = [
 		StatusCodes.MEDIAEMPTY,
@@ -562,26 +574,48 @@ export class Printer extends Component {
 	}
 
 	updateState(msg: PlatformData): void {
+		if (msg.componentState !== this._componentState) {
+			this._componentState = msg.componentState;
+			if (msg.componentState !== ComponentState.READY) {
+				this.enabled = false;
+			}
+			this.readyStateChanged.next(msg.componentState === ComponentState.READY);	
+		}
 		//CUTnHOLD can cause a TIMEOUT response if the tag is not taken in a certain amount of time.
 		// Unfortunately, it briefly considers the Printer to be UNAVAILABLE.
 		if (msg.functionName === 'send' && msg.statusCode === StatusCodes.TIMEOUT && msg.componentState === ComponentState.UNAVAILABLE) {
 			msg.componentState = ComponentState.READY;
 		}
-		// if now ready, query linked components to get their latest status
-		if (!this.ready && msg.componentState === ComponentState.READY) {
-			this.feeder.query().catch(console.error);
-			this.dispenser.query().catch(console.error);
-		}
+		
 		else if (msg.statusCode === StatusCodes.MEDIAPRESENT) {
 			this.dispenser.mediaPresentChanged.next(true);
 			// query the dispenser- which will start a poller that will detect when the media has been taken
 			this.dispenser.query().catch(console.error);
 		}
 
+		// Sometimes status is not sent by an unsolicited event so we poll to be sure
+		if (!this.ready && (this.deviceType === DeviceType.BAG_TAG_PRINTER || this.deviceType === DeviceType.BAG_TAG_FEEDER || this.required) && !this._poller && this.pollingInterval > 0) {
+			this.pollUntilReady();
+		}
+
 		if (this.status !== msg.statusCode && (msg.functionName === '' || msg.functionName === 'query')) {
 			this.statusChanged.next(msg.statusCode);
 		}
-		super.updateState(msg);
+
+	}
+
+	pollUntilReady(requireOK = false, pollingInterval = this.pollingInterval) {
+		if (this._poller) return;
+		const poll = () => {
+			if (this.ready && (!requireOK || (this.combinedStatus === StatusCodes.OK || this.combinedStatus === StatusCodes.MEDIAABSENT || this.combinedStatus === StatusCodes.MEDIALOW))) {
+				return this._poller = undefined;
+			}
+
+			this._poller = setTimeout(() => {
+				this.query().catch(Object).finally(poll)
+			}, pollingInterval);
+		}
+		poll();
 	}
 
 	/**

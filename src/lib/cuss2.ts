@@ -244,6 +244,7 @@ export class Cuss2 {
 	camera?: Camera;
 	activated: Subject<ApplicationActivation> = new Subject<ApplicationActivation>();
 	deactivated: Subject<AppState> = new Subject<AppState>();
+	componentsLoaded: Subject<boolean> = new Subject<boolean>();
 	pendingStateChange?: AppState;
 	multiTenant?: boolean;
 	accessibleMode: boolean = false;
@@ -334,7 +335,7 @@ export class Cuss2 {
 
 		if(typeof message.componentID === 'number' && this.components) {
 			const component = this.components[message.componentID];
-			if (component && component.stateIsDifferent(message)) {
+			if (component) {
 				component.updateState(message);
 				this.componentStateChange.next(component);
 				if (this._online && (unsolicited || message.functionName === 'query')) {
@@ -419,7 +420,7 @@ export class Cuss2 {
 
 				return components[id] = instance;
 			});
-
+			this.componentsLoaded.next(true);
 			return componentList;
 		},
 		/**
@@ -638,11 +639,11 @@ export class Cuss2 {
 				const componentList = Object.values(this.components) as Component[];
 				for (const component of componentList) {
 					if (component.enabled) {
-						try {
-							await component.disable();
-						} catch(e: any) {
+						component.disable().then(() => {
+							log('info', `Disabled component ${component.id}`);
+						}).catch((e) => {
 							log('error', `Failed to disable component ${component.id}`, e);
-						}
+						});
 					}
 				}
 			}
@@ -666,11 +667,11 @@ export class Cuss2 {
 				const componentList = Object.values(this.components) as Component[];
 				for (const component of componentList) {
 					if (component.enabled) {
-						try {
-							await component.disable();
-						} catch (e: any) {
+						component.disable().then(() => {
+							log('info', `Disabled component ${component.id}`);
+						}).catch((e) => {
 							log('error', `Failed to disable component ${component.id}`, e);
-						}
+						});
 					}
 				}
 			}
