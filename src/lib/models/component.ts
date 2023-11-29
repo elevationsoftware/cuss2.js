@@ -145,10 +145,6 @@ export class Component {
 		
 	}
 
-	checkForParents(): void {
-		
-	}
-
 	stateIsDifferent(msg: PlatformData): boolean {
 		return this.status !== msg.statusCode || this._componentState !== msg.componentState;
 	}
@@ -233,9 +229,6 @@ export class Component {
 					return e;
 				}
 				return Promise.reject(e);
-			})
-			.finally(() => {
-				this.enabled = true;
 			});
 	}
 
