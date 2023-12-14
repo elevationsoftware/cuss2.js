@@ -150,6 +150,9 @@ export class Component {
 	}
 
 	updateState(msg: PlatformData): void {
+		if (msg.functionName === 'disable' || msg.functionName === 'enable') {
+			return;
+		}
 		if (msg.componentState !== this._componentState) {
 			this._componentState = msg.componentState;
 			if (msg.componentState !== ComponentState.READY) {
@@ -567,6 +570,9 @@ export class Printer extends Component {
 	}
 
 	updateState(msg: PlatformData): void {
+		if (msg.functionName === 'disable' || msg.functionName === 'enable') {
+			return;
+		}
 		if (msg.componentState !== this._componentState) {
 			this._componentState = msg.componentState;
 			if (msg.componentState !== ComponentState.READY) {
