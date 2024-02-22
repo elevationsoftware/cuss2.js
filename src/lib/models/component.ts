@@ -211,6 +211,12 @@ export class Component {
 			.then((r:any) => {
 				this.enabled = true;
 				return r;
+			}).catch((e: PlatformResponseError) => {
+				if (e.statusCode === StatusCodes.OUTOFSEQUENCE) {
+					this.enabled = true;
+					return e;
+				}
+				return Promise.reject(e);
 			});
 	}
 
@@ -269,7 +275,12 @@ export class Component {
 		// {dataRecords: object[]|null = null, illuminationData: object|null = null}
 		return await this.api.setup(this.id, {
 			toPlatform: applicationData // { dataRecords, illuminationData }
-		} as DataExchange);
+		} as DataExchange).catch((e: PlatformResponseError) => {
+			if (e.statusCode === StatusCodes.OUTOFSEQUENCE) {
+				return e;
+			}
+			return Promise.reject(e);
+		});
 	}
 
 	/**
