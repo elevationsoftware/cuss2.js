@@ -14,7 +14,7 @@
     "predoc": "rm -rf docs/"
   },
   "dependencies": {
-    "@types/node": "^14.17.32",
+    "@types/node": "^14.18.63",
     "@elevated-libs/cuss2-javascript-models": "1.0.1",
     "events": "^3.3.0",
     "rxjs": "^7.5.2",
