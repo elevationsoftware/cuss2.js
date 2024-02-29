@@ -18,7 +18,7 @@
     "@elevated-libs/cuss2-javascript-models": "1.0.1",
     "events": "^3.3.0",
     "rxjs": "^7.5.2",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "better-docs": "^2.7.1",
