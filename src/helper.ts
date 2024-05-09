@@ -118,15 +118,24 @@ export const Build = {
 		meta.directive = directive
 		meta.componentID = componentID
 
-		const payload = {} as ApplicationDataPayload
-		if(dataObj.hasOwnProperty('applicationStateCode')) { payload.applicationState = dataObj }
-		if(dataObj.hasOwnProperty('targetApplicationID')) { payload.applicationTransfer = dataObj }
+		const payload = {
+			applicationState: null,
+			applicationTransfer: null,
+			dataRecords: [],
+			screenResolution: null,
+			illuminationData: null,
+			bagdropData: null,
+			paymentData: null,
+			biometricData: null
+		} as ApplicationDataPayload
+		if(dataObj?.hasOwnProperty('applicationStateCode')) { payload.applicationState = dataObj }
+		if(dataObj?.hasOwnProperty('targetApplicationID')) { payload.applicationTransfer = dataObj }
 		if(isDataRecord(dataObj)) { payload.dataRecords = dataObj }
-		if(dataObj.hasOwnProperty('verticak')) { payload.screenResolution = dataObj }
-		if(dataObj.hasOwnProperty('lightColor')) { payload.illuminationData = dataObj }
-		if(dataObj.hasOwnProperty('baggageMeasurements')) { payload.bagdropData = dataObj }
-		if(dataObj.hasOwnProperty('ePaymentMessage')) { payload.paymentData = dataObj }
-		if(dataObj.hasOwnProperty('biometricProviderMessage')) { payload.biometricData = dataObj }
+		if(dataObj?.hasOwnProperty('verticak')) { payload.screenResolution = dataObj }
+		if(dataObj?.hasOwnProperty('lightColor')) { payload.illuminationData = dataObj }
+		if(dataObj?.hasOwnProperty('baggageMeasurements')) { payload.bagdropData = dataObj }
+		if(dataObj?.hasOwnProperty('ePaymentMessage')) { payload.paymentData = dataObj }
+		if(dataObj?.hasOwnProperty('biometricProviderMessage')) { payload.biometricData = dataObj }
 
 		const ad = {} as ApplicationData
 		ad.meta = meta
