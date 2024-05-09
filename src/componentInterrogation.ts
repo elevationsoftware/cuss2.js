@@ -1,4 +1,4 @@
-import { StatusCodes } from 'cuss2-javascript-models';
+import { MessageCodes } from '@elevated-libs/cuss2-typescript-models';
 import {
 	ComponentCharacteristics,
 	ComponentTypes,
@@ -6,7 +6,7 @@ import {
 	DeviceTypes,
 	EnvironmentComponent,
 	MediaTypes
-} from "cuss2-javascript-models";
+} from "@elevated-libs/cuss2-typescript-models";
 
 export { EnvironmentComponent, MediaTypes };
 
@@ -67,7 +67,7 @@ export class ComponentInterrogation {
 	static isKeypad = (component:EnvironmentComponent) => {
 		const charac0 = component.componentCharacteristics?.[0];
 		if (!charac0) return;
-		return dsTypesHas(charac0, CUSSDataTypes.KEY) && dsTypesHas(charac0, CUSSDataTypes.KEY_UP) && dsTypesHas(charac0, CUSSDataTypes.KEY_DOWN);
+		return dsTypesHas(charac0, CUSSDataTypes.KEY) && dsTypesHas(charac0, CUSSDataTypes.KEYUP) && dsTypesHas(charac0, CUSSDataTypes.KEYDOWN);
 	}
 
 	static isIllumination = (component:EnvironmentComponent) => {
@@ -77,7 +77,7 @@ export class ComponentInterrogation {
 	}
 
 	static isHeadset = (component:EnvironmentComponent) => {
-		if (component.componentType !== ComponentTypes.MEDIA_INPUT) return;
+		if (component.componentType !== ComponentTypes.MEDIAINPUT) return;
 		const charac0 = component.componentCharacteristics?.[0];
 		if (!charac0) return;
 		const mediaTypes = charac0.mediaTypesList;
@@ -85,7 +85,7 @@ export class ComponentInterrogation {
 	}
 
 	static isScale = (component:EnvironmentComponent) => {
-		if (component.componentType !== ComponentTypes.DATA_INPUT) return;
+		if (component.componentType !== ComponentTypes.DATAINPUT) return;
 		const charac0 = component.componentCharacteristics?.[0];
 		if (!charac0) return;
 		const mediaTypes = charac0.mediaTypesList;
@@ -98,7 +98,7 @@ export class ComponentInterrogation {
 		return dsTypesHas(charac0, CUSSDataTypes.BIOMETRIC);
 	}
 	static isCamera = (component: EnvironmentComponent) => {
-		if (component.componentType !== ComponentTypes.DATA_INPUT) return;
+		if (component.componentType !== ComponentTypes.DATAINPUT) return;
 		const charac0 = component.componentCharacteristics?.[0];
 		if (!charac0) return;
 		const mediaTypes = charac0.mediaTypesList;

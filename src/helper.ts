@@ -2,21 +2,12 @@ import {Subject} from "rxjs";
 import * as uuid from "uuid";
 import {
 	ApplicationData,
-	ApplicationDataPayload,
 	ApplicationDataMeta,
-	ApplicationState,
-	ApplicationTransfer,
-	DataRecordList,
-	ScreenResolution,
-	IlluminationData,
-	BaggageData,
-	CommonUsePaymentMessage,
-	CommonUseBiometricMessage,
-	StatusCodes,
-	PlatformDirectives
-} from "cuss2-javascript-models";
+	MessageCodes,
+	PlatformDirectives,
+	ApplicationDataPayload
+} from "@elevated-libs/cuss2-typescript-models";
 
-export { StatusCodes };
 
 export class LogMessage {
 	action: string;
@@ -54,7 +45,7 @@ export const helpers = {
 	/**
 	 * Uses criticalErrors list to determine if an error is critical or not.
 	 */
-	isNonCritical: (status:StatusCodes) => {
+	isNonCritical: (messageCode:MessageCodes) => {
 		return !criticalErrors.some(s => s == status)
 	}
 };
@@ -65,80 +56,91 @@ if(typeof window !== 'undefined') {
 }
 
 const criticalErrors = [
-	StatusCodes.CANCELLED,
-	StatusCodes.WRONG_STATE,
-	StatusCodes.OUT_OF_SEQUENCE,
-	StatusCodes.TIMEOUT,
-	StatusCodes.SESSION_TIMEOUT,
-	StatusCodes.KILL_TIMEOUT,
-	StatusCodes.SOFTWARE_ERROR,
-	StatusCodes.CRITICAL_SOFTWARE_ERROR,
-	StatusCodes.CONFIGURATION_ERROR,
-	StatusCodes.FORMAT_ERROR,
-	StatusCodes.LENGTH_ERROR,
-	StatusCodes.DATA_MISSING,
-	StatusCodes.THRESHOLD_ERROR,
-	StatusCodes.THRESHOLD_USAGE,
-	StatusCodes.HARDWARE_ERROR,
-	StatusCodes.NOT_REACHABLE,
-	StatusCodes.NOT_RESPONDING,
-	StatusCodes.BAGGAGE_FULL,
-	StatusCodes.BAGGAGE_UNDETECTED,
-	StatusCodes.BAGGAGE_OVERSIZED,
-	StatusCodes.BAGGAGE_TOO_MANY_BAGS,
-	StatusCodes.BAGGAGE_UNEXPECTED_BAG,
-	StatusCodes.BAGGAGE_TOO_HIGH,
-	StatusCodes.BAGGAGE_TOO_LONG,
-	StatusCodes.BAGGAGE_TOO_FLAT,
-	StatusCodes.BAGGAGE_TOO_SHORT,
-	StatusCodes.BAGGAGE_INVALID_DATA,
-	StatusCodes.BAGGAGE_WEIGHT_OUT_OF_RANGE,
-	StatusCodes.BAGGAGE_JAMMED,
-	StatusCodes.BAGGAGE_EMERGENCY_STOP,
-	StatusCodes.BAGGAGE_RESTLESS,
-	StatusCodes.BAGGAGE_TRANSPORT_BUSY,
-	StatusCodes.BAGGAGE_MISTRACKED,
-	StatusCodes.BAGGAGE_UNEXPECTED_CHANGE,
-	StatusCodes.BAGGAGE_INTERFERENCE_USER,
-	StatusCodes.BAGGAGE_INTRUSION_SAFETY,
-	StatusCodes.BAGGAGE_NOT_CONVEYABLE,
-	StatusCodes.BAGGAGE_IRREGULAR_BAG,
-	StatusCodes.BAGGAGE_VOLUME_NOT_DETERMINABLE,
-	StatusCodes.BAGGAGE_OVERFLOW_TUB
+	MessageCodes.CANCELLED,
+	MessageCodes.WRONGAPPLICATIONSTATE,
+	MessageCodes.OUTOFSEQUENCE,
+	MessageCodes.TIMEOUT,
+	MessageCodes.SESSIONTIMEOUT,
+	MessageCodes.KILLTIMEOUT,
+	MessageCodes.SOFTWAREERROR,
+	MessageCodes.CRITICALSOFTWAREERROR,
+	MessageCodes.FORMATERROR,
+	MessageCodes.LENGTHERROR,
+	MessageCodes.DATAMISSING,
+	MessageCodes.THRESHOLDERROR,
+	MessageCodes.THRESHOLDUSAGE,
+	MessageCodes.HARDWAREERROR,
+	MessageCodes.NOTREACHABLE,
+	MessageCodes.NOTRESPONDING,
+	MessageCodes.BAGGAGEFULL,
+	MessageCodes.BAGGAGEUNDETECTED,
+	MessageCodes.BAGGAGEOVERSIZED,
+	MessageCodes.BAGGAGETOOMANYBAGS,
+	MessageCodes.BAGGAGEUNEXPECTEDBAG,
+	MessageCodes.BAGGAGETOOHIGH,
+	MessageCodes.BAGGAGETOOLONG,
+	MessageCodes.BAGGAGETOOFLAT,
+	MessageCodes.BAGGAGETOOSHORT,
+	MessageCodes.BAGGAGEINVALIDDATA,
+	MessageCodes.BAGGAGEWEIGHTOUTOFRANGE,
+	MessageCodes.BAGGAGEJAMMED,
+	MessageCodes.BAGGAGEEMERGENCYSTOP,
+	MessageCodes.BAGGAGERESTLESS,
+	MessageCodes.BAGGAGETRANSPORTBUSY,
+	MessageCodes.BAGGAGEMISTRACKED,
+	MessageCodes.BAGGAGEUNEXPECTEDCHANGE,
+	MessageCodes.BAGGAGEINTERFERENCEUSER,
+	MessageCodes.BAGGAGEINTRUSIONSAFETY,
+	MessageCodes.BAGGAGENOTCONVEYABLE,
+	MessageCodes.BAGGAGEIRREGULARBAG,
+	MessageCodes.BAGGAGEVOLUMENOTDETERMINABLE,
+	MessageCodes.BAGGAGEOVERFLOWTUB
 ]
+
+const isDataRecord = (dataRecordObject: any) => {
+	if ( Array.isArray(dataRecordObject) && dataRecordObject.length > 0 ) {
+		const first = dataRecordObject[0];
+		if (first.hasOwnProperty('data')) {
+			return true;
+		}
+
+	}
+	return false;
+}
 
 export const Build = {
 	applicationData: (directive, options={}) => {
 		// @ts-ignore
 		const {componentID, token, dataObj} = options
-		const meta = new ApplicationDataMeta()
+		const meta = {} as ApplicationDataMeta
 		meta.requestID = uuid.v4()
 		meta.oauthToken = token
 		meta.directive = directive
 		meta.componentID = componentID
 
-		const payload = new ApplicationDataPayload()
-		if(dataObj instanceof ApplicationState) { payload.applicationState = dataObj }
-		if(dataObj instanceof ApplicationTransfer) { payload.applicationTransfer = dataObj }
-		if(dataObj instanceof DataRecordList) { payload.dataRecords = dataObj }
-		if(dataObj instanceof ScreenResolution) { payload.screenResolution = dataObj }
-		if(dataObj instanceof IlluminationData) { payload.illuminationData = dataObj }
-		if(dataObj instanceof BaggageData) { payload.bagdropData = dataObj }
-		if(dataObj instanceof CommonUsePaymentMessage) { payload.paymentData = dataObj }
-		if(dataObj instanceof CommonUseBiometricMessage) { payload.biometricData = dataObj }
+		const payload = {} as ApplicationDataPayload
+		if(dataObj.hasOwnProperty('applicationStateCode')) { payload.applicationState = dataObj }
+		if(dataObj.hasOwnProperty('targetApplicationID')) { payload.applicationTransfer = dataObj }
+		if(isDataRecord(dataObj)) { payload.dataRecords = dataObj }
+		if(dataObj.hasOwnProperty('verticak')) { payload.screenResolution = dataObj }
+		if(dataObj.hasOwnProperty('lightColor')) { payload.illuminationData = dataObj }
+		if(dataObj.hasOwnProperty('baggageMeasurements')) { payload.bagdropData = dataObj }
+		if(dataObj.hasOwnProperty('ePaymentMessage')) { payload.paymentData = dataObj }
+		if(dataObj.hasOwnProperty('biometricProviderMessage')) { payload.biometricData = dataObj }
 
-		const ad = new ApplicationData(meta)
+		const ad = {} as ApplicationData
+		ad.meta = meta
 		ad.payload = payload
 		return ad
 	},
 	stateChange: (desiredState, reasonCode, reason, brand=undefined) => {
-		return Build.applicationData(PlatformDirectives.platformApplicationsStaterequest, {
-			dataObj: ApplicationState.constructFromObject({
+		return Build.applicationData(PlatformDirectives.PlatformApplicationsStaterequest, {
+			dataObj: {
 				applicationStateCode: desiredState,
 				applicationStateChangeReasonCode: reasonCode,
 				applicationStateChangeReason: reason,
 				applicationBrand: brand
-			})
+			}
 		})
 	}
 }

@@ -1,20 +1,20 @@
 import {
 	ComponentState,
 	PlatformData,
-	RequestID,
-	StatusCodes
-} from "cuss2-javascript-models";
+	UniqueID,
+	MessageCodes
+} from "@elevated-libs/cuss2-typescript-models";
 
 export class PlatformResponseError extends Error {
 	constructor(pd:PlatformData) {
-		super('Platform returned status code: ' + pd.meta.statusCode);
-		this.componentID = pd.meta.componentID;
+		super('Platform returned status code: ' + pd.meta.messageCode);
+		this.componentID = pd.meta.componentID as number;
 		this.componentState = pd.meta.componentState;
 		this.requestID = pd.meta.requestID;
-		this.statusCode = pd.meta.statusCode || StatusCodes.SOFTWARE_ERROR;
+		this.messageCode = pd.meta.messageCode || MessageCodes.SOFTWAREERROR;
 	}
 	componentID?:number;
 	componentState: ComponentState;
-	requestID:RequestID;
-	statusCode: StatusCodes;
+	requestID:UniqueID;
+	messageCode: MessageCodes;
 }

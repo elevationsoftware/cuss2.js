@@ -1,5 +1,5 @@
 import {EventEmitter} from 'events'
-import {ApplicationData} from "cuss2-javascript-models"
+import {ApplicationData} from "@elevated-libs/cuss2-typescript-models"
 import {helpers} from "./helper.js";
 import {PlatformResponseError} from "./models/platformResponseError.js";
 // if (typeof WebSocket === 'undefined') {
@@ -175,8 +175,8 @@ export class Connection extends EventEmitter {
 		const promise = this.waitFor(reqId)
 		this._socket.send(JSON.stringify(applicationData))
 		return promise.then(message => {
-			const statusCode = message.meta.statusCode;
-			if (helpers.isNonCritical(statusCode)) {
+			const messageCode = message.meta.messageCode;
+			if (helpers.isNonCritical(messageCode)) {
 				return message;
 			} else {
 				throw new PlatformResponseError(message);
