@@ -1,4 +1,4 @@
-import {ApplicationStateCodes} from "cuss2-javascript-models";
+import {ApplicationStateCodes} from "@elevated-libs/cuss2-typescript-models";
 
 
 export class StateChange {

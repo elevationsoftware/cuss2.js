@@ -5,7 +5,7 @@ import {BehaviorSubject, Subject} from "rxjs";
 import {Connection} from "./connection.js";
 import {StateChange} from "./models/stateChange.js";
 import {ComponentInterrogation} from "./componentInterrogation.js";
-import { ApplicationStateCodes } from 'cuss2-javascript-models';
+import { ApplicationActivationExecutionModeEnum, ApplicationStateCodes } from '@elevated-libs/cuss2-typescript-models';
 import {
 	Announcement,
 	BarcodeReader,
@@ -35,11 +35,11 @@ import {
 	PlatformDirectives,
 	ApplicationStateCodes as AppState,
 	ApplicationStateChangeReasonCodes as ChangeReason
-} from "cuss2-javascript-models";
+} from "@elevated-libs/cuss2-typescript-models";
 
 export { ApplicationStateCodes, DataRecordList };
 
-const ExecutionModeEnum = ApplicationActivation.ExecutionModeEnum
+const ExecutionModeEnum = ApplicationActivationExecutionModeEnum
 
 const {
 	isAnnouncement,
@@ -324,7 +324,7 @@ export class Cuss2 {
 			if (component && component.stateIsDifferent(message)) {
 				component.updateState(message);
 				this.componentStateChange.next(component);
-				if (this._online && (unsolicited || meta.platformDirective === PlatformDirectives.peripheralsQuery)) {
+				if (this._online && (unsolicited || meta.platformDirective === PlatformDirectives.PeripheralsQuery)) {
 					this.checkRequiredComponentsAndSyncState();
 				}
 			}
@@ -346,7 +346,7 @@ export class Cuss2 {
 		 * const environment = await cuss2.getEnvironment();
 		 */
 		getEnvironment: async (): Promise<EnvironmentLevel> => {
-			const ad = Build.applicationData(PlatformDirectives.platformEnvironment)
+			const ad = Build.applicationData(PlatformDirectives.PlatformEnvironment)
 			const response = await this.connection.sendAndGetResponse(ad)
 			log('verbose', '[getEnvironment()] response', response);
 			this.environment = response.payload.environmentLevel as EnvironmentLevel;
@@ -362,7 +362,7 @@ export class Cuss2 {
 		 * const components = await cuss2.getComponents();
 		 */
 		getComponents: async (): Promise<ComponentList> => {
-			const ad = Build.applicationData(PlatformDirectives.platformComponents)
+			const ad = Build.applicationData(PlatformDirectives.PlatformComponents)
 			const response = await this.connection.sendAndGetResponse(ad)
 			log('verbose', '[getComponents()] response', response);
 			const componentList = response.payload.componentList as ComponentList;
@@ -419,7 +419,7 @@ export class Cuss2 {
 		 * const status = await cuss2.getStatus(componentID);
 		 */
 		getStatus: async (componentID:number): Promise<PlatformData> => {
-			const ad = Build.applicationData(PlatformDirectives.peripheralsQuery, {componentID})
+			const ad = Build.applicationData(PlatformDirectives.PeripheralsQuery, {componentID})
 			const response = await this.connection.sendAndGetResponse(ad)
 			log('verbose', '[queryDevice()] response', response);
 			return response;
@@ -436,7 +436,7 @@ export class Cuss2 {
 		 * const setup = await cuss2.send(componentID, dataExchange);
 		 */
 		send: async (componentID:number, dataObj:DataRecordList): Promise<PlatformData> => {
-			const ad = Build.applicationData(PlatformDirectives.peripheralsSend, {
+			const ad = Build.applicationData(PlatformDirectives.PeripheralsSend, {
 				componentID,
 				dataObj
 			})
@@ -455,7 +455,7 @@ export class Cuss2 {
 		 */
 		setup: async (componentID:number, dataObj:DataRecordList): Promise<PlatformData> => {
 			validateComponentId(componentID);
-			const ad = Build.applicationData(PlatformDirectives.peripheralsSetup, {
+			const ad = Build.applicationData(PlatformDirectives.PeripheralsSetup, {
 				componentID,
 				dataObj
 			})
@@ -473,7 +473,7 @@ export class Cuss2 {
 		 */
 		cancel: async (componentID:number): Promise<PlatformData> => {
 			validateComponentId(componentID);
-			const ad = Build.applicationData(PlatformDirectives.peripheralsCancel, {componentID})
+			const ad = Build.applicationData(PlatformDirectives.PeripheralsCancel, {componentID})
 			return await this.connection.sendAndGetResponse(ad)
 		},
 
@@ -488,7 +488,7 @@ export class Cuss2 {
 		 */
 		enable: async (componentID:number): Promise<PlatformData> => {
 			validateComponentId(componentID);
-			const ad = Build.applicationData(PlatformDirectives.peripheralsUserpresentEnable, {componentID})
+			const ad = Build.applicationData(PlatformDirectives.PeripheralsUserpresentEnable, {componentID})
 			return await this.connection.sendAndGetResponse(ad)
 		},
 
@@ -503,12 +503,12 @@ export class Cuss2 {
 		 */
 		disable: async (componentID:number): Promise<PlatformData> => {
 			validateComponentId(componentID);
-			const ad = Build.applicationData(PlatformDirectives.peripheralsUserpresentDisable, {componentID})
+			const ad = Build.applicationData(PlatformDirectives.PeripheralsUserpresentDisable, {componentID})
 			return await this.connection.sendAndGetResponse(ad)
 		},
 		offer: async (componentID:number): Promise<PlatformData> => {
 			validateComponentId(componentID);
-			const ad = Build.applicationData(PlatformDirectives.peripheralsUserpresentOffer, {componentID})
+			const ad = Build.applicationData(PlatformDirectives.PeripheralsUserpresentOffer, {componentID})
 			return await this.connection.sendAndGetResponse(ad)
 		},
 
@@ -568,11 +568,11 @@ export class Cuss2 {
 			 */
 			play: async (componentID:number, rawData:string): Promise<PlatformData> => {
 				validateComponentId(componentID);
-				const dataObj = DataRecordList.constructFromObject([{
+				const dataObj = [{
 					data: rawData as any,
 					dsTypes: [ CUSSDataTypes.SSML ]
-				}])
-				const ad = Build.applicationData(PlatformDirectives.peripheralsAnnouncementPlay, {
+				}]
+				const ad = Build.applicationData(PlatformDirectives.PeripheralsAnnouncementPlay, {
 					componentID, dataObj
 				})
 				return await this.connection.sendAndGetResponse(ad)
@@ -583,7 +583,7 @@ export class Cuss2 {
 			 */
 			pause: async (componentID:number): Promise<PlatformData> => {
 				validateComponentId(componentID);
-				const ad = Build.applicationData(PlatformDirectives.peripheralsAnnouncementPause, {componentID})
+				const ad = Build.applicationData(PlatformDirectives.PeripheralsAnnouncementPause, {componentID})
 				return await this.connection.sendAndGetResponse(ad)
 			},
 
@@ -592,7 +592,7 @@ export class Cuss2 {
 			 */
 			resume: async (componentID:number): Promise<PlatformData> => {
 				validateComponentId(componentID);
-				const ad = Build.applicationData(PlatformDirectives.peripheralsAnnouncementResume, {componentID})
+				const ad = Build.applicationData(PlatformDirectives.PeripheralsAnnouncementResume, {componentID})
 				return await this.connection.sendAndGetResponse(ad)
 			},
 
@@ -601,7 +601,7 @@ export class Cuss2 {
 			 */
 			stop: async (componentID:number): Promise<PlatformData> => {
 				validateComponentId(componentID);
-				const ad = Build.applicationData(PlatformDirectives.peripheralsAnnouncementStop, {componentID})
+				const ad = Build.applicationData(PlatformDirectives.PeripheralsAnnouncementStop, {componentID})
 				return await this.connection.sendAndGetResponse(ad)
 			}
 		}
@@ -777,6 +777,6 @@ export class Cuss2 {
 }
 
 export {Connection} from "./connection.js";
-export * from "cuss2-javascript-models";
+export * from "@elevated-libs/cuss2-typescript-models";
 export * from "./helper.js";
 export * from "./componentInterrogation.js";

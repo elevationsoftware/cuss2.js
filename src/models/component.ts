@@ -6,10 +6,11 @@ import {
 	DataRecord,
 	EnvironmentComponent,
 	ComponentState,
-	IlluminationDataLightColor,
+	CUSS2IlluminationdomainIlluminationDataLightColor,
 	PlatformData,
-	StatusCodes
-} from "cuss2-javascript-models";
+	MessageCodes,
+	PlatformDirectives
+} from "@elevated-libs/cuss2-typescript-models";
 import {DeviceType} from './deviceType.js';
 import {PlatformResponseError} from "./platformResponseError.js";
 import {take, timeout} from "rxjs/operators";
@@ -22,7 +23,7 @@ import {take, timeout} from "rxjs/operators";
  * @property {number} id - Numeric ID assigned to the component; used for identification of a specific component.
  * @property {Subject<PlatformData>} onmessage - Observable that emits when a message is received from the component.
  * @property {boolean} required - Whether the component is required to be connected to the CUSS Platform.
- * @property {BehaviorSubject<StatusCodes>} statusChanged - Observable that emits the status of the component on changes.
+ * @property {BehaviorSubject<messageCodes>} statusChanged - Observable that emits the status of the component on changes.
  * @property {DeviceType} deviceType - The type of device the component is, *See IATA documentation for more details.
  * @property {number} pendingCalls - The number of pending calls to the component.
  * @property {boolean} enabled - Whether the component is enabled or not.
@@ -76,7 +77,7 @@ export class Component {
 	onmessage: Subject<PlatformData> = new Subject<PlatformData>();
 	api: any;
 	required: boolean = false;
-	statusChanged: BehaviorSubject<StatusCodes> = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
+	statusChanged: BehaviorSubject<MessageCodes> = new BehaviorSubject<MessageCodes>(MessageCodes.OK);
 	_componentState: ComponentState = ComponentState.UNAVAILABLE;
 	deviceType: DeviceType;
 	pendingCalls: number = 0;
@@ -104,19 +105,19 @@ export class Component {
 
 	/**
 	 * @typeof Getter
-	 * @returns {StatusCodes} the status of the component
+	 * @returns {MessageCodes} the status of the component
 	 */
-	get status(): StatusCodes { return this.statusChanged.getValue(); }
+	get status(): MessageCodes { return this.statusChanged.getValue(); }
 
 	constructor(component: EnvironmentComponent, cuss2: Cuss2, _type: DeviceType = DeviceType.UNKNOWN) {
 		this._component = component;
-		this.id = component.componentID as number;
+		this.id = Number(component.componentID);
 		this.deviceType = _type;
 		Object.defineProperty(this, 'api', {
 			get: () => cuss2.api,
 			enumerable: false
 		});
-		cuss2.onmessage.subscribe((data:PlatformData) => {
+		cuss2.onmessage.subscribe((data: PlatformData) => {
 			if (data?.meta?.componentID === this.id) {
 				this._handleMessage(data);
 			}
@@ -128,8 +129,8 @@ export class Component {
 		if (component.linkedComponentIDs?.length) {
 			// this.constructor.name[0].toLowerCase() + this.constructor.name.substr(1) in tagging this is not working currently
 			const name = this.deviceType;
-			const parentId = Math.min(this.id, ...component.linkedComponentIDs);
-			if(parentId != this.id) {
+			const parentId = Math.min(this.id, ...component.linkedComponentIDs as number[]);
+			if (parentId != this.id) {
 				this.parent = cuss2.components[parentId]
 				// feeder and dispenser are created in the printer component
 				if (this.parent && !this.parent[name]) {
@@ -141,7 +142,7 @@ export class Component {
 	}
 
 	stateIsDifferent(msg: PlatformData): boolean {
-		return this.status !== msg.meta.statusCode || this._componentState !== msg.meta.componentState;
+		return this.status !== msg.meta.messageCode || this._componentState !== msg.meta.componentState;
 	}
 
 	updateState(msg: PlatformData): void {
@@ -158,15 +159,15 @@ export class Component {
 			this.pollUntilReady();
 		}
 
-		if (this.status !== meta.statusCode) {
-			this.statusChanged.next(meta.statusCode);
+		if (this.status !== meta.messageCode) {
+			this.statusChanged.next(meta.messageCode);
 		}
 	}
 
 	pollUntilReady(requireOK = false, pollingInterval = this.pollingInterval) {
 		if (this._poller) return;
 		const poll = () => {
-			if (this.ready && (!requireOK || this.status === StatusCodes.OK)) {
+			if (this.ready && (!requireOK || this.status === MessageCodes.OK)) {
 				return this._poller = undefined;
 			}
 
@@ -221,7 +222,7 @@ export class Component {
 				return r;
 			})
 			.catch((e:PlatformResponseError) => {
-				if (e.statusCode === StatusCodes.OUT_OF_SEQUENCE) {
+				if (e.messageCode === MessageCodes.OUTOFSEQUENCE) {
 					this.enabled = false;
 					return e;
 				}
@@ -298,7 +299,7 @@ export class DataReaderComponent extends Component {
 
 	_handleMessage(data:PlatformData) {
 		this.onmessage.next(data);
-		if (data?.meta?.statusCode === StatusCodes.DATA_PRESENT && data?.payload?.dataRecords?.length) {
+		if (data?.meta?.messageCode === MessageCodes.DATAPRESENT && data?.payload?.dataRecords?.length) {
 			this.previousData = data?.payload?.dataRecords?.map((dr:DataRecord) => dr?.data);
 			this.data.next(this.previousData)
 		}
@@ -425,7 +426,7 @@ export class Camera extends DataReaderComponent {
  * @property {Feeder} feeder - The feeder component linked this printer.
  * @property {Dispenser} dispenser - The dispenser component linked this printer.
  * @property {Subject<boolean>} combinedReadyStateChanged - The combined ready state of this printer, feeder, and dispenser; emits true when ready.
- * @property {BehaviorSubject<StatusCodes>} combinedStatusChanged - The combined status of this printer, feeder, and dispenser; emits on status code changes.
+ * @property {BehaviorSubject<messageCodes>} combinedStatusChanged - The combined status of this printer, feeder, and dispenser; emits on status code changes.
 
  * @example
  * //feeder
@@ -448,7 +449,7 @@ export class Printer extends Component {
 		super(component, cuss2, _type);
 
 		const missingLink = (msg:string) => { throw new Error(msg); };
-		const linked = component.linkedComponentIDs?.map(id => cuss2.components[id] as Component) || [];
+		const linked = component.linkedComponentIDs?.map(id => cuss2.components[id as number] as Component) || [];
 
 		this.feeder = linked.find(c => c instanceof Feeder) || missingLink('Feeder not found for Printer ' + this.id);
 		this.subcomponents.push(this.feeder)
@@ -482,22 +483,22 @@ export class Printer extends Component {
 			this.feeder.statusChanged,
 			this.dispenser.statusChanged
 		])
-		.subscribe((statuses: StatusCodes[]) => {
-			const status = statuses.find(s => s != StatusCodes.OK) || StatusCodes.OK;
+		.subscribe((statuses: MessageCodes[]) => {
+			const status = statuses.find(s => s != MessageCodes.OK) || MessageCodes.OK;
 			if (this.combinedStatus !== status) {
 				this._combinedStatus = status;
 				this.combinedStatusChanged.next(status);
 			}
 		});
-		this.combinedStatusChanged = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
+		this.combinedStatusChanged = new BehaviorSubject<MessageCodes>(MessageCodes.OK);
 	}
 
 	feeder: Feeder;
 	dispenser: Dispenser;
 	combinedReadyStateChanged: Subject<boolean> = new Subject<boolean>();
-	combinedStatusChanged: BehaviorSubject<StatusCodes> = new BehaviorSubject<StatusCodes>(StatusCodes.OK);
+	combinedStatusChanged: BehaviorSubject<MessageCodes> = new BehaviorSubject<MessageCodes>(MessageCodes.OK);
 
-	_superStatusChanged: BehaviorSubject<StatusCodes>;
+	_superStatusChanged: BehaviorSubject<MessageCodes>;
 	_superReadyStateChanged: Subject<boolean>;
 
 	/**
@@ -525,34 +526,34 @@ export class Printer extends Component {
 		return this._combinedReady;
 	}
 
-	_combinedStatus = StatusCodes.OK;
+	_combinedStatus = MessageCodes.OK;
 	/**
 	 * @typeof - Getter
-	 * @returns {StatusCodes} - The combined status of the printer, feeder, and dispenser.
+	 * @returns {MessageCodes} - The combined status of the printer, feeder, and dispenser.
 	 */
-	get combinedStatus(): StatusCodes {
+	get combinedStatus(): MessageCodes {
 		return this._combinedStatus;
 	}
 
 	updateState(msg: PlatformData): void {
 		//CUTnHOLD can cause a TIMEOUT response if the tag is not taken in a certain amount of time.
 		// Unfortunately, it briefly considers the Printer to be UNAVAILABLE.
-		if (msg.functionName === 'send' && msg.statusCode === StatusCodes.TIMEOUT && msg.componentState === ComponentState.UNAVAILABLE) {
-			msg.componentState = ComponentState.READY;
+		if (msg.meta.platformDirective === PlatformDirectives.PeripheralsSend && msg.meta.messageCode === MessageCodes.TIMEOUT && msg.meta.componentState === ComponentState.UNAVAILABLE) {
+			msg.meta.componentState = ComponentState.READY;
 		}
 		// if now ready, query linked components to get their latest status
-		if (!this.ready && msg.componentState === ComponentState.READY) {
+		if (!this.ready && msg.meta.componentState === ComponentState.READY) {
 			this.feeder.query().catch(console.error);
 			this.dispenser.query().catch(console.error);
 		}
-		else if (msg.statusCode === StatusCodes.MEDIA_PRESENT) {
+		else if (msg.meta.messageCode === MessageCodes.MEDIAPRESENT) {
 			this.dispenser.mediaPresentChanged.next(true);
 			// query the dispenser- which will start a poller that will detect when the media has been taken
 			this.dispenser.query().catch(console.error);
 		}
 
-		if (this.status !== msg.statusCode) {
-			this.statusChanged.next(msg.statusCode);
+		if (this.status !== msg.meta.messageCode) {
+			this.statusChanged.next(msg.meta.messageCode);
 		}
 		const rsc = this.combinedReadyStateChanged;
 		this.combinedReadyStateChanged = this._superReadyStateChanged;
@@ -609,16 +610,20 @@ export class Printer extends Component {
 		}
 		const rawArray:string[] = isArray? raw as string[] : [raw as string];
 
-		const dx = (r:string) => DataRecordList.constructFromObject([
-			{ data: (r || '') as any, dsTypes: dsTypes }
-		]);
+		const dx = (r:string) => [{
+			data: r as any,
+			dsTypes: dsTypes
+		}]
 
 		return await Promise.all(rawArray.map(r => this.api.setup(this.id, dx(r))))
 			.then(results => isArray? results : results[0])
 	}
 
 	async sendRaw(raw: string, dsTypes: Array<CUSSDataTypes> = [ CUSSDataTypes.ITPS ] ) {
-		const dataRecords = DataRecordList.constructFromObject([{	data: (raw || '') as any, dsTypes: dsTypes }]);
+		const dataRecords =[{
+			data: raw as any,
+			dsTypes: dsTypes
+		}];
 		return this.api.send(this.id, dataRecords);
 	}
 
@@ -764,7 +769,7 @@ export class Dispenser extends Component {
 
 		this.mediaPresentChanged = new BehaviorSubject<boolean>(false);
 		this.statusChanged.subscribe((status) => {
-			if (status === StatusCodes.MEDIA_PRESENT) {
+			if (status === MessageCodes.MEDIAPRESENT) {
 				this.pollUntilReady(true, 2000);
 				if (!this.mediaPresent) {
 					this.mediaPresentChanged.next(true);
@@ -798,9 +803,9 @@ export class Keypad extends Component {
 
 	_handleMessage(message:PlatformData) {
 		super._handleMessage(message);
-		if (message.componentID !== this.id) return;
+		if (message.meta.componentID !== this.id) return;
 
-		const dataRecords = message.dataRecords;
+		const dataRecords = message.payload.dataRecords;
 		if (dataRecords?.length) {
 			const data = dataRecords.map(dr => dr.data);
 			this.data.next({
@@ -891,7 +896,7 @@ export class Illumination extends Component {
 	 */
 	async enable(duration: number, color?: String|number[], blink?: number[]) {
 		// @ts-ignore
-		let name = (typeof color === 'string')? (IlluminationDataLightColor.NameEnum)[color] : undefined;
+		let name = (typeof color === 'string')? (CUSS2IlluminationdomainIlluminationDataLightColor.NameEnum)[color] : undefined;
 		let rgb = (Array.isArray(color) && color.length === 3)? {red:color[0], green:color[1], blue:color[2]} : undefined;
 		let blinkRate = (Array.isArray(blink) && blink.length === 2)? {durationOn:blink[0], durationOff:blink[1]} : undefined;
 
