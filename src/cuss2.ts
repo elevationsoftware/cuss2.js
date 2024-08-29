@@ -249,6 +249,7 @@ export class Cuss2 {
 	cardReader?: CardReader;
 	faceReader?: FaceReader;
 	scale?: Scale;
+	headset?:Headset;
 	camera?: Camera;
 	activated: Subject<ApplicationActivation> = new Subject<ApplicationActivation>();
 	deactivated: Subject<AppState> = new Subject<AppState>();
