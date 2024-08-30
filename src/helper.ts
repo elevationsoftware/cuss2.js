@@ -46,7 +46,7 @@ export const helpers = {
 	 * Uses criticalErrors list to determine if an error is critical or not.
 	 */
 	isNonCritical: (messageCode:MessageCodes) => {
-		return !criticalErrors.some(s => s == status)
+		return !criticalErrors.some(s => s == messageCode)
 	}
 };
 
