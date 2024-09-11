@@ -14,13 +14,13 @@
     "predoc": "rm -rf docs/"
   },
   "dependencies": {
-    "@types/node": "^20.11.25",
     "@elevated-libs/cuss2-typescript-models": "1.0.2",
     "events": "^3.3.0",
     "rxjs": "^7.5.2",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "@types/node": "^17.0.21",
     "better-docs": "^2.7.1",
     "chai": "^4.3.4",
     "jsdoc": "^3.6.10",
