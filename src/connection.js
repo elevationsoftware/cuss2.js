@@ -80,6 +80,7 @@ export class Connection extends EventEmitter {
 	constructor(baseURL, client_id, client_secret, tokenURL, deviceID) {
 		super()
 		this.deviceID = deviceID
+		this.setMaxListeners(0)
 
 		const endOfHostname = baseURL.indexOf('?')
 		if (endOfHostname > -1) {
@@ -176,7 +177,8 @@ export class Connection extends EventEmitter {
 	sendAndGetResponse(applicationData) {
 		const reqId = applicationData.meta.requestID
 		applicationData.meta.oauthToken = this.access_token
-		if ((applicationData.meta.deviceID == null || applicationData.meta.deviceID == "00000000-0000-0000-0000-000000000000") && this.deviceID != null) {
+		if ((applicationData.meta.deviceID == null || applicationData.meta.deviceID == "00000000-0000-0000-0000-000000000000")
+			 && this.deviceID != null) {
 			applicationData.meta.deviceID = this.deviceID
 		}
 		const promise = this.waitFor(reqId)
