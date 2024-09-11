@@ -111,12 +111,13 @@ const isDataRecord = (dataRecordObject: any) => {
 export const Build = {
 	applicationData: (directive, options={}) => {
 		// @ts-ignore
-		const {componentID, token, dataObj} = options
+		const {componentID, token, deviceID = "00000000-0000-0000-0000-000000000000",  dataObj} = options
 		const meta = {} as ApplicationDataMeta
 		meta.requestID = uuid.v4()
 		meta.oauthToken = token
 		meta.directive = directive
 		meta.componentID = componentID
+		meta.deviceID = deviceID
 
 		const payload = {
 			applicationState: null,

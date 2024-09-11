@@ -46,13 +46,14 @@ export class Connection extends EventEmitter {
 	 * @param {string} client_id - The client_id of the CUSS 2 platform
 	 * @param {string} client_secret - The client_secret of the CUSS 2 platform
 	 * @param {string} tokenURL - The url of the CUSS Oauth Server
+	 * @param {string} deviceID - The GUID for the device connecting to the CUSS 2 platform
 	 * @returns {Promise<Connection>} - The connection object
 	 * @example
 	 * /// Connects to a CUSS Platform at the provided URL
 	 * const connection = await Connection.connect('url', 'my-client-id', 'my-client-secret', 'token-url');
 	 */
-	static async connect(baseURL, client_id, client_secret, tokenURL) {
-		const connection = new Connection(baseURL, client_id, client_secret, tokenURL)
+	static async connect(baseURL, client_id, client_secret, tokenURL, deviceID) {
+		const connection = new Connection(baseURL, client_id, client_secret, tokenURL, deviceID)
 		let delay = .5
 		function go() {
 			return connection._connect().catch(async (err) => {
@@ -76,9 +77,9 @@ export class Connection extends EventEmitter {
 
 	access_token = ''
 
-	constructor(baseURL, client_id, client_secret, options = {}) {
+	constructor(baseURL, client_id, client_secret, tokenURL, deviceID) {
 		super()
-		this.pingInterval = options.pingInterval || this.pingInterval
+		this.deviceID = deviceID
 
 		const endOfHostname = baseURL.indexOf('?')
 		if (endOfHostname > -1) {
@@ -89,11 +90,11 @@ export class Connection extends EventEmitter {
 		}
 		this._baseURL = baseURL
 
-		let tokenURL = options.tokenURL
-		if (!tokenURL) {
-			tokenURL = baseURL + '/oauth/token'
+		let _tokenURL = tokenURL
+		if (!_tokenURL) {
+			_tokenURL = baseURL + '/oauth/token'
 		}
-		this._auth = { url: tokenURL, client_id, client_secret }
+		this._auth = { url: _tokenURL, client_id, client_secret }
 
 		let protocol = /^https/.test(baseURL) ? "wss" : "ws"
 		this._socketURL = protocol + baseURL.replace(/^https?/, '') + '/platform/subscribe'
@@ -165,6 +166,9 @@ export class Connection extends EventEmitter {
 		if (data instanceof ApplicationData && !data.meta.oauthToken) {
 			data.meta.oauthToken = this.access_token
 		}
+		if (data instanceof ApplicationData && !data.meta.deviceID) {
+			data.meta.deviceID = this.deviceID
+		}
 		data = JSON.stringify(data)
 		return this._socket.send(data)
 	}
@@ -172,6 +176,9 @@ export class Connection extends EventEmitter {
 	sendAndGetResponse(applicationData) {
 		const reqId = applicationData.meta.requestID
 		applicationData.meta.oauthToken = this.access_token
+		if ((applicationData.meta.deviceID == null || applicationData.meta.deviceID == "00000000-0000-0000-0000-000000000000") && this.deviceID != null) {
+			applicationData.meta.deviceID = this.deviceID
+		}
 		const promise = this.waitFor(reqId)
 		this._socket.send(JSON.stringify(applicationData))
 		return promise.then(message => {

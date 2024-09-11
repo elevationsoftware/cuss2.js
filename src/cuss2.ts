@@ -168,16 +168,17 @@ export class Cuss2 {
 	/**
 	 * @memberof Cuss2
 	 * @method connect - Connect to the cuss platform.
-	 * @param {string} url  - The url of the CUSS 2 platform
+	 * @param {string} wss  - The WebSocket URL for CUSS 2 platform
+	 * @param {string} oauth - The URL for the Oauth2 server
+	 * @param {string} deviceID - The GUID for the device connecting to the CUSS 2 platform
 	 * @param {string} client_id  - The client_id of the CUSS 2 platform
 	 * @param {string} client_secret  - The client_secret of the CUSS 2 platform
-	 * @param {Object} [options={}] - An object of options passed in for the connection
 	 * @returns {Promise<Cuss2>} A promise that resolves to a Cuss2 object
 	 * @example
-	 * const connect = await Cuss2.connect('url', 'client_id', 'client_secret', "options");
+	 * const connect = await Cuss2.connect('url', 'oauth', '00000000-0000-0000-0000-000000000000', 'client_id', 'client_secret');
 	 *
 	 */
-	static async connect(url: string, client_id: string, client_secret: string, options: any = {}): Promise<Cuss2> {
+	static async connect(wss: string, oauth: string = null, deviceID: string = '00000000-0000-0000-0000-000000000000', client_id: string, client_secret: string): Promise<Cuss2> {
 		document.body.setAttribute('elevated-cuss2', '1')
 		function broadcast(detail: any) {
 			const event = new CustomEvent('send_to_cuss2_devtools', {detail});
@@ -185,7 +186,7 @@ export class Cuss2 {
 		}
 		logger.subscribe(broadcast);
 
-		const connection = await Connection.connect(url, client_id, client_secret,  options);
+		const connection = await Connection.connect(wss, client_id, client_secret, oauth, deviceID);
 		const cuss2 = new Cuss2(connection);
 
 		if (document.body.hasAttribute('cuss2-devtools')) {
@@ -269,7 +270,11 @@ export class Cuss2 {
 
 	async _initialize(): Promise<any> {
 		log("info", "Getting Environment Information");
-		await this.api.getEnvironment();
+		let level = await this.api.getEnvironment();
+		// hydrate device id if none provided
+		if (this.connection.deviceID == '00000000-0000-0000-0000-000000000000' || this.connection.deviceID == null) {
+			this.connection.deviceID = level.deviceID;
+		}
 		if (!this.state) {
 			throw new Error('Platform in abnormal state.');
 		}
