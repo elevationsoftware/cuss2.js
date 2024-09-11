@@ -1,0 +1,9 @@
+{
+  "entryPoints": [
+    "src/cuss2.ts",
+    "src/connection.ts",
+    "src/helper.ts",
+    "src/models/component.ts"
+  ],
+  "out": "typedocs"
+}
