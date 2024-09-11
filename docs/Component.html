@@ -338,7 +338,7 @@
     <td class="type">
     
         
-<code class="param-type">BehaviorSubject.&lt;StatusCodes></code>
+<code class="param-type">BehaviorSubject.&lt;messageCodes></code>
 
 
     
@@ -583,64 +583,47 @@
     <h5>Examples</h5>
     
     
-        <pre class="prettyprint"><code>// id is the numeric ID assigned to the component
-this.id = id;</code></pre>
+        <pre class="prettyprint"><code>// id is the numeric ID assigned to the componentthis.id = id;</code></pre>
     
 
     
-        <pre class="prettyprint"><code>// onmessage is an observable that emits when a message is received from the component
-this.onmessage.subscribe(data => {
-	console.log(data);
-});</code></pre>
+        <pre class="prettyprint"><code>// onmessage is an observable that emits when a message is received from the componentthis.onmessage.subscribe(data => {	console.log(data);});</code></pre>
     
 
     
-        <pre class="prettyprint"><code>// required is whether the component is required to be connected to the CUSS Platform
-this.required = true;</code></pre>
+        <pre class="prettyprint"><code>// required is whether the component is required to be connected to the CUSS Platformthis.required = true;</code></pre>
     
 
     
-        <pre class="prettyprint"><code>// statusChanged is an observable that emits the status of the component on changes
-this.statusChanged.subscribe(status => {
-	console.log(status);
-});</code></pre>
+        <pre class="prettyprint"><code>// statusChanged is an observable that emits the status of the component on changesthis.statusChanged.subscribe(status => {	console.log(status);});</code></pre>
     
 
     
-        <pre class="prettyprint"><code>// deviceType is the type of device the component is, *See IATA documentation for more details.
-this.deviceType = DeviceType;</code></pre>
+        <pre class="prettyprint"><code>// deviceType is the type of device the component is, *See IATA documentation for more details.this.deviceType = DeviceType;</code></pre>
     
 
     
-        <pre class="prettyprint"><code>// pendingCalls is the number of pending calls to the component
-this.pendingCalls = 0;</code></pre>
+        <pre class="prettyprint"><code>// pendingCalls is the number of pending calls to the componentthis.pendingCalls = 0;</code></pre>
     
 
     
-        <pre class="prettyprint"><code>// enabled is whether the component is enabled or not
-this.enabled</code></pre>
+        <pre class="prettyprint"><code>// enabled is whether the component is enabled or notthis.enabled</code></pre>
     
 
     
-        <pre class="prettyprint"><code>// pollingInterval is the interval in milliseconds to poll the component
-this.pollingInterval = 1000;</code></pre>
+        <pre class="prettyprint"><code>// pollingInterval is the interval in milliseconds to poll the componentthis.pollingInterval = 1000;</code></pre>
     
 
     
-        <pre class="prettyprint"><code>// parent is the parent of the component
-this.parent = parent;</code></pre>
+        <pre class="prettyprint"><code>// parent is the parent of the componentthis.parent = parent;</code></pre>
     
 
     
-        <pre class="prettyprint"><code>// subcomponents are an array subcomponents to the component
-this.subcomponents = subcomponents;</code></pre>
+        <pre class="prettyprint"><code>// subcomponents are an array subcomponents to the componentthis.subcomponents = subcomponents;</code></pre>
     
 
     
-        <pre class="prettyprint"><code>// readyStateChanged is an observable that emits true when the component is ready
-this.readyStateChanged.subscribe(ready => {
-	console.log(ready);
-});</code></pre>
+        <pre class="prettyprint"><code>// readyStateChanged is an observable that emits true when the component is readythis.readyStateChanged.subscribe(ready => {	console.log(ready);});</code></pre>
     
 
 
@@ -949,7 +932,7 @@ this.readyStateChanged.subscribe(ready => {
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line884">line 884</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line888">line 888</a>
             </span>
         </p>
     
@@ -1003,8 +986,7 @@ this.readyStateChanged.subscribe(ready => {
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>// Cancel the component
-Component.cancel();</code></pre>
+        <pre class="prettyprint"><code>// Cancel the componentComponent.cancel();</code></pre>
     
 
 
@@ -1079,7 +1061,7 @@ Component.cancel();</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line875">line 875</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line879">line 879</a>
             </span>
         </p>
     
@@ -1133,8 +1115,7 @@ Component.cancel();</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>// Disable the component
-Component.disable();</code></pre>
+        <pre class="prettyprint"><code>// Disable the componentComponent.disable();</code></pre>
     
 
 
@@ -1260,7 +1241,7 @@ Component.disable();</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line866">line 866</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line870">line 870</a>
             </span>
         </p>
     
@@ -1314,8 +1295,7 @@ Component.disable();</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>// Enable the component
-Component.enable();</code></pre>
+        <pre class="prettyprint"><code>// Enable the componentComponent.enable();</code></pre>
     
 
 
@@ -1386,7 +1366,7 @@ Component.enable();</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line849">line 849</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line853">line 853</a>
             </span>
         </p>
     
@@ -1508,7 +1488,7 @@ Component.enable();</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line893">line 893</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line897">line 897</a>
             </span>
         </p>
     
@@ -1562,8 +1542,7 @@ Component.enable();</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>// Get the status of the component
-Component.query();</code></pre>
+        <pre class="prettyprint"><code>// Get the status of the componentComponent.query();</code></pre>
     
 
 
@@ -1634,7 +1613,7 @@ Component.query();</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line843">line 843</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line847">line 847</a>
             </span>
         </p>
     
@@ -1811,7 +1790,7 @@ Component.query();</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line915">line 915</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line919">line 919</a>
             </span>
         </p>
     
@@ -1865,8 +1844,7 @@ Component.query();</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>// Send data to the component
-Component.send(applicationData);</code></pre>
+        <pre class="prettyprint"><code>// Send data to the componentComponent.send(applicationData);</code></pre>
     
 
 
@@ -1996,7 +1974,7 @@ Component.send(applicationData);</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line904">line 904</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line908">line 908</a>
             </span>
         </p>
     
@@ -2050,8 +2028,7 @@ Component.send(applicationData);</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>// Send set up data to the component
-Component.setup(applicationData);</code></pre>
+        <pre class="prettyprint"><code>// Send set up data to the componentComponent.setup(applicationData);</code></pre>
     
 
 
@@ -2066,7 +2043,7 @@ Component.setup(applicationData);</code></pre>
         
         <span class="code-name">
             
-                status<span class="signature">()</span><span class="type-signature"> &rarr; {StatusCodes}</span>
+                status<span class="signature">()</span><span class="type-signature"> &rarr; {MessageCodes}</span>
             
         </span>
     </h4>
@@ -2122,7 +2099,7 @@ Component.setup(applicationData);</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line855">line 855</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line859">line 859</a>
             </span>
         </p>
     
@@ -2159,7 +2136,7 @@ Component.setup(applicationData);</code></pre>
     <div class='column is-5 has-text-left'>
         <label>Type: </label>
         
-<code class="param-type">StatusCodes</code>
+<code class="param-type">MessageCodes</code>
 
 
     </div>

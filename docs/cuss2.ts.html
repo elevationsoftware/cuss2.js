@@ -96,7 +96,7 @@ import {BehaviorSubject, Subject} from "rxjs";
 import {Connection} from "./connection.js";
 import {StateChange} from "./models/stateChange.js";
 import {ComponentInterrogation} from "./componentInterrogation.js";
-import { ApplicationStateCodes } from '@elevated-libs/cuss2-typescript-models';
+import { ApplicationActivationExecutionModeEnum, ApplicationStateCodes } from '@elevated-libs/cuss2-typescript-models';
 import {
 	Announcement,
 	BarcodeReader,
@@ -130,7 +130,7 @@ import {
 
 export { ApplicationStateCodes, DataRecordList };
 
-const ExecutionModeEnum = ApplicationActivation.ExecutionModeEnum
+const ExecutionModeEnum = ApplicationActivationExecutionModeEnum
 
 const {
 	isAnnouncement,
@@ -259,16 +259,17 @@ export class Cuss2 {
 	/**
 	 * @memberof Cuss2
 	 * @method connect - Connect to the cuss platform.
-	 * @param {string} url  - The url of the CUSS 2 platform
+	 * @param {string} wss  - The WebSocket URL for CUSS 2 platform
+	 * @param {string} oauth - The URL for the Oauth2 server
+	 * @param {string} deviceID - The GUID for the device connecting to the CUSS 2 platform
 	 * @param {string} client_id  - The client_id of the CUSS 2 platform
 	 * @param {string} client_secret  - The client_secret of the CUSS 2 platform
-	 * @param {Object} [options={}] - An object of options passed in for the connection
 	 * @returns {Promise&lt;Cuss2>} A promise that resolves to a Cuss2 object
 	 * @example
-	 * const connect = await Cuss2.connect('url', 'client_id', 'client_secret', "options");
+	 * const connect = await Cuss2.connect('url', 'oauth', '00000000-0000-0000-0000-000000000000', 'client_id', 'client_secret');
 	 *
 	 */
-	static async connect(url: string, client_id: string, client_secret: string, options: any = {}): Promise&lt;Cuss2> {
+	static async connect(wss: string, oauth: string = null, deviceID: string = '00000000-0000-0000-0000-000000000000', client_id: string, client_secret: string): Promise&lt;Cuss2> {
 		document.body.setAttribute('elevated-cuss2', '1')
 		function broadcast(detail: any) {
 			const event = new CustomEvent('send_to_cuss2_devtools', {detail});
@@ -276,7 +277,7 @@ export class Cuss2 {
 		}
 		logger.subscribe(broadcast);
 
-		const connection = await Connection.connect(url, client_id, client_secret,  options);
+		const connection = await Connection.connect(wss, client_id, client_secret, oauth, deviceID);
 		const cuss2 = new Cuss2(connection);
 
 		if (document.body.hasAttribute('cuss2-devtools')) {
@@ -335,11 +336,13 @@ export class Cuss2 {
 	boardingPassPrinter?: BoardingPassPrinter;
 	documentReader?: DocumentReader;
 	barcodeReader?: BarcodeReader;
+	illumination?: Illumination;
 	announcement?: Announcement;
 	keypad?: Keypad;
 	cardReader?: CardReader;
 	faceReader?: FaceReader;
 	scale?: Scale;
+	headset?:Headset;
 	camera?: Camera;
 	activated: Subject&lt;ApplicationActivation> = new Subject&lt;ApplicationActivation>();
 	deactivated: Subject&lt;AppState> = new Subject&lt;AppState>();
@@ -358,7 +361,11 @@ export class Cuss2 {
 
 	async _initialize(): Promise&lt;any> {
 		log("info", "Getting Environment Information");
-		await this.api.getEnvironment();
+		let level = await this.api.getEnvironment();
+		// hydrate device id if none provided
+		if (this.connection.deviceID == '00000000-0000-0000-0000-000000000000' || this.connection.deviceID == null) {
+			this.connection.deviceID = level.deviceID;
+		}
 		if (!this.state) {
 			throw new Error('Platform in abnormal state.');
 		}
@@ -415,7 +422,7 @@ export class Cuss2 {
 			if (component &amp;&amp; component.stateIsDifferent(message)) {
 				component.updateState(message);
 				this.componentStateChange.next(component);
-				if (this._online &amp;&amp; (unsolicited || meta.platformDirective === PlatformDirectives.peripheralsQuery)) {
+				if (this._online &amp;&amp; (unsolicited || meta.platformDirective === PlatformDirectives.PeripheralsQuery)) {
 					this.checkRequiredComponentsAndSyncState();
 				}
 			}
@@ -437,7 +444,7 @@ export class Cuss2 {
 		 * const environment = await cuss2.getEnvironment();
 		 */
 		getEnvironment: async (): Promise&lt;EnvironmentLevel> => {
-			const ad = Build.applicationData(PlatformDirectives.platformEnvironment)
+			const ad = Build.applicationData(PlatformDirectives.PlatformEnvironment)
 			const response = await this.connection.sendAndGetResponse(ad)
 			log('verbose', '[getEnvironment()] response', response);
 			this.environment = response.payload.environmentLevel as EnvironmentLevel;
@@ -453,7 +460,7 @@ export class Cuss2 {
 		 * const components = await cuss2.getComponents();
 		 */
 		getComponents: async (): Promise&lt;ComponentList> => {
-			const ad = Build.applicationData(PlatformDirectives.platformComponents)
+			const ad = Build.applicationData(PlatformDirectives.PlatformComponents)
 			const response = await this.connection.sendAndGetResponse(ad)
 			log('verbose', '[getComponents()] response', response);
 			const componentList = response.payload.componentList as ComponentList;
@@ -490,8 +497,8 @@ export class Cuss2 {
 				// subcomponents
 				else if (isFeeder(component))  return; // instance = new Feeder(component, this);
 				else if (isDispenser(component))  return; // instance = new Dispenser(component, this);
-				else if (isIllumination(component)) instance = new Illumination(component, this);
-				else if (isHeadset(component)) instance = new Headset(component, this);
+				else if (isIllumination(component)) instance = this.illumination = new Illumination(component, this);
+				else if (isHeadset(component)) instance = this.headset = new Headset(component, this);
 				else instance = new Component(component, this);
 
 				return components[id] = instance;
@@ -510,7 +517,7 @@ export class Cuss2 {
 		 * const status = await cuss2.getStatus(componentID);
 		 */
 		getStatus: async (componentID:number): Promise&lt;PlatformData> => {
-			const ad = Build.applicationData(PlatformDirectives.peripheralsQuery, {componentID})
+			const ad = Build.applicationData(PlatformDirectives.PeripheralsQuery, {componentID})
 			const response = await this.connection.sendAndGetResponse(ad)
 			log('verbose', '[queryDevice()] response', response);
 			return response;
@@ -527,7 +534,7 @@ export class Cuss2 {
 		 * const setup = await cuss2.send(componentID, dataExchange);
 		 */
 		send: async (componentID:number, dataObj:DataRecordList): Promise&lt;PlatformData> => {
-			const ad = Build.applicationData(PlatformDirectives.peripheralsSend, {
+			const ad = Build.applicationData(PlatformDirectives.PeripheralsSend, {
 				componentID,
 				dataObj
 			})
@@ -546,7 +553,7 @@ export class Cuss2 {
 		 */
 		setup: async (componentID:number, dataObj:DataRecordList): Promise&lt;PlatformData> => {
 			validateComponentId(componentID);
-			const ad = Build.applicationData(PlatformDirectives.peripheralsSetup, {
+			const ad = Build.applicationData(PlatformDirectives.PeripheralsSetup, {
 				componentID,
 				dataObj
 			})
@@ -564,7 +571,7 @@ export class Cuss2 {
 		 */
 		cancel: async (componentID:number): Promise&lt;PlatformData> => {
 			validateComponentId(componentID);
-			const ad = Build.applicationData(PlatformDirectives.peripheralsCancel, {componentID})
+			const ad = Build.applicationData(PlatformDirectives.PeripheralsCancel, {componentID})
 			return await this.connection.sendAndGetResponse(ad)
 		},
 
@@ -579,7 +586,7 @@ export class Cuss2 {
 		 */
 		enable: async (componentID:number): Promise&lt;PlatformData> => {
 			validateComponentId(componentID);
-			const ad = Build.applicationData(PlatformDirectives.peripheralsUserpresentEnable, {componentID})
+			const ad = Build.applicationData(PlatformDirectives.PeripheralsUserpresentEnable, {componentID})
 			return await this.connection.sendAndGetResponse(ad)
 		},
 
@@ -594,12 +601,12 @@ export class Cuss2 {
 		 */
 		disable: async (componentID:number): Promise&lt;PlatformData> => {
 			validateComponentId(componentID);
-			const ad = Build.applicationData(PlatformDirectives.peripheralsUserpresentDisable, {componentID})
+			const ad = Build.applicationData(PlatformDirectives.PeripheralsUserpresentDisable, {componentID})
 			return await this.connection.sendAndGetResponse(ad)
 		},
 		offer: async (componentID:number): Promise&lt;PlatformData> => {
 			validateComponentId(componentID);
-			const ad = Build.applicationData(PlatformDirectives.peripheralsUserpresentOffer, {componentID})
+			const ad = Build.applicationData(PlatformDirectives.PeripheralsUserpresentOffer, {componentID})
 			return await this.connection.sendAndGetResponse(ad)
 		},
 
@@ -659,11 +666,11 @@ export class Cuss2 {
 			 */
 			play: async (componentID:number, rawData:string): Promise&lt;PlatformData> => {
 				validateComponentId(componentID);
-				const dataObj = DataRecordList.constructFromObject([{
+				const dataObj = [{
 					data: rawData as any,
 					dsTypes: [ CUSSDataTypes.SSML ]
-				}])
-				const ad = Build.applicationData(PlatformDirectives.peripheralsAnnouncementPlay, {
+				}]
+				const ad = Build.applicationData(PlatformDirectives.PeripheralsAnnouncementPlay, {
 					componentID, dataObj
 				})
 				return await this.connection.sendAndGetResponse(ad)
@@ -674,7 +681,7 @@ export class Cuss2 {
 			 */
 			pause: async (componentID:number): Promise&lt;PlatformData> => {
 				validateComponentId(componentID);
-				const ad = Build.applicationData(PlatformDirectives.peripheralsAnnouncementPause, {componentID})
+				const ad = Build.applicationData(PlatformDirectives.PeripheralsAnnouncementPause, {componentID})
 				return await this.connection.sendAndGetResponse(ad)
 			},
 
@@ -683,7 +690,7 @@ export class Cuss2 {
 			 */
 			resume: async (componentID:number): Promise&lt;PlatformData> => {
 				validateComponentId(componentID);
-				const ad = Build.applicationData(PlatformDirectives.peripheralsAnnouncementResume, {componentID})
+				const ad = Build.applicationData(PlatformDirectives.PeripheralsAnnouncementResume, {componentID})
 				return await this.connection.sendAndGetResponse(ad)
 			},
 
@@ -692,7 +699,7 @@ export class Cuss2 {
 			 */
 			stop: async (componentID:number): Promise&lt;PlatformData> => {
 				validateComponentId(componentID);
-				const ad = Build.applicationData(PlatformDirectives.peripheralsAnnouncementStop, {componentID})
+				const ad = Build.applicationData(PlatformDirectives.PeripheralsAnnouncementStop, {componentID})
 				return await this.connection.sendAndGetResponse(ad)
 			}
 		}

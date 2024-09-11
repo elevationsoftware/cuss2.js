@@ -452,8 +452,7 @@
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>/// Retrieve a token from the CUSS Oauth Server using a client id and client secret
-const token = await Connection.authorize('url', 'my-client-id', 'my-client-secret');</code></pre>
+        <pre class="prettyprint"><code>/// Retrieve a token from the CUSS Oauth Server using a client id and client secretconst token = await Connection.authorize('url', 'my-client-id', 'my-client-secret');</code></pre>
     
 
 
@@ -474,7 +473,7 @@ const token = await Connection.authorize('url', 'my-client-id', 'my-client-secre
         
         <span class="code-name">
             
-                connect<span class="signature">(baseURL, client_id, client_secret, tokenURL)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="Connection.html">Connection</a>>}</span>
+                connect<span class="signature">(baseURL, client_id, client_secret, tokenURL, deviceID)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="Connection.html">Connection</a>>}</span>
             
         </span>
     </h4>
@@ -617,6 +616,31 @@ const token = await Connection.authorize('url', 'my-client-id', 'my-client-secre
 
 
         
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>deviceID</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">string</code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last">The GUID for the device connecting to the CUSS 2 platform</td>
+</tr>
+
+
+        
         </tbody>
     </table>
 </div>
@@ -660,7 +684,7 @@ const token = await Connection.authorize('url', 'my-client-id', 'my-client-secre
         <p class="tag-source">
             <a href="connection.js.html" class="button">View Source</a>
             <span>
-                <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line54">line 54</a>
+                <a href="connection.js.html">connection.js</a>, <a href="connection.js.html#line55">line 55</a>
             </span>
         </p>
     
@@ -714,8 +738,7 @@ const token = await Connection.authorize('url', 'my-client-id', 'my-client-secre
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>/// Connects to a CUSS Platform at the provided URL
-const connection = await Connection.connect('url', 'my-client-id', 'my-client-secret', 'token-url');</code></pre>
+        <pre class="prettyprint"><code>/// Connects to a CUSS Platform at the provided URLconst connection = await Connection.connect('url', 'my-client-id', 'my-client-secret', 'token-url');</code></pre>
     
 
 

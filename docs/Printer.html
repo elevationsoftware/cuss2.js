@@ -338,7 +338,7 @@
     <td class="type">
     
         
-<code class="param-type">BehaviorSubject.&lt;StatusCodes></code>
+<code class="param-type">BehaviorSubject.&lt;messageCodes></code>
 
 
     
@@ -422,26 +422,19 @@
     <h5>Examples</h5>
     
     
-        <pre class="prettyprint"><code>//feeder
-Printer.feeder // The linked feeder component</code></pre>
+        <pre class="prettyprint"><code>//feederPrinter.feeder // The linked feeder component</code></pre>
     
 
     
-        <pre class="prettyprint"><code>//dispenser
-Printer.dispenser // The linked dispenser component</code></pre>
+        <pre class="prettyprint"><code>//dispenserPrinter.dispenser // The linked dispenser component</code></pre>
     
 
     
-        <pre class="prettyprint"><code>//combinedReadyStateChanged
-Printer.combinedReadyStateChanged.subscribe(ready => {
-	console.log(ready);
-});</code></pre>
+        <pre class="prettyprint"><code>//combinedReadyStateChangedPrinter.combinedReadyStateChanged.subscribe(ready => {	console.log(ready);});</code></pre>
     
 
     
-        <pre class="prettyprint"><code>//combinedStatusChanged.subscribe(status => {
-	console.log(status);
-});</code></pre>
+        <pre class="prettyprint"><code>//combinedStatusChanged.subscribe(status => {	console.log(status);});</code></pre>
     
 
 
@@ -1095,8 +1088,7 @@ Printer.combinedReadyStateChanged.subscribe(ready => {
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>// Cancel the component
-Component.cancel();</code></pre>
+        <pre class="prettyprint"><code>// Cancel the componentComponent.cancel();</code></pre>
     
 
 
@@ -1167,7 +1159,7 @@ Component.cancel();</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line971">line 971</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line975">line 975</a>
             </span>
         </p>
     
@@ -1229,7 +1221,7 @@ Component.cancel();</code></pre>
         
         <span class="code-name">
             
-                combinedStatus<span class="signature">()</span><span class="type-signature"> &rarr; {StatusCodes}</span>
+                combinedStatus<span class="signature">()</span><span class="type-signature"> &rarr; {MessageCodes}</span>
             
         </span>
     </h4>
@@ -1285,7 +1277,7 @@ Component.cancel();</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line977">line 977</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line981">line 981</a>
             </span>
         </p>
     
@@ -1322,7 +1314,7 @@ Component.cancel();</code></pre>
     <div class='column is-5 has-text-left'>
         <label>Type: </label>
         
-<code class="param-type">StatusCodes</code>
+<code class="param-type">MessageCodes</code>
 
 
     </div>
@@ -1466,8 +1458,7 @@ Component.cancel();</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>// Disable the component
-Component.disable();</code></pre>
+        <pre class="prettyprint"><code>// Disable the componentComponent.disable();</code></pre>
     
 
 
@@ -1664,8 +1655,7 @@ Component.disable();</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>// Enable the component
-Component.enable();</code></pre>
+        <pre class="prettyprint"><code>// Enable the componentComponent.enable();</code></pre>
     
 
 
@@ -1744,7 +1734,7 @@ Component.enable();</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line1022">line 1022</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line1026">line 1026</a>
             </span>
         </p>
     
@@ -1790,8 +1780,7 @@ Component.enable();</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>//get environment data
-Printer.getEnvironmentData()</code></pre>
+        <pre class="prettyprint"><code>//get environment dataPrinter.getEnvironmentData()</code></pre>
     
 
 
@@ -1862,7 +1851,7 @@ Printer.getEnvironmentData()</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line965">line 965</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line969">line 969</a>
             </span>
         </p>
     
@@ -1980,7 +1969,7 @@ Printer.getEnvironmentData()</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line959">line 959</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line963">line 963</a>
             </span>
         </p>
     
@@ -2157,7 +2146,7 @@ Printer.getEnvironmentData()</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line1000">line 1000</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line1004">line 1004</a>
             </span>
         </p>
     
@@ -2211,8 +2200,7 @@ Printer.getEnvironmentData()</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>//print
-await Printer.printRaw('string')</code></pre>
+        <pre class="prettyprint"><code>//printawait Printer.printRaw('string')</code></pre>
     
 
 
@@ -2346,8 +2334,7 @@ await Printer.printRaw('string')</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>// Get the status of the component
-Component.query();</code></pre>
+        <pre class="prettyprint"><code>// Get the status of the componentComponent.query();</code></pre>
     
 
 
@@ -2536,8 +2523,7 @@ Component.query();</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>// Send data to the component
-Component.send(applicationData);</code></pre>
+        <pre class="prettyprint"><code>// Send data to the componentComponent.send(applicationData);</code></pre>
     
 
 
@@ -2726,8 +2712,7 @@ Component.send(applicationData);</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>// Send set up data to the component
-Component.setup(applicationData);</code></pre>
+        <pre class="prettyprint"><code>// Send set up data to the componentComponent.setup(applicationData);</code></pre>
     
 
 
@@ -2882,7 +2867,7 @@ Component.setup(applicationData);</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line989">line 989</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line993">line 993</a>
             </span>
         </p>
     
@@ -2936,8 +2921,7 @@ Component.setup(applicationData);</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>//set up and print
-await Printer.setupAndPrintRaw(['string1','string2'], 'string3')</code></pre>
+        <pre class="prettyprint"><code>//set up and printawait Printer.setupAndPrintRaw(['string1','string2'], 'string3')</code></pre>
     
 
 
@@ -3095,7 +3079,7 @@ await Printer.setupAndPrintRaw(['string1','string2'], 'string3')</code></pre>
         <p class="tag-source">
             <a href="models_component.ts.html" class="button">View Source</a>
             <span>
-                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line1012">line 1012</a>
+                <a href="models_component.ts.html">models/component.ts</a>, <a href="models_component.ts.html#line1016">line 1016</a>
             </span>
         </p>
     
@@ -3149,8 +3133,7 @@ await Printer.setupAndPrintRaw(['string1','string2'], 'string3')</code></pre>
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>//setup
-await Printer.setupRaw('string')</code></pre>
+        <pre class="prettyprint"><code>//setupawait Printer.setupRaw('string')</code></pre>
     
 
 
