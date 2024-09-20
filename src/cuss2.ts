@@ -27,6 +27,7 @@ import {
 import {
 	ApplicationActivation,
 	// ApplicationState,
+	MessageCodes,
 	CUSSDataTypes,
 	ComponentList,
 	DataRecordList,
@@ -240,6 +241,7 @@ export class Cuss2 {
 	stateChange: BehaviorSubject<StateChange> = new BehaviorSubject<StateChange>(new StateChange(AppState.STOPPED, AppState.STOPPED));
 	componentStateChange: BehaviorSubject<Component|null> = new BehaviorSubject<Component|null>(null);
 	onmessage: Subject<PlatformData> = new Subject<PlatformData>();
+	onSessionTimeout: Subject<MessageCodes> = new Subject<MessageCodes>();
 
 	bagTagPrinter?: BagTagPrinter;
 	boardingPassPrinter?: BoardingPassPrinter;
@@ -297,6 +299,10 @@ export class Cuss2 {
 		const unsolicited = !meta.platformDirective;
 
 		let currentState:any = meta.currentApplicationState.applicationStateCode;
+
+		if (meta.messageCode === MessageCodes.SESSIONTIMEOUT) {
+			this.onSessionTimeout.next(meta.messageCode);
+		}
 
 		if(!currentState) {
 			this.connection._socket?.close();
