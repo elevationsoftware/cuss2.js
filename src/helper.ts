@@ -1,3 +1,12 @@
+/*
+==============================================================================
+ Project: CUSS2.js
+ Company: VisionBox
+ License: MIT License
+ Last Updated: 2024-09-26
+==============================================================================
+*/
+
 import {Subject} from "rxjs";
 import * as uuid from "uuid";
 import {

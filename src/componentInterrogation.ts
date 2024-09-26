@@ -1,3 +1,12 @@
+/*
+==============================================================================
+ Project: CUSS2.js
+ Company: VisionBox
+ License: MIT License
+ Last Updated: 2024-09-26
+==============================================================================
+*/
+
 import { MessageCodes } from 'cuss2-typescript-models';
 import {
 	ComponentCharacteristics,
